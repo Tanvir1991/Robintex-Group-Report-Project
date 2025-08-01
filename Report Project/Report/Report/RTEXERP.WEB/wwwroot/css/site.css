@@ -1,0 +1,33 @@
+﻿
+label.required {
+    color: #FF6347 !important;
+}
+section.content-header h1{
+    font-size:14px !important;    
+}
+.navbar {
+    min-height: 0px !important;
+    margin-bottom:0px !important;
+}
+.navbar-nav > li > a {
+    padding: 5px 15px !important;
+}
+.input-group-addon {
+    padding:0px !important;
+/*}
+.label-ajt-sm {
+    color: black;
+    font-size: 14px !important;   
+    font-weight: 600 !important;    
+}*/
+/*.label-in-sm {
+    font-size: 12px;
+    padding: 0px;
+    font-weight: 600;
+    margin-top:8px;
+
+}
+
+.label-sm {
+    font-weight: 500;
+}*/

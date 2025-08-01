@@ -1,0 +1,42 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.CMBL_SampleViewModel
+@{
+    ViewData["Title"] = "Sample Receiving";
+    ViewData["pageTitle"] = "Sample Receiving Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="ReceivingReport" asp-controller="SampleReceiving" id="FrmReceivingReport" enctype="multipart/form-data" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="SampleNo" class="label-ajt-sm required"></label>
+                <select asp-for="SampleNo" asp-items="Model.SampleList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="SampleNo" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="label-ajt-sm required">&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">Print</button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</form>
+<script type="text/javascript">
+     function ShowReport(reportFormat) {
+         var SampleNo = $("#SampleNo").val();
+         window.open("/SampleReceiving/GetReceivingReport?SampleNo=" + SampleNo + "&ReportFormat=" + reportFormat,"Sample Receiving Report","status=1,toolbar=0");
+  return false;
+
+    }
+    $(function () {
+        $("#btnPdf").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+        });
+    });
+</script>

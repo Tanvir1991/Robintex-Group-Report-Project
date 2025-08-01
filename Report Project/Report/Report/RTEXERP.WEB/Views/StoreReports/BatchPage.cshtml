@@ -1,0 +1,113 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.SPModel.BatchCosting.BatchCostingMap
+
+@{
+    ViewData["Title"] = "Batch Report";
+    ViewData["pageTitle"] = "Yarn Balance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+
+        </div>
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="CompanyId" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyId" asp-items="Model.ddlCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="CurrencyRate" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="CurrencyRate" class="form-control form-control-sm" autocomplete="off" />
+                <span asp-validation-for="CurrencyRate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <input type="text" disabled asp-for="OrderID" class="form-control form-control-sm" autocomplete="off" />
+                <span asp-validation-for="OrderID" class="text-danger"></span>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $("#btnShow").click(function (e) {
+                e.preventDefault();
+
+              var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+                var CompanyId = $("#CompanyId").val();
+                 var CurrencyRate = $("#CurrencyRate").val();
+                var OrderID = $("#OrderID").val();
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+                }
+                var data = {
+                    DateFrom: DateFrom, DateTo: DateTo, CompanyId: CompanyId,CurrencyRate:CurrencyRate
+                }
+                var url = `/StoreReports/BatchReportPage?DateFrom=${DateFrom}&DateTo=${DateTo}&CompanyId=${CompanyId}&CurrencyRate=${CurrencyRate}&OrderID=${OrderID}`
+
+                window.open(url);
+
+
+            });
+        })
+
+
+
+
+
+    </script>
+
+}

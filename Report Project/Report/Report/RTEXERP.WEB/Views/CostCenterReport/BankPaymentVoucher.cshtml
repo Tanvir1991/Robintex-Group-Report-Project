@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewData["Title"] = "Create";
+    ViewData["pageTitle"] = "Cost Center Report Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section scripts{
+    <script>
+
+        function GetCostCenterByCompany(CompanyId) {
+
+            GenerateDropDown("CommonDropDown", "ddlCostCenter", { "CompanyId": CompanyId }, "ddlcost", "");
+        }
+
+        function GetCostActibity(CostCenterId) {
+
+            GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": CostCenterId }, "ddlCOAAcc", "");
+        }
+
+        function GetBankPaymentVoucher(reportFormat) {
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var ComapnyId = $("#company").val();
+            var CostCenterId = $("#ddlcost").val();
+            var ActivityId = $("#ddlCOAAcc").val();
+            var VoucherType = $("#VoucherType").val();
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            if (!ComapnyId) {
+                ComapnyId = 0;
+            }
+            if (!CostCenterId) {
+                CostCenterId = 0
+            }
+            if (!ActivityId) {
+                ActivityId = 0;
+            }
+            window.open("/CostCenterReport/GetBankPaymentVoucher?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ComapnyId=" + ComapnyId + "&CostCenterId=" + CostCenterId + "&ActivityId=" + ActivityId + "&VoucherType="+VoucherType+"&ReportFormat=" + reportFormat,"Bank Payment Voucher","status=1,toolbar=0");
+  return false;
+
+        }
+
+        function GetCompanyList() {
+            $.ajax({
+                type: "POST",
+                url: "/CommonDropDown/ddlCOACompany",
+                dataType: "json",
+                // contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $.each(data, function (i) {
+                        var optionhtml = '<option value="' +
+                            data[i].Value + '">' + data[i].Text + '</option>';
+                        $("#company").append(optionhtml);
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            GetCompanyList();
+            $("#company").change(function () {
+                debugger;
+                var CompanyId = $("#company").val();
+                if (CompanyId != "") {
+                    GetCostCenterByCompany(CompanyId);
+                } else {
+                    $("#ddlcost").html('<option value="">Please Select</option>');
+                }
+
+            });
+
+
+            $("#ddlcost").change(function () {
+                var CostCenterId = $("#ddlcost").val();
+                if (CostCenterId != "") {
+                    GetCostActibity(CostCenterId);
+                } else {
+                    $("#ddlCOAAcc").html('<option value="">Please Select</option>');
+                }
+
+            })
+
+            $("#btnPdf").click(function () {
+                GetBankPaymentVoucher("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                GetBankPaymentVoucher("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+        })
+
+
+
+
+    </script>
+
+
+
+
+}
+
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> Company </label>
+                <select class="form-control form-control-sm" required id="company" name="company"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        @*<select id="cs3" name="cs3" class="cs3 form-control input-small"> </select>*@
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm"> Cost Center </label>
+                <select class="form-control form-control-sm" id="ddlcost" name="ddlcost" asp-items="ViewBag.defaultData"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm"> Activities </label>
+                <select class="form-control form-control-sm" id="ddlCOAAcc" name="ddlCOAAcc" asp-items="ViewBag.defaultData"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm"> Voucher Type </label>
+                <select class="form-control" id="VoucherType">
+                    <option value="BPV">Bank Payment Voucher </option>
+                    <option value="Expenditure">Expenditure</option>
+
+                </select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> From :</label>
+                <input type="date" autocomplete="off" id="DateFrom" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required>
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> To :</label>
+                <input type="date" autocomplete="off" id="DateTo" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm " required>
+                
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+

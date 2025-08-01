@@ -1,0 +1,127 @@
+﻿@model RTEXERP.Contracts.BLModels.Shared.ChartOFACC.SupplierReportViewModel
+@{
+    ViewData["Title"] = "BCI Yarn Import";
+}
+
+<form id="AspNetRolesCreate" method="post">
+    @*<div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-control-sm required"> Order No </label>
+                    <select class="form-control form-control-sm" id="OrderId" name="OrderId"></select>
+
+                </div>
+            </div>
+
+        </div>*@
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> From :</label>
+                <input type="date" autocomplete="off" id="DateFrom" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required>
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> To :</label>
+                <input type="date" autocomplete="off" id="DateTo" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm " required>
+
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row" style="display:none;">
+
+        <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="SuplierId" class="label-ajt-sm required"></label>
+                    <select asp-for="SuplierId" data-placeholder="Choose a supplier..." id="SuplierId" asp-items="Model.SupplierList" multiple class="chosen-select form-control form-control-sm"></select>
+                    <span asp-validation-for="SuplierId" class="text-danger"></span>
+
+                </div>
+            </div>
+
+
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">Company Wise PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Company Wise Excel</button>
+
+                <button type="button" class="btn btn-sm btn-success" id="btnSupplierPdf">Supplier Wise PDF</button>
+                <button type="button" class="btn btn-sm btn-info" id="btnSupplierExcel">Supplier Wise Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script type="text/javascript">
+            @*function ddlTrimsList() {
+            GenerateDropDown('Business/TrimsSpecification', 'ddlTrimsList', { StyleId: @Model.StyleId }, "Trims", "");
+            $('#SupplierId').trigger('chosen:updated');
+        }*@
+
+            function ShowReport(reportFormat) {
+            var DateFrom = $("#DateFrom").val();
+                var DateTo = $("#DateTo").val();
+                SupplierId = $("#SupplierId").chosen().val()
+
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+                //+"&SupplierId="+SupplierId
+            window.open("/AOPCost/GetBCIYarnImport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ReportFormat=" + reportFormat,"AOP Cost Summary","status=1,toolbar=0");
+  return false;
+
+    }
+                function SupplierWiseShowReport(reportFormat) {
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+//+"&SupplierId="+SupplierId
+            window.open("/AOPCost/GetBCIYarnImportSupplierWise?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ReportFormat=" + reportFormat,"AOP Cost Summary","status=1,toolbar=0");
+  return false;
+
+        }
+    $(function () {
+        $("#btnPdf").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+           $("#btnSupplierPdf").click(function () {
+                SupplierWiseShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnSupplierExcel").click(function () {
+                SupplierWiseShowReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+    });
+
+
+</script>

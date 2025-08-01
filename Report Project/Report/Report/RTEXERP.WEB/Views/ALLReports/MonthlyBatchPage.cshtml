@@ -1,0 +1,98 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.SPModel.BatchCosting.BatchCostingMap
+
+@{
+    ViewData["Title"] = "Yarn Balance";
+    ViewData["pageTitle"] = "Yarn Balance";
+    Layout = "~/Views/Shared/_AnonymousReport.cshtml";
+
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="MonthID" class="label-ajt-sm required"></label>
+                <select asp-for="MonthID" asp-items="Model.DDLMonthList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="MonthID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Year" class="label-ajt-sm required"></label>
+                <select asp-for="Year" asp-items="Model.DDLYearList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CurrencyRate" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="CurrencyRate" class="form-control form-control-sm" autocomplete="off" />
+                <span asp-validation-for="CurrencyRate" class="text-danger"></span>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyId" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyId" asp-items="Model.ddlCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>
+        </div>
+        
+        <div class="col-md-1">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+
+            </div>
+        </div>
+    </div>*@
+</form>
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $("#btnShow").click(function (e) {
+                e.preventDefault();
+
+                var monthID = $("#MonthID").val();
+                var year = $("#Year").val();
+                var companyId = $("#CompanyId").val();
+                var currencyRate = $("#CurrencyRate").val();
+                let OrderID = 0;
+                var url = `/ALLReports/MonthlyBatchReportPage?MonthID=${monthID}&Year=${year}&CompanyId=${companyId}&CurrencyRate=${currencyRate}&OrderID=${OrderID}`
+
+                window.open(url);
+
+
+            });
+        })
+
+
+
+
+
+    </script>
+
+}

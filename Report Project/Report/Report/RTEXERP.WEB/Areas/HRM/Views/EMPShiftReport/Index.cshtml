@@ -1,0 +1,257 @@
+﻿
+@{
+    ViewData["Title"] = "Lunch Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .table {
+        border: 2px solid #000 !important;
+    }
+</style>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<form id="lucnchReport" method="post" asp-area="HRM" asp-controller="EMPShiftReport" asp-action="GetEmpReport">
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> EMP Code :</label>
+                <input type="text" autocomplete="off" id="empCode" class="form-control input-sm" required>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <label class="label-ajt-sm">Break Time</label>
+        </div>
+        <div class=" col-md-9">
+            <div class="input-group">
+                <label class="label-ajt-sm required col-md-2">A Shift</label>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="AShiftFrom" class="form-control form-control-sm timepicker" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="AShiftTo" class="form-control form-control-sm timepicker" required>
+                </div>
+            </div>
+        </div>
+        <div class="offset-2 col-md-9 mt-1">
+            <div class="input-group">
+                <label class="label-ajt-sm required col-md-2">B Shift</label>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="BShiftFrom" class="form-control form-control-sm timepicker" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="BShiftTo" class="form-control form-control-sm timepicker" required>
+                </div>
+            </div>
+        </div>
+        <div class="offset-2 col-md-9 mt-1">
+            <div class="input-group">
+                <label class="label-ajt-sm required col-md-2">C Shift</label>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="CShiftFrom" class="form-control form-control-sm timepicker" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" autocomplete="off" id="CShiftTo" class="form-control form-control-sm timepicker" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnShow">Show</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="printDiv('Rpt')" id="btnPrint">Print</button>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="row" style="margin-top:0px; display:block;" id="Rpt">
+
+    @*<div class="col-xs-6" style="">
+            <table class="table table-bordered">
+                <tr>
+                    <td colspan="3" class="text-center">
+                        বিরতি ‍সময়
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        ID
+                    </td>
+                    <td colspan="2">
+                        Name
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                </tr>
+                <tr>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                </tr>
+                <tr class="text-right">
+                    <td colspan="3"><img src="~/appImages/AuthoritySignature/Signature.jpg" width="300" height="40" /></td>
+
+                </tr>
+                <tr class="text-right"><td colspan="3">কর্তৃপক্ষ</td></tr>
+
+            </table>
+        </div>
+        <div class="col-xs-6">
+            <table class="table table-bordered">
+                <tr>
+                    <td colspan="3" class="text-center">
+                        বিরতি ‍সময়
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        ID
+                    </td>
+                    <td colspan="2">
+                        Name
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                </tr>
+                <tr>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                    <td>Shift A</td>
+                </tr>
+                <tr class="text-right">
+                    <td colspan="3"><img src="~/appImages/AuthoritySignature/Signature.jpg" width="300" height="40" /></td>
+
+                </tr>
+                <tr class="text-right"><td colspan="3">কর্তৃপক্ষ</td></tr>
+            </table>
+        </div>*@
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        function printDiv(divName) {
+            debugger;
+            var printContents = document.getElementById(divName).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.title = " ";
+            document.body.innerHTML = printContents;
+
+            window.print();
+            location.reload();
+            //document.body.innerHTML = originalContents;
+        }
+        $(function () {
+
+            $('.timepicker').timepicker({
+                timeFormat: 'HH:mm',
+                interval: 30,
+                minTime: '1',
+                maxTime: '23:59pm',
+                defaultTime: '9',
+                startTime: '6:00',
+                dynamic: true,
+                dropdown: true,
+                scrollbar: true
+            });
+
+            $("#btnShow").click(function () {
+                var EmpCodeList = $("#empCode").val();
+
+                var _ShiftAFrom = $("#AShiftFrom").val();
+                var _ShiftATo = $("#AShiftTo").val();
+
+                var _ShiftBFrom = $("#BShiftFrom").val();
+                var _ShiftBTo = $("#BShiftTo").val();
+
+                var _ShiftCFrom = $("#CShiftFrom").val();
+                var _ShiftCTo = $("#CShiftTo").val();
+
+                var ShiftA = _ShiftAFrom + " : " + _ShiftATo;
+                var ShiftB = _ShiftBFrom + " : " + _ShiftBTo;
+                var ShiftC = _ShiftCFrom + " : " + _ShiftCTo;
+
+                //string EmpCodeList, string ShiftA, string ShiftB, string ShiftC
+                //var form = document.getElementById("lucnchReport");
+                //form.EmpCodeList.val = EmpCodeList;
+                //form.ShiftA.val = ShiftA;
+                //form.ShiftB.val = ShiftB;
+                //form.ShiftC.val = ShiftC;
+
+                //  window.open(url);
+                var data = {
+                    EmpCodeList: EmpCodeList,
+                    ShiftA: ShiftA,
+                    ShiftB: ShiftB,
+                    ShiftC: ShiftC
+                }
+
+                $("#lucnchReport").ajaxSubmit({
+                    url: '/HRM/EMPShiftReport/GetEmpReport',
+                    type: 'post',
+                    data: data,
+                    success: function (data) {
+                        var empList = data.EmpList;
+                        var returnData = "";
+                        $.each(empList, function (i, v) {
+                            returnData += `
+                                        <div class="col-xs-6" style="font-size:12px;">
+                                                <table class="table table-bordered" >
+                                                    <tr>
+                                                        <td colspan="3" class="text-center">
+                                                            বিরতি ‍সময়
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                        আইডি ন: ${v.EMPCodeBangla}
+                                                        </td>
+                                                        <td colspan="2">
+                                                            নাম: ${v.EmpBname}
+                                                        </td>
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td>এ শিফট</td>
+                                                        <td>বি শিফট</td>
+                                                        <td>সি শিফট</td>
+                                                    </tr>
+                                                    <tr style="font-size:11px;">
+                                                        <td>${data.AShift}</td>
+                                                       <td>${data.BShift}</td>
+                                                         <td>${data.CShift}</td>
+                                                    </tr>
+                 <tr class="text-right">
+                            <td colspan="3" class"imageTD"><img class="imgArea" src="/appImages/AuthoritySignature/Signature.jpg" width="120" height="32" border="0" /></td>
+                        </tr>
+                        <tr class="text-right"><td colspan="3">কর্তৃপক্ষ</td></tr>
+
+                                                </table>
+
+                                        </div>`;
+                        })
+                        $("#Rpt").html(returnData);
+                    }
+                });
+            });
+
+
+
+        });
+    </script>
+}

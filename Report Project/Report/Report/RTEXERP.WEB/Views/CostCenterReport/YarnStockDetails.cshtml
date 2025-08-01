@@ -1,0 +1,77 @@
+﻿ @using RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel;
+@model RTEXERP.Contracts.Common.RResult<YarnStockDetailsSPModel>
+@{
+    ViewData["Title"] = "Yarn Stock Details";
+    ViewData["pageTitle"] = "Yarn Stock Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 1;
+    bool hasData = Model.modelObjectList != null ? true : false;
+    decimal RunningSum = 0;
+}
+  
+ 
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive" id="yarn-stock-onDate">
+           @if (hasData == true)
+           {
+            <table class="table table-sm table-bordered table-striped" style="font-size:11px;">
+                <thead>
+                    <tr>
+                        <th>SL</th>
+                        <th>Lot No</th>
+                        <th>Composition</th>
+                        <th>Count</th>
+                        <th>Supplier</th>
+                        <th>Received <br /> Date</th>
+                        <th>Received <br /> Quantity</th>
+                        <th>Issued <br /> Date</th>
+                        <th>Issued <br /> Quantity</th>
+                        <th>Running <br/> Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var group in Model.modelObjectList.GroupBy(b=>new {b.LotNo,b.SupplierName}))
+                    {
+                        RunningSum = 0;
+                    <tr style="font-size:13px;font-weight:bold;background:#d4d258">
+                        <th colspan="2">@group.Key.LotNo</th>
+                        <th colspan="5">@group.Key.SupplierName</th>
+                        <th colspan="3">@String.Format("{0:n}",group.Sum(b=>b.ReceivedQuantityRET+b.IssuedQuantityRET))</th>
+                    </tr>
+                    @foreach (var d in group)
+                    {
+                        RunningSum += d.ReceivedQuantityRET + d.IssuedQuantityRET;
+                    <tr>
+
+
+                        <td>@i</td>
+                        <td>@d.LotNo</td>
+                        <td>@d.YarnComposition</td>
+                        <td>@d.YarnCount</td>
+                        <td>@d.SupplierName</td>
+                        <td>@d.ReceivedDateST</td>
+                        <td>@d.ReceivedQuantity</td>
+                        <td>@d.IssueDateST</td>
+                        <td>@d.IssueQuantity</td>
+                        <td style="background:#f1c977">@String.Format("{0:n}",RunningSum)</td>
+                    </tr>
+                            i = i + 1;
+                        }
+                    }
+                    </tbody>
+                </table>
+           }
+           else
+           {
+               <h5>No Data found or Found problem</h5>
+           }
+        </div>
+    </div>
+</div>
+
+
+
+
+

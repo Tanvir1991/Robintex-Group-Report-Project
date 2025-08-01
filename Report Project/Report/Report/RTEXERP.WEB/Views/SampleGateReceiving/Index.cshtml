@@ -1,0 +1,211 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.CMBL_SampleGateReceivingViewModel
+@{
+    ViewData["Title"] = "Sample Gate Receiving";
+    ViewData["pageTitle"] = "Sample Gate Receiving";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="Index" asp-controller="SampleGateReceiving" id="FrmSampleGateReceivingIndex" enctype="multipart/form-data" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="hidden" asp-for="SupplierID" />
+            <input type="hidden" asp-for="CompanyID" />
+            <input type="hidden" asp-for="SampleID" />
+            <div class="form-group">
+                <label asp-for="SampleNo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="SampleNo" class="form-control form-control-sm" onkeypress="return checkNumeric(event);" placeholder='Sample No ...' />
+                <span asp-validation-for="SampleNo" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="SampleCreationDate" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="SampleCreationDate" class="form-control form-control-sm" readonly />
+                <span asp-validation-for="SampleCreationDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+
+                <label asp-for="SupplierName" class="label-ajt-sm required"></label>
+                <input type="Text" asp-for="SupplierName" class="form-control form-control-sm" readonly />
+                <span asp-validation-for="SupplierName" class="text-danger"></span>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DeliveryChallano" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DeliveryChallano" class="form-control form-control-sm" placeholder='Challan No ...' />
+                <span asp-validation-for="DeliveryChallano" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DeliveryPerson" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DeliveryPerson" class="form-control form-control-sm" placeholder='Delivery Person ...' />
+                <span asp-validation-for="DeliveryPerson" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="VehicleNumber" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="VehicleNumber" class="form-control form-control-sm" placeholder='Vehicle Number ...' />
+                <span asp-validation-for="VehicleNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DeliveryChallanDate" class="label-ajt-sm required"></label>
+                <input type="date" asp-for="DeliveryChallanDate" class="form-control form-control-sm" />
+                <span asp-validation-for="DeliveryChallanDate" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <table class="table table-striped" id="tblSampleReceivingItems">
+                    <thead>
+                        <tr>
+                            <th class="text-center"><input type="checkbox" class="chkAllItem" /></th>
+                            <th class="text-center">Item Name</th>
+                            <th class="text-center">Description</th>
+                            <th class="text-center">Order Quantity</th>
+                            <th class="text-center">Balance Quantity</th>
+                            <th class="text-center">Received Quantity</th>
+                            <th class="text-center">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="6" class="text-center"><button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button></th>
+
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    @*<div class="row">
+            <div class="col-md-1">
+                <div class="form-group">
+                    <label class="label-ajt-sm required">&nbsp;</label>
+                    <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+                </div>
+            </div>
+        </div>*@
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#SampleNo").blur(function () {
+            $(".chkAllItem").attr('checked', false);
+            var sampleNo = parseInt($("#SampleNo").val());
+            if (sampleNo > 0) {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/SampleGateReceiving/GetRequisitionWiseItemListForGateReceiving',
+                    data: { SampleNo: sampleNo },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        var tbody = $("#tblSampleReceivingItems tbody");
+                        tbody.text("");
+                        if (data.length > 0) {
+                            debugger;
+                            $("#SupplierID").val(data[0].SupplierID);
+                            $("#CompanyID").val(data[0].CompanyID);
+                            $("#SampleID").val(data[0].SampleID);
+                            $("#SupplierName").val(data[0].SupplierName);
+                            $("#SampleCreationDate").val(data[0].SampleCreationDate);
+                            $.each(data, function (id, option) {
+                                var isReadonly = "";
+                                var isDisabled = "";
+                                var fullReceivedMsg = "";
+                                if (option.Balance === 0) {
+                                    isDisabled = "disabled";
+                                    isReadonly = "readonly";
+                                    fullReceivedMsg = "Full Quantity Already Received";
+                                }
+
+                                tbody.append('<tr>' +
+                                    '<th class="text-center"><input type="checkbox" class="chkItem" name="chkItem" ' + isDisabled + '/></th>' +
+                                    '<td class="text-center">' + option.ItemName + '<input type="hidden" class="hdnSampleItemID" value=' + option.SampleItemID + '><input type="hidden" class="hdnItemID" value=' + option.ItemID + '></td>' +
+                                    '<td class="text-center itemQuantity"> ' + option.ItemDescription + '  </td>' +
+                                    '<td class="text-center itemQuantity">' + option.Quantity + '</td>' +
+                                    '<td class="text-center itemQuantity">' + option.Balance + '</td>' +
+                                    '<td class="text-center"><input type="text" class="form-control form-control-sm receivedQuantity" value="'+fullReceivedMsg+'" '+isReadonly+' onkeypress="return checkDecimal(event);"/></td>' +
+                                    '<td class="text-center itemQuantity">' + option.UnitDescription + '</td>' +
+                                    '</tr > ');
+                            });
+                        }
+                    },
+                    error: function (request, status, error) {
+                        var options = "";
+
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+        });
+        $(".chkAllItem").change(function () {
+            if (this.checked) {
+                $(".chkItem").attr('checked', true);
+            } else {
+                $(".chkItem").attr('checked', false);
+            }
+        });
+
+        $("#btnSave").click(function () {
+            debugger;
+            var supplierId = parseInt($("#SupplierID").val());
+            var companyId = parseInt($("#CompanyID").val());
+            var sampleId = parseInt($("#SampleID").val());
+            var deliveryChallano = $("#DeliveryChallano").val();
+            var deliveryChallanDate = $("#DeliveryChallanDate").val();
+            var deliveryPerson = $("#DeliveryPerson").val();
+            var vehicleNumber = $("#VehicleNumber").val();
+            if (supplierId > 0 && companyId > 0 && sampleId > 0 && deliveryChallano != "" && deliveryChallanDate != "") {
+                var SampleItemGateReceiving = new Array();
+                $('input[name=chkItem]:checked').each(function () {
+                    var that = $(this);
+                    var sampleItemID = parseInt(that.parent().parent().find(".hdnSampleItemID").val());
+                    var itemID=parseInt(that.parent().parent().find(".hdnItemID").val());
+                    
+                    var receivedQuantity = parseFloat(that.parent().parent().find(".receivedQuantity").val());
+                    if (isNaN(receivedQuantity)) {
+                        $.alert.open("Error", "Please provide received quantity to checked items");
+                        return false;
+                    }
+                    var item = {
+                        SampleItemID: sampleItemID,
+                        ItemID:itemID,
+                        ReceivedQuantity: receivedQuantity
+                    };
+                    SampleItemGateReceiving.push(item);
+                });
+                var sampleReceiving = {
+                    SupplierID: supplierId,
+                    CompanyID: companyId,
+                    SampleId: sampleId,
+                    DeliveryChallano: deliveryChallano,
+                    DeliveryChallanDate: deliveryChallanDate,
+                    DeliveryPerson: deliveryPerson,
+                    VehicleNumber: vehicleNumber,
+                    CMBL_SampleItemGateReceiving: SampleItemGateReceiving
+                }
+                if (sampleReceiving != null) {
+                    GenericSave("POST", "/SampleGateReceiving/SampleGateReceivingSave", { sampleReceiving: sampleReceiving }, "", "btnSave");
+                }
+            } else {
+                $.alert.open("Error", "Please provide all information");
+            }
+
+        });
+         });
+</script>

@@ -1,0 +1,489 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingInfoViewModel
+@{
+    ViewData["Title"] = "Lot wise Cutting";
+    ViewData["pageTitle"] = "Lot wise Cutting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<form method="post" enctype="multipart/form-data" asp-controller="LotWiseCutting" name="frmIndex" id="frmIndex" asp-action="Index">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="Color"></label>
+                <select class="form-control form-control-sm" required asp-for="Color" asp-items="Model.ColorList"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CuttingReportingDate" class="label-ajt-sm required"></label>
+                <input type="date" autocomplete="off" asp-for="CuttingReportingDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="LotID">Lotno</label>
+                <select class="form-control form-control-sm" required asp-for="LotID" asp-items="Model.LotList"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="LotFinishQuantity" class="label-ajt-sm">Lot Confirm Quantity</label>
+                <input type="text" autocomplete="off" asp-for="LotFinishQuantity" class="form-control form-control-sm" readonly>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="PantoneNo" class="label-ajt-sm"></label>
+                <input type="text" autocomplete="off" asp-for="PantoneNo" class="form-control form-control-sm" readonly>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="LotQuantity" class="label-ajt-sm required"></label>
+                <input type="text" autocomplete="off" asp-for="LotQuantity" class="form-control form-control-sm">
+            </div>
+        </div>
+    </div>
+    @*<div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="MCInfoID"></label>
+                    <select class="form-control form-control-sm" required asp-for="MCInfoID" asp-items="Model.MarkerList"></select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label asp-for="CuttingLengthYard" class="label-ajt-sm required"></label>
+                    <input type="text" autocomplete="off" asp-for="CuttingLengthYard" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label asp-for="CuttingLengthInch" class="label-ajt-sm required"></label>
+                    <input type="text" autocomplete="off" asp-for="CuttingLengthInch" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="CuttingLayer" class="label-ajt-sm required"></label>
+                    <input type="text" autocomplete="off" asp-for="CuttingLayer" class="form-control form-control-sm">
+                </div>
+            </div>
+        </div>*@
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped txtAlignCenter" style="font-size: 12px;" id="tblMarkerSizes">
+                    <thead></thead>
+                    <tbody></tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                Short Cutting <input type="checkbox" id="HasShortCutting" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped txtAlignCenter" style="font-size: 12px;" id="tblMarkerShortCuttingSizes">
+
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-sm btn-success" id="btnSave" value="Save" />
+            </div>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script type="text/javascript">
+        function RemoveCustomMarker() {
+            let markerType = $("#tblMarkerSizes tbody tr:last").find('.hdnMarkerType').val();
+            if (markerType == "custom") {
+                $("#tblMarkerSizes tbody tr:last").remove();
+            } else {
+                $.alert.open('warning', 'No custom marker found to delete.');
+            }
+        }
+        function CloneTr(that) {
+            let thatTr = $(that).parent().parent();
+            let cloneTr = thatTr.clone();
+            cloneTr.find('.yard').val('');
+            cloneTr.find('.inch').val('');
+            cloneTr.find('.layer').val('');
+            thatTr.after(cloneTr);
+        }
+        function AddCustomMarker() {
+            let customMarkerCount = 1;
+            debugger;
+            $("#tblMarkerSizes tbody tr").each(function (i, v) {
+                let that = $(this);
+                let markerType = that.find('.hdnMarkerType').val();
+                if (markerType =="custom") {
+                    customMarkerCount = customMarkerCount + 1;
+                } 
+            });
+            var lastRow = $("#tblMarkerSizes tbody tr:last");
+            let tdCount = lastRow.find('td').length;
+            let sizeCount = tdCount - 5;
+            let cloneTr = lastRow.clone();
+            let customMarkerValue = 1000 + customMarkerCount;
+            cloneTr.find('td:eq(0)').html('<input type="checkbox" class="chkMarker"><input type="hidden" class="hdnMarkerType" value="custom"><input type="hidden" class="hdnMarkerSerial" value=' + customMarkerValue+'>');
+            cloneTr.find('td:eq(1)').html('New Marker-' + customMarkerCount);
+            cloneTr.find('td:last').html('');
+            for (var i = 1; i <= sizeCount; i++) {
+                let sizeSerial = cloneTr.find('td:eq(' + (i + 1) + ')').find('.sizeSerial').val();
+                let size = cloneTr.find('td:eq(' + (i + 1) + ')').find('.size').val();
+
+                cloneTr.find('td:eq(' + (i + 1) + ')').html('<input type="text" style="width:50px;" class="sizeValue txtAlignCenter"><input type="hidden" value=' + sizeSerial + ' class="sizeSerial"><input type="hidden" value=' + size + ' class="size">');
+                cloneTr.find('.yard').val('');
+                cloneTr.find('.inch').val('');
+                cloneTr.find('.layer').val('');
+            }
+            lastRow.after(cloneTr);
+        }
+
+        function generateSizeTable() {
+            debugger;
+
+            let orderID = $("#OrderID").val();
+            let orderNo = $("#OrderID option:selected").text();
+            let color = $("#Color").val();
+            let MarkerCuttingPlanMaster_ExcelID = $("#Color").find(':selected').attr('data-custome1')
+            if (orderID != "" && orderNo != "" && color!="") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/LotWiseCutting/GetMarkerCuttingSizesByOrder',
+                    data: { orderNo: orderNo, color: color, MarkerCuttingPlanMaster_ExcelID: MarkerCuttingPlanMaster_ExcelID},
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        let tdHeader = '';
+                        let trBody = '';
+                        let tdInput = "";
+                        let sizeCount = 0;
+                        let currentSizeCount = 0;
+                        let totalTd = 7
+                        if (data.length > 0) {
+                            $.each(data, function (i, v) {
+                                if (i == 0) {
+                                    sizeCount = v.MarkerSizeInfo.length;
+                                    tdHeader = '<th class="txtAlignCenter">Select</th><th class="txtAlignCenter">Marker Name</th>';
+                                }
+                                tdInput = '<td><input type="checkbox" class="chkMarker"><input type="hidden" class="hdnMarkerType" value="regular"><input type="hidden" class="hdnMarkerSerial" value=' + v.MarkerSerial +'></td><td class="markerName">' + v.Marker + '</td >';
+                                currentSizeCount = v.MarkerSizeInfo.length;
+                                $.each(v.MarkerSizeInfo, function (j, u) {
+                                    if (i == 0) {
+                                        totalTd = totalTd + 1;
+                                        tdHeader = tdHeader + '<th class="txtAlignCenter" style="width:6%;">'+u.Size+'</th>';
+                                    }
+                                    tdInput = tdInput + '<td class="dataTd">' + u.SizeValue + '<input type="hidden" value=' + u.Size + ' class="size"><input type="hidden" value=' + u.SizeSerial + ' class="sizeSerial"><input type="hidden" value=' + u.SizeValue + ' class="sizeValue"></td > ';
+                                });
+                                
+                                if (sizeCount > currentSizeCount) {
+                                    debugger;
+                                    for (var i = 0; i < (sizeCount - currentSizeCount); i++) {
+                                        let sz = data[0].MarkerSizeInfo[currentSizeCount + i];
+                                        
+                                        tdInput = tdInput + '<td class="dataTd">0<input type="hidden" value=' + sz.Size + ' class="size"><input type="hidden" value=' + sz.SizeSerial + ' class="sizeSerial"><input type="hidden" value=' + 0 + ' class="sizeValue"></td>';
+                                    }
+                                }
+                                trBody = trBody + '<tr>' + tdInput + '<td><input type="text" style="width:50px;" class="yard txtAlignCenter"></td><td><input type="text" style="width:50px;" class="inch txtAlignCenter"></td>' +
+                                    '<td><input type="text" style="width:50px;" class="layer txtAlignCenter"></td><td><input type="text" style="width:50px;" class="receivedDIA txtAlignCenter" value=' + v.ReceivedDIA+'></td>' +
+                                    '<td><input type="button" class="btn btn-xs btn-danger" onclick="CloneTr(this)" value="Clone"></td></tr>';
+                            });
+
+                            let trHeader = '<tr>' + tdHeader +'<th class="txtAlignCenter">Yard</th><th class="txtAlignCenter">Inch</th><th class="txtAlignCenter">Layer</th><th class="txtAlignCenter">Received DIA</th><th class="txtAlignCenter">Action</th></tr>';
+                            let trFoot = '<tr><td colspan=' + totalTd + ' class="text-right"><input type="button" class="btn btn-sm btn-info" onclick="AddCustomMarker()" value="Add Marker"> &nbsp;<input type="button" class="btn btn-sm btn-warning" onclick="RemoveCustomMarker()" value="Remove"></td></tr>';
+                            $("#tblMarkerSizes thead").html(trHeader);
+                            $("#tblMarkerSizes tbody").html(trBody);
+                            $("#tblMarkerSizes tfoot").html(trFoot);
+                            $("#tblMarkerSizes").show();
+                        } else {
+                            $("#tblMarkerSizes thead").html('');
+                            $("#tblMarkerSizes tbody").html('');
+                            $("#tblMarkerSizes").hide();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+        }
+        function generateShortCuttingSizeTable() {
+            debugger;
+            let orderID = $("#OrderID").val();
+            let orderNo = $("#OrderID option:selected").text();
+            let pantoneNo = $("#Color").val();
+            let quantity= $("#Color").find(':selected').attr('data-custome2');
+
+            if (orderID != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/LotWiseCutting/GetMarkerShortCuttingSizesByOrder',
+                    data: { orderNo: orderNo, pantoneNo: pantoneNo, quantity: quantity },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        let tdHeader = '';
+                        let tdInput = "";
+                        if (data.length > 0) {
+                            $.each(data, function (i, v) {
+                                tdHeader = tdHeader + '<th class="txtAlignCenter">' + v.Size + '</th>';
+                                tdInput = tdInput + '<td><input type="text" class="txtSizeQty txtAlignCenter" style="width:100%;">' +
+                                    '<input type="hidden" class="hdnSize" value=' + v.Size + '>' +
+                                    '<input type="hidden" class="hdnSizeSerial" value=' + v.SizeSerial + '>' +
+                                    '</td>';
+                            });
+                            tdHeader = '<tr class="bg-info">' + tdHeader + '</tr><tr>' + tdInput + '</tr>';
+                            $("#tblMarkerShortCuttingSizes tbody").html(tdHeader);
+                            $("#tblMarkerShortCuttingSizes").show();
+                        } else {
+                            $("#tblMarkerShortCuttingSizes tbody").html('');
+                            $("#tblMarkerShortCuttingSizes").hide();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+
+        }
+        function clearForm() {
+            $("#OrderID").val('').trigger('chosen:updated');
+            
+            //$("#CuttingReportingDate").val('@DateTime.Now.ToString("dd-MMM-yyyy")');
+            $("#LotID").val('');
+            $("#PantoneNo").val('');
+           
+            $("#LotFinishQuantity").val('');
+            $("#LotQuantity").val('');
+            $("#MCInfoID").val('');
+            $("#CuttingLengthYard").val('');
+            $("#CuttingLengthInch").val('');
+            $("#CuttingLayer").val('');
+            $("#HasShortCutting").prop("checked", false);
+
+            $("#tblMarkerSizes tbody").html('');
+            $("#tblMarkerSizes").hide();
+            $("#tblMarkerShortCuttingSizes tbody").html('');
+            $("#tblMarkerShortCuttingSizes").hide();
+        }
+        $(function () {
+            $("#OrderID").chosen();
+            $("#LotID").chosen();
+            $("#HasShortCutting").change(function () {//tblMarkerSizes
+                if ($(this).is(':checked')) {
+                    generateShortCuttingSizeTable();
+                } else {
+                    $("#tblMarkerShortCuttingSizes tbody").html('');
+                    $("#tblMarkerShortCuttingSizes").hide();
+                }
+            });
+            $("#OrderID").change(function () {
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                if (orderID != "") {
+                    GenerateDropDownCustome("LotWiseCutting", "DDLOrderWiseColorCustome", { orderNo: orderNo }, "Color", "");                
+                    generateSizeTable();
+                    $("#HasShortCutting").prop("checked", false).trigger('change');
+                } else {
+                   
+                    ClearDropDown("Color", "Please Select");
+                    $("#tblMarkerSizes thead").html('');
+                    $("#tblMarkerSizes tbody").html('');
+                    $("#tblMarkerSizes").hide();
+                }
+            });
+            $("#Color").change(function () {
+                $("#HasShortCutting").prop("checked", false).trigger('change');
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                let pantone = $("#Color").val();
+                if (pantone != "") {
+                    var lotOptions = GenerateDropDownOptions("LotWiseCutting", "GetDDLOrderWiseConfirmLot", { orderID: orderID, color: pantone }, "");
+                    $("#LotID").html(lotOptions);
+                    $('#LotID').chosen("destroy").chosen();
+                    $("#LotID").trigger("chosen:updated");
+                    generateSizeTable();
+                } else {
+                    ClearDropDown("LotID", "Please Select");
+                }
+            });
+            $("#LotID").change(function () {
+                let lotID = $("#LotID").val();
+                let orderID = $("#OrderID").val();
+                if (orderID != "" && lotID != "") {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/LotWiseCutting/GetOrderWiseLotFinishQuantity',
+                        data: { orderID: orderID, lotID: lotID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data != null) {
+                                $("#PantoneNo").val(data.PantoneNo);
+                                $("#LotFinishQuantity").val(data.LotFinishQuantity);
+                            } else {
+                                $("#PantoneNo").val('');
+                                $("#LotFinishQuantity").val('');
+                                $("#LotQuantity").val('');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $("#PantoneNo").val('');
+                    $("#LotQuantity").val('');
+                }
+            });
+
+            
+            $("#btnSave").click(function () {
+                debugger;
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                let cuttingReportingDate = $("#CuttingReportingDate").val();
+                let lotID = $("#LotID").val();
+                let lotNo = $("#LotID option:selected").text();
+                let pantoneNo = $("#PantoneNo").val();
+                let lotQuantity = $("#LotQuantity").val();
+                let MarkerCuttingPlanMaster_ExcelID = $("#Color").find(':selected').attr('data-custome1')
+                
+                let hasShortCutting = $("#HasShortCutting").is(':checked');
+                let markerList = new Array();
+                $("#tblMarkerSizes tbody tr").each(function (i, v) {
+                    debugger;
+                    let that = $(this);
+                    if (that.find(".chkMarker").is(":checked"))
+                    {
+                        let sizeList = new Array();
+                        that.find('.dataTd').each(function (j, k) {
+                            let thatData = $(this);
+                            let size = thatData.find('.size').val();
+                            let sizeSerial = thatData.find('.sizeSerial').val();
+                            let quantity = thatData.find('.sizeValue').val();
+                            let sizeData = {
+                                Size: size,
+                                SizeSerial: sizeSerial,
+                                Quantity: quantity
+                            }
+                            sizeList.push(sizeData);
+                        });
+                        
+                        let markerName = that.find('.markerName').text();
+                        let hdnMarkerSerial = that.find('.hdnMarkerSerial').val();
+                        let yard = that.find('.yard').val();
+                        let inch = that.find('.inch').val();
+                        let layer = that.find('.layer').val();
+                        let receivedDIA = that.find('.receivedDIA').val();
+                        let marker = {
+                            MarkerSerial: hdnMarkerSerial,
+                            MarkerName: markerName,
+                            CuttingLengthYard: yard,
+                            CuttingLengthInch: inch,
+                            CuttingLayer: layer,
+                            ReceivedDIA: receivedDIA,
+                            LotWiseCuttingInfoMarkersSizes: sizeList
+                        }
+                        markerList.push(marker);
+                    }
+                });
+
+
+                let shortSizeList = new Array();
+                if (hasShortCutting) {
+                    $("#tblMarkerShortCuttingSizes tbody tr:last td").each(function (i, v) {
+                        let that = $(this);
+                        let quantity =that.find('.txtSizeQty').val();
+                        let size = that.find('.hdnSize').val();
+                        let sizeSerial = that.find('.hdnSizeSerial').val();
+                        if (size != "" && sizeSerial>0) {
+                            let sizeObj = {                               
+                                Size: size,
+                                SizeSerial: sizeSerial,
+                                Quantity: quantity
+                            }
+                            shortSizeList.push(sizeObj);
+                        }
+                    });
+                }
+                if (!hasShortCutting || shortSizeList.length > 0) {
+                    if (orderID != "" && cuttingReportingDate != "" && lotID != "" && pantoneNo != "" && lotQuantity != "") {
+                        debugger;
+                        let cuttingInfo = {
+                            OrderID: orderID,
+                            OrderNo: orderNo,
+                            CuttingReportingDate: cuttingReportingDate,
+                            LotID: lotID,
+                            LotNo: lotNo,
+                            MarkerCuttingPlanMaster_ExcelID: MarkerCuttingPlanMaster_ExcelID,
+                            PantoneNo: pantoneNo,
+                            LotQuantity: lotQuantity,
+                            HasShortCutting: hasShortCutting,
+                            LotWiseCuttingInfoMarkers: markerList,
+                            LotWiseShortCuttingInfo: shortSizeList
+                        }
+                        debugger;
+                        //var a = cuttingInfo;
+                        $.ajax({
+                            type: 'POST',
+                            url: '/LotWiseCutting/LotWiseCuttingInfoSave',
+                            data: { cuttingInfo: cuttingInfo },
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                if (data.result == 1) {
+                                    $.alert.open('success', data.message);
+                                    clearForm();
+                                } else {
+                                    $.alert.open('error', data.message);
+                                }
+                            },
+                            error: function (request, status, error) {
+                                alert(request.statusText + "/" + request.statusText + "/" + error);
+                            }
+                        });
+                    } else {
+                        $.alert.open('warning', 'Please provide all infornation');
+                        $("#PantoneNo").val('');
+                        $("#LotQuantity").val('');
+                    }
+                    // });
+                } else {
+                    $.alert.open('warning', 'Please provide all infornation');
+                }
+                //}
+            });
+        });
+    </script>
+
+}

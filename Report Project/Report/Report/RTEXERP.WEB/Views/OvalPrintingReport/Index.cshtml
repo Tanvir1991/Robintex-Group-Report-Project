@@ -1,0 +1,38 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.OvalPrintingReportMasterViewModel
+@{
+    ViewData["Title"] = "Excel Upload";
+    ViewData["pageTitle"] = "Oval Printing Report Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<form method="post" enctype="multipart/form-data" asp-controller="OvalPrintingReport" name="frmEOvalPrintingReport" id="frmOvalPrintingReport" asp-action="Index">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ReportDate" class="label-ajt-sm required"></label>
+                <input type="date" autocomplete="off" id="reportDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="form-group">
+                <label class="label-ajt-sm required"> Upload Excel File </label>
+                <input type="file" name="files" />
+            </div>
+        </div>
+        @*<div class="form-group">
+            <div class="col-md-6">
+                <h4 class="text-danger">Upload Excel file here :</h4>
+                <input type="file" name="files" />
+            </div>
+        </div>*@
+    </div>
+    
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="submit" class="btn btn-sm btn-success" value="Upload" />
+            </div>
+        </div>
+    </div>
+    <label class="text-danger" id="lblMessage"></label>
+</form>

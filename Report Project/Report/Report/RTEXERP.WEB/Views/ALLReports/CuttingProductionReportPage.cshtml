@@ -1,0 +1,299 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.CuttingProductionReportPageMasterViewModel
+@{
+    ViewData["Title"] = $"Cutting Production Report";
+    Layout = null;
+    int sl = 0;
+    int cuttingSum = 0;
+    int inspectionSum = 0;
+    int passSum = 0;
+    int totalCuttingSum = 0;
+    int totalInspectionSum = 0;
+    int totalPassSum = 0;
+
+    int defectSum = 0;
+    int totalDefectSum = 0;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Cutting Production Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+
+    <style>
+        table.floatThead-table {
+            border-top: none;
+            border-bottom: none;
+            background-color: #fff;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+</head>
+<body>
+    <br />
+    <div class="container-fluid printArea">
+        <div class="row">
+            <div class="col-md-5 col-lg-5 col-sm-5">
+                <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                    <thead>
+                        <tr class="table-thead" style="font-size:12px;">
+                            <th rowspan="2" style="width:50%; vertical-align:middle">Production Company</th>                            
+                            <th colspan="3" class="text-center">Garments Qty (Pcs)</th>
+                        </tr>
+                        <tr class="table-thead" style="font-size:12px;">
+                            <th class="text-center">Cutting</th>
+                            <th class="text-center">Inspection</th>
+                            <th class="text-center">Pass</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-thead">
+                            <td class="text-center">Robintex (Bangladesh) Limited</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.RBLCuttingQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.RBLInspectionQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.RBLPassQty)</td>
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">Comptex Bangladesh Limited</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CBLCuttingQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CBLInspectionQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CBLPassQty)</td>
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">Total </td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalCuttingQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalInspectionQty)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalPassQty)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4 col-lg-4 col-sm-4" style="text-align:center;">
+                @*<span class="col-md-12" style="text-align:center;font-weight:bold;">Robintex Group Bangladesh</span>
+                    <br />*@
+                <span class="col-md-12" style="text-align:center;font-weight:bold;">Cutting Production Report</span>
+                <br />
+                <span class="col-md-12" style="text-align:center;font-weight:bold;">Date Duration @Model.DateFrom To @Model.DateTo</span>
+            </div>
+            <div class="col-md-3 col-lg-3 col-sm-3">
+                <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                    <tbody>
+                        <tr class="table-thead">
+                            <td class="text-center">Cutting Salary (BDT.)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalSalary) </td>
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">Cost/Pcs (BDT.)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CostPerPiece) </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <div class="table-responsive">
+                    @{
+                        var rblProduction = Model.CuttingProductionDetail.Where(x => x.CompanyShortName == "rbl").ToList();
+                        if (rblProduction.Count > 0)
+                        {
+                            sl = 0;
+                            <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0 sticky-header rblCuttingProduction">
+                                <thead style="font-size:12px;">
+                                    <tr><th colspan="9">Robintex (Bangladesh) Limited</th></tr>
+                                    <tr class="table-thead">
+                                        <th valign="middle">SL</th>
+                                        <th valign="middle" class="th-md th-lg">Challan No</th>
+                                        <th valign="middle" class="th-md th-lg">Lot No</th>
+                                        <th class="th-md th-lg">Order No</th>
+                                        <th valign="middle" class="th-md th-lg">Cutting Qty</th>
+                                        <th valign="middle" class="th-md th-lg">Inspection Qty</th>
+                                        <th valign="middle" class="th-md th-lg">Pass Qty</th>
+                                        <th class="th-md th-lg">Defect Qty</th>
+                                        <th class="th-md th-lg">Defect %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+                                    @foreach (var item in rblProduction)
+                                    {
+                                        cuttingSum += item.CuttingQty;
+                                        inspectionSum += item.Ins_PC;
+                                        passSum += item.PassQty;
+                                        defectSum += item.DefectQty;
+                                    <tr class="text-center">
+                                        <td>@(++sl)</td>
+                                        <td class="">@item.ChallanNo</td>
+                                        <td class="">@item.LotNo</td>
+                                        <td class="">@item.OrderNo</td>
+                                        <td class="">@item.CuttingQty</td>
+                                        <td class="">@item.Ins_PC</td>
+                                        <td class="">@item.PassQty</td>
+                                        <td class="">@item.DefectQty</td>
+                                        <td class="">@item.DefectPercent</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="text-sm font-weight-bold">
+                                    <tr>
+                                        @{totalCuttingSum = cuttingSum;
+                                            totalInspectionSum = inspectionSum;
+                                            totalPassSum = passSum;
+                                            totalDefectSum = defectSum; }
+                                        <td colspan="4">Robintex (Bangladesh) Limited Total</td>
+                                        <td class="text-center">@cuttingSum</td>
+                                        <td class="text-center">@inspectionSum</td>
+                                        <td class="text-center">@passSum</td>
+                                        <td class="text-center">@defectSum</td>
+                                        <td class="text-center">@String.Format("{0:n2}", (Convert.ToDecimal(defectSum) / cuttingSum) * 100)</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        }
+                        else
+                        {
+                            <h5 class="text-danger text-center">No Cutting Data Found For Robintex (Bangladesh) Limited The Given Date @Model.DateFrom To @Model.DateTo</h5>
+                                            }
+                                            var cblProduction = Model.CuttingProductionDetail.Where(x => x.CompanyShortName == "cbl").ToList();
+                                            if (cblProduction.Count > 0)
+                                            {
+                                                sl = 0;
+                                                cuttingSum = 0;
+                                                inspectionSum = 0;
+                                                passSum = 0;
+                                                defectSum = 0;
+                            <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0 sticky-header cblCuttingProduction">
+                                <thead style="font-size:12px;">
+                                    <tr><th colspan="9">Comptex Bangladesh Limited</th></tr>
+                                    <tr class="table-thead">
+                                        <th>SL</th>
+                                        <th class="th-md th-lg">Challan No</th>
+                                        <th class="th-md th-lg">Lot No</th>
+                                        <th class="th-md th-lg">Order No</th>
+                                        <th class="th-md th-lg">Cutting Qty</th>
+                                        <th class="th-md th-lg">Inspection Qty</th>
+                                        <th valign="middle" class="th-md th-lg">Pass Qty</th>
+                                        <th class="th-md th-lg">Defect Qty</th>
+                                        <th class="th-md th-lg">Defect %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+                                    @foreach (var item in cblProduction)
+                                    {
+                                        cuttingSum += item.CuttingQty;
+                                        inspectionSum += item.Ins_PC;
+                                        passSum += item.PassQty;
+                                        defectSum += item.DefectQty;
+                                    <tr class="text-center">
+                                        <td>@(++sl)</td>
+                                        <td class="">@item.ChallanNo</td>
+                                        <td class="">@item.LotNo</td>
+                                        <td class="">@item.OrderNo</td>
+                                        <td class="">@item.CuttingQty</td>
+                                        <td class="">@item.Ins_PC</td>
+                                        <td class="">@item.PassQty</td>
+                                        <td class="">@item.DefectQty</td>
+                                        <td class="">@item.DefectPercent</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="text-sm font-weight-bold">
+                                    @{totalCuttingSum += cuttingSum;
+                                        totalInspectionSum += inspectionSum;
+                                        totalPassSum += passSum;
+                                        totalDefectSum += defectSum; }
+                                    <tr>
+                                        <td colspan="4">Comptex Bangladesh Limited</td>
+                                        <td class="text-center">@cuttingSum</td>
+                                        <td class="text-center">@inspectionSum</td>
+                                        <td class="text-center">@passSum</td>
+                                        <td class="text-center">@defectSum</td>
+                                        <td class="text-center">@String.Format("{0:n2}", (Convert.ToDecimal(defectSum) / cuttingSum) * 100)</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">Grand Total</td>
+                                        <td class="text-center">@totalCuttingSum</td>
+                                        <td class="text-center">@totalInspectionSum</td>
+                                        <td class="text-center">@totalPassSum</td>
+                                        <td class="text-center">@totalDefectSum</td>
+                                        <td class="text-center">@String.Format("{0:n2}", (Convert.ToDecimal(totalDefectSum) / totalCuttingSum) * 100)</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        }
+                        else
+                        {
+                            <h5 class="text-danger text-center">No Cutting Data Found For Comptex Bangladesh Limited The Given Date @Model.DateFrom To @Model.DateTo</h5>
+                        }
+                    }
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+        </div>
+    </div>*@
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/floatThead/floatThead.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".sticky-header").floatThead({ scrollingTop: 50 });
+
+        });
+    </script>
+</body>
+</html>

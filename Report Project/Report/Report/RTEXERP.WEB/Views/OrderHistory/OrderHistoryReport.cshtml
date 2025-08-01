@@ -1,0 +1,194 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.KnittingRequirementSheetVM
+@{
+    ViewData["Title"] = "Order History";
+    ViewData["pageTitle"] = "Order History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .select2-selection__choice {
+        background-color: #007bff !important;
+        margin-top: 3px !important;
+        font-size: 13px !important;
+    }
+
+    .select2-results__option {
+        font-size: 13px !important;
+    }
+
+    .select2-selection__rendered {
+        padding-left: 2px !important;
+    }
+
+    .select2-search__field {
+        margin-top: 2px !important;
+    }
+</style>
+
+<form method="post" id="FrmOrderHistoty">
+    <div class="row noprint no-print">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm" asp-for="BuyerID" asp-items="Model.BuyerList"></select>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control select2Filter" asp-for="OrderID" multiple="multiple" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="DateTo"></label>
+                <input type="text" class="form-control form-control-sm dateField" asp-for="DateTo" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-warning" id="btnSearch">Search</button> &nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-danger" id="btnPdf">PDF</button> &nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+
+            </div>
+        </div>
+        @*<div class="col-md-1">
+                <label>&nbsp;</label>
+                <div class="form-group">
+                    <button type="button" class="btn btn-sm btn-danger" id="btnPrint" onClick="window.print()">Print</button>
+                </div>
+            </div>*@
+    </div>
+    <div class="row KrsFabricDiv printArea">
+        <div class="col-md-12">
+            <table class="table table-sm table-bordered table-striped text-center" style="font-size: 12px;" id="tblOrderHistory">
+                <thead>
+                    <tr class="bg-dark">
+                        <td>SL</td>
+                        <td>Order No</td>
+                        <td>KRS No</td>
+                        <td>Required Fabric (Kg)</td>
+                        <td>Yarn Issued (Kg)</td>
+                        <td>Fabric Produced (Kg)</td>
+                        <td>Yarn Returned (Kg)</td>
+                        <td>Wastage (Kg)</td>
+                        <td>Wastage %</td>
+
+
+                        <td>Dyeing Qty</td>
+                        <td>Delivered Qty</td>
+                        <td>Wastage %</td>
+
+                        <td>Cutting Kg</td>
+                        <td>Cutting Qty</td>
+                        <td>Defect Pcs %</td>
+                        <td>Wastage %</td>
+
+                    </tr>
+                </thead>
+                <tbody style="font-size:11px;">
+                </tbody>
+                @*<tfoot>
+                        <tr>
+                            <td colspan="8"></td>
+                            <td colspan="2">Total Quantity :</td>
+                            <td class="TotalQuantity"></td>
+                        </tr>
+                    </tfoot>*@
+            </table>
+        </div>
+    </div>
+
+</form>
+@section scripts{
+    <script type="text/javascript">
+        function OrderHistoryReportPrint(reportFormat) {
+            debugger;
+            let orderID = $("#OrderID").val();
+            let dateTo = $("#DateTo").val();
+            if (orderID.length>0) {
+                window.open("/OrderHistory/OrderHistoryReportPrint?OrderID=" + orderID + "&UpToDate=" + dateTo+"&ReportFormat=" + reportFormat, "Order History", "status=1,toolbar=0");
+            }
+        return false;
+
+        }
+        $(function () {
+            //$("#BuyerID").chosen();
+            //$('.select').select2();
+            $("#BuyerID").change(function () {
+                var buyerID = $("#BuyerID").val();
+                var dropDownOption = GenerateDropDownOptions('CommonDropDown', 'DDLBuyerWiseOrder', { "BuyerID": buyerID, "DateFrom": '', "DateTo": '' }, "");
+                $("#OrderID").html(dropDownOption);
+                $('#OrderID').trigger("chosen:updated");
+            });
+            $("#btnSearch").click(function () {
+                debugger;
+                let orderID = $("#OrderID").val();
+                let dateTo = $("#DateTo").val();
+                if (orderID.length > 0) {
+                    debugger;
+                    showLoader();
+                    $.ajax({
+                        type: 'POST',
+                        url: '/OrderHistory/GetOrderTotalHistory',
+                        data: { OrderID: orderID, UpToDate: dateTo },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.length > 0) {
+                                let tr = ``;
+                                $.each(data, function (i, v) {
+                                    tr += `<tr data-id=${(i + 1)}><td>${i + 1}</td>
+                                            <td>${v.OrderNo}</td>
+                                            <td>${v.KRS_MID}</td>
+                                            <td>${v.KRSFabricQty}</td>
+                                            <td>${v.YarnIssuedQty}</td>
+                                            <td>${v.GreigeFabricQty}</td>
+                                            <td>${v.YarnReturnedQty}</td>
+                                            <td>${v.KnittingWastageQty}</td>
+                                            <td>${v.KnittingWastagePercent}</td>
+
+                                            <td>${v.DyeingRcvQty}</td>
+                                            <td>${v.DyeingDeliveryQty}</td>
+                                            <td>${v.DyeingWastagPercent}</td>
+
+                                            <td>${v.CuttingQty}</td>
+                                            <td>${v.CuttingPCS}</td>
+                                            <td>${v.CuttingDefectPC}</td>
+                                            <td>${v.CuttingDefectPercent.toFixed(2)}</td>
+                                        </tr>`;
+
+                                });
+                                $("#tblOrderHistory tbody").html(tr);
+                                hideLoader();
+                            }
+                            else {
+                                hideLoader();
+                                $.alert.open('info', 'No Data Found');
+                                $("#tblOrderHistory tbody").html('');
+
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+
+                    $.alert.open('error', 'Error');
+                }
+            });
+            $("#btnPdf").click(function () {
+                OrderHistoryReportPrint("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+               $("#btnExcel").click(function () {
+                OrderHistoryReportPrint("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+        });
+
+    </script>
+}

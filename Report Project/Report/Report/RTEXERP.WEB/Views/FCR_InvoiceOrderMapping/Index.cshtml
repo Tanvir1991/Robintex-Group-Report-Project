@@ -1,0 +1,398 @@
+﻿@model RTEXERP.Contracts.BLModels.EMS.FCR_InvoiceOrderMappingViewModel;
+@{
+    ViewData["Title"] = "FCR Invoice Order Mapping";
+    ViewData["pageTitle"] = "FCR Invoice Order Mapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+
+        .tableFixHead thead {
+            position: sticky;
+            top: 0;
+            background: #eee;
+        }
+
+    /* Just common table stuff. Really. */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        /*padding: 8px 16px;*/
+    }
+
+    th {
+    }
+
+    .txtAlignCenter {
+        text-align: center;
+    }
+</style>
+<form asp-action="Index" asp-controller="FCR_InvoiceOrderMapping" id="frmIndex" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="InvoiceID" class="label-ajt-sm required"></label>
+                <select asp-for="InvoiceID" asp-items="Model.InvoiceList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <input type="checkbox" class="custom-checkbox" id="isShowExcel" />
+            <label class=""> From Excel Data</label>
+        </div>
+    </div>
+
+    @*<div class="row">
+            <div class="col-md-12">
+                <div class="box-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="btnPDF">PDF</button>
+                    <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+                </div>
+            </div>
+        </div>*@
+
+    <div class="row" id="divExcelData" style="display:none">
+        <div class="col-sm-10">
+            <div class="form-group">
+                <label asp-for="ExcelData" class="label-ajt-sm required"></label>
+                <textarea asp-for="ExcelData" rows="5" class="form-control form-control-sm" style=""></textarea>
+                <span class="text-sm-center text-danger">Excel Format=> Invoice No | Order No | FCR NO | FCR Date</span>
+            </div>
+        </div>
+        <div class="col-sm-2" style="text-align:center;">
+            <div class="form-group">
+                <label class="label-ajt-sm" style="color:#fff;">&nbsp;button bellow</label>
+                <button type="button" class="btn btn-sm btn-danger" id="btnDataValidate">Validate Data</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive tableFixHead col-sm-12" id="divOrder" style="display: none; max-height: 500px;">
+            <table class="table">
+                <thead style="font-size: 12px;">
+                    <tr>
+                        <th class="txtAlignCenter"><input type="checkbox" id="chkAllOrder" /></th>
+                        <th class="txtAlignCenter">Order No</th>
+                        <th class="txtAlignCenter">FCR No</th>
+                        <th class="txtAlignCenter">FCR Date</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tBodyOrder">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-sm table-bordered" style="font-size:11px;display: none; max-height: 500px;" id="tblInvoiceOrder">
+                <thead>
+                    <tr>
+                        <th class="txtAlignCenter">SL#</th>
+                        <th class="txtAlignCenter">Invoice No</th>
+                        <th class="txtAlignCenter">Order No</th>
+                        <th class="txtAlignCenter">FCR No</th>
+                        <th class="txtAlignCenter">FCR Date</th>
+                        <th class="txtAlignCenter">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyInvoiceOrder">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSave" disabled>Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{
+    <script>
+        var isInValidExcel = 0;
+
+        function showExcelTextArea() {
+           // $("#divOrder").hide();
+            $("#tblInvoiceOrder tbody").html("");
+            
+            let isShowTextbox = false;
+            if ($('#isShowExcel').is(":checked")) {
+                isShowTextbox = true;
+            }
+            if (isShowTextbox) {                
+                $("#divExcelData").show();
+            } else {
+                $("#tblInvoiceOrder").hide();
+                $("#divExcelData").hide();
+
+            }
+            //isButtonDisiable();
+        }
+
+        function excelDataTableGenerate(excelObj) {
+            debugger;
+            var tableBody = $("#tbodyInvoiceOrder");
+            tableBody.html("");
+            let tr = "";
+            if (excelObj == null) {
+                tr = "<tr><td colspan='4'>NO data found<td></tr>";
+                return tr;
+            } else {
+                $("#btnSave").removeAttr('disabled');
+                $.each(excelObj, function (s, d) {
+                    let trColor = "success";
+                    if (d.Comment == "Invalid") {
+                        trColor = 'danger';
+                        isInValidExcel += 1;
+                      //  $("#btnSave").prop('disabled', true);
+                    } else if (d.Comment == "Saved Data") {
+                        trColor = 'warning';
+                      //  $("#btnSave").prop('disabled', true);
+                        isInValidExcel += 1;
+                    }
+                    tr += `<tr class="${trColor}">`;
+                    tr += `<td class="txtAlignCenter">${(s+1)}</td>`;
+                    tr += `<td class="txtAlignCenter"><input type="hidden" class="hdnInvoiceId" value=${d.InvoiceID}>${d.InvoiceNo}</td>`;
+                    tr += `<td class="txtAlignCenter"><input type="hidden" class="hdnOrderId" value=${d.OrderID}>${d.OrderNo}</td>`;
+                    tr += `<td class="txtAlignCenter txtFCRNo">${d.FCRNo}</td>`;
+                    tr += `<td class="txtAlignCenter txtFCRDate">${d.FCRDateMSG}</td>`;
+                    tr += `<td class="txtAlignCenter">${d.Comment}</td>`;
+                    tr += "</tr>";
+                });
+            }
+            tableBody.append(tr);
+            $("#tblInvoiceOrder").show();
+            console.log(isInValidExcel);
+        }
+       
+
+        $(document).ready(function () {   
+            //showExcelTextArea();
+            $("#InvoiceID").chosen();
+            //$('#tBodyOrder').find('.dateField').datepicker(datePickerOptions);    
+            
+            $("#InvoiceID").change(function () {
+               
+                $("#tblInvoiceOrder tbody").html("");
+                $("#tblInvoiceOrder").hide();
+                $("#divExcelData").hide();
+
+
+                $("#tBodyOrder").html('');
+                $("#divOrder").hide();
+                let invoiceId = $("#InvoiceID").val();
+                if (invoiceId != "") {
+                    $.ajax({
+                        type: 'GET',
+                        //contentType: "application/json; charset=utf-8",
+                        url: '/FCR_InvoiceOrderMapping/GetFCR_InvoiceOrderMappingDetail',
+                        data: { "InvoiceID": invoiceId },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.length > 0) {
+                                $.each(data, function (i, v) {
+                                    let isChecked = "";
+                                    if (v.ID > 0) {
+                                        isChecked = 'checked';
+                                        isDisabled = 'disabled';
+                                    } else {
+                                        isChecked = '';
+                                        isDisabled = '';
+                                    }
+                                    $("#tBodyOrder").append(
+                                        '<tr>' +
+                                        '<td class="txtAlignCenter"><input type="checkbox" class="chkOrder" ' + isChecked + ' ' + isDisabled + '/><input type="hidden" class="hdnOrderId" value="' + v.OrderID + '"/></td>' +
+                                        '<td class="txtAlignCenter">' + v.OrderNo + '</td>' +
+                                        '<td class="txtAlignCenter"><input type="text" class="txtFCRNo" ' + isDisabled + ' value=' + v.FCRNo + '></td>' +
+                                        '<td class="txtAlignCenter"><input type="text" class="txtFCRDate dateField" ' + isDisabled + ' value=' + v.FCRDateMSG + '></td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                $('#tBodyOrder').find('.dateField').datepicker();
+                                $("#divOrder").show();
+                                $("#btnSave").removeAttr('disabled');
+                            } else {
+                                $("#btnSave").attr('disabled', true);
+                                alert("No data found in given date duration");
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $("#btnSave").attr('disabled', true);
+                }
+            });
+            $("#isShowExcel").change(function () {
+                $('#InvoiceID').val("").trigger("chosen:updated");
+                $('#InvoiceID').trigger('change');
+
+                showExcelTextArea();
+            });
+            $("#CompanyID").change(function () {
+                let CompanyId = $("#CompanyID").val();
+                $('#InvoiceID').html("");
+                GenerateDropDown("CommonDropDown", "getDDLInvoiceList", { "CompanyID": CompanyId }, "InvoiceID", "");
+                $('#InvoiceID').trigger("chosen:updated");
+                $('#InvoiceID').trigger('change');
+            });
+            $("#CompanyID").trigger('change');
+            $("#chkAllOrder").change(function () {
+                if (this.checked) {
+                    $(".chkOrder:enabled").prop('checked', true);
+                } else {
+                    $(".chkOrder:enabled").prop('checked', false);
+                }
+            });
+            $("#btnSave").click(function () {
+                debugger;
+                let companyId = $("#CompanyID").val();
+                let invoiceId = $("#InvoiceID").val();
+
+                if (companyId != "") {
+                    let orderFCRList = new Array();
+                    if (invoiceId != "") {
+                        $(".chkOrder:enabled").each(function () {
+                            debugger;
+                            let that = $(this).parent().parent();
+                            let orderId = that.find(".hdnOrderId").val();
+                            let fcrNo = that.find(".txtFCRNo").val();
+                            let fcrDate = that.find(".txtFCRDate").val();
+                            if (orderId != "" && fcrNo != "" && fcrDate != "") {
+                                let order = {
+                                    InvoiceID: invoiceId,
+                                    OrderID: orderId,
+                                    FCRNo: fcrNo,
+                                    FCRDate: fcrDate
+                                };
+                                orderFCRList.push(order);
+                            }
+                        });
+                    } else {
+                        $("#tbodyInvoiceOrder tr").each(function () {
+                            let that = $(this);
+                            let invoiceId = that.find(".hdnInvoiceId").val();
+                            let orderId = that.find(".hdnOrderId").val();
+                            let fcrNo = that.find(".txtFCRNo").text();
+                            let fcrDate = that.find(".txtFCRDate").text();
+                            if (invoiceId!="" && orderId != "" && fcrNo != "" && fcrDate != "") {
+                                let order = {
+                                    InvoiceID: invoiceId,
+                                    OrderID: orderId,
+                                    FCRNo: fcrNo,
+                                    FCRDate: fcrDate,
+                                    Comment:"Excel Upload Job"
+                                };
+                                orderFCRList.push(order);
+                            }
+                        });
+                    }
+                   
+                    if (orderFCRList.length > 0) {
+                        $("#AjaxLoader").show();
+                        $.ajax({
+                            type: 'POST',
+                            //contentType: "application/json; charset=utf-8",
+                            url: '/FCR_InvoiceOrderMapping/FCR_InvoiceOrderMappingSave',
+                            data: {"entity":orderFCRList},
+                            //data: { "entity": JSON.stringify(orderFCRList) },
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                debugger;
+                                if (data.result = 1) {
+                                    $("#AjaxLoader").hide();
+                                    alert(data.message);
+                                    $("#tblInvoiceOrder tbody").html("");
+                                    $("#tblInvoiceOrder").hide();
+                                    $("#divExcelData").hide();
+                                    $("#tBodyOrder").html('');
+                                    $("#divOrder").hide();
+                                    isInValidExcel=0
+                                } else {
+                                    $("#AjaxLoader").hide();
+                                    alert("No data found in given date duration");
+                                }
+                            },
+                            error: function (request, status, error) {
+                                $("#AjaxLoader").hide();
+                                alert(request.statusText + "/" + request.statusText + "/" + error);
+                            }
+                        });
+                    }
+                } else {
+                    $("#AjaxLoader").hide();
+                }
+            });
+
+            $("#btnDataValidate").click(function () {
+                isInValidExcel = 0;
+                var CompanyID = $("#CompanyID").val();
+                let ExcelData = $("#ExcelData").val();
+                if (ExcelData.length > 0) {
+                    $("#AjaxLoader").show();
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/FCR_InvoiceOrderMapping/InvoiceOrderFCRDataValidation',
+                        data: { ExcelData: ExcelData, CompanyID: CompanyID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.result == 1) {
+                                $("#ExcelData").val("");
+                                
+                                excelDataTableGenerate(data.modelObjectList);
+                                if (isInValidExcel == 0) {
+                                    $("#btnSave").removeAttr("disabled");
+                                    console.log("remove");
+                                } else {
+                                    $("#btnSave").attr('disabled','true');
+                                    console.log("Add");
+                                }
+                            }
+                            else {
+                                $.alert.open("error", data.message);
+                            }
+                            $("#AjaxLoader").hide();
+                        },
+                        error: function (request, status, error) {
+                            $("#AjaxLoader").hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }                        
+                    });
+                } else {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", `Paste data from excel sheet.`);
+                    return false;
+                }
+
+            });
+        });
+
+    </script>
+}
+
+
+
+

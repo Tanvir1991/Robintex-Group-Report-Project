@@ -1,0 +1,86 @@
+﻿@model RTEXERP.Contracts.BLModels.Hrm.EmployeeAttendancePageViewModel
+
+@{
+    ViewData["Title"] = "Employee Attendance";
+    ViewData["pageTitle"] = "Employee Attendance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<form id="" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DepartmentID" class="label-ajt-sm required"></label>
+                <select asp-for="DepartmentID" asp-items="Model.DepartmentList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="StatusID" class="label-ajt-sm required"></label>
+                <select asp-for="StatusID" asp-items="Model.StatusList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="StatusID" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="PresentStatusID" class="label-ajt-sm required"></label>
+                <select asp-for="PresentStatusID" asp-items="Model.PresentStatusList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="PresentStatusID" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="AttendanceDate" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="AttendanceDate" value="@DateTime.Now.ToString("dd-MMM-yyyy")" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="AttendanceDate" class="text-danger"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-danger" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-success" id="btnExcel">Excel</button>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    function ShowReport(reportFormat) {
+        var DepartmentID = $("#DepartmentID").val();
+        var StatusID = $("#StatusID").val();
+        var PresentStatusID = $("#PresentStatusID").val()
+        var AttendanceDate = $("#AttendanceDate").val()
+        if (!AttendanceDate) {
+            AttendanceDate = @DateTime.Now.ToShortDateString();
+            }
+
+                //+"&SupplierId="+SupplierId
+        window.open("/HRM/EmployeeAttendance/ShowAttendanceReport?DepartmentID=" + DepartmentID + "&StatusID=" + StatusID + "&PresentStatusID=" + PresentStatusID + "&AttendanceDate=" + AttendanceDate + "&ReportFormat=" + reportFormat,"Attendance Status","status=1,toolbar=0");
+  return false;
+
+    }
+
+     $(document).ready(function () {
+         $("#btnPdf").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+
+
+        });
+</script>

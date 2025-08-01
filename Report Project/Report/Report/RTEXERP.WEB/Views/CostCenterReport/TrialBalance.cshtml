@@ -1,0 +1,181 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.TrialBalanceViewModel
+
+@{
+    ViewData["Title"] = "Yarn Balance";
+    ViewData["pageTitle"] = "Yarn Balance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="BusinessID" class="label-ajt-sm required"></label>
+                <select asp-for="BusinessID" asp-items="Model.DDLBusiness" class="form-control form-control-sm"></select>
+                <span asp-validation-for="BusinessID" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFromStr" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFromStr" class="form-control form-control-sm dateField" readonly autocomplete="off" />
+                <span asp-validation-for="DateFromStr" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateToStr" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateToStr" class="form-control form-control-sm dateField" readonly autocomplete="off" />
+                <span asp-validation-for="DateToStr" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="AccCategoryId" class="label-ajt-sm required"></label>
+                <select asp-for="AccCategoryId" asp-items="Model.DDLAccCategory" class="form-control form-control-sm"></select>
+                <span asp-validation-for="AccCategoryId" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="PostedType" class="label-ajt-sm required"></label>
+                <select asp-for="PostedType" asp-items="Model.DDLPostedType" class="form-control form-control-sm"></select>
+                <span asp-validation-for="PostedType" class="text-danger"></span>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ReportSummarizeType" class="label-ajt-sm required"></label>
+                <select asp-for="ReportSummarizeType" asp-items="Model.DDLReportSummarizeType" class="form-control form-control-sm"></select>
+                <span asp-validation-for="ReportSummarizeType" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label style="width:100%">&nbsp;</label>
+                <label><input type="checkbox" value="0" disabled>&nbsp</label>
+                <label asp-for="SelectByCostCenter" class="label-ajt-sm "></label>
+
+                <span asp-validation-for="SelectByCostCenter" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label style="width:100%">&nbsp;</label>
+                <label><input type="checkbox" value="0" id="SelectWithDetail">&nbsp</label>
+                <label asp-for="SelectWithDetail" class="label-ajt-sm "></label>
+
+                <span asp-validation-for="SelectWithDetail" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label style="width:100%">&nbsp;</label>
+                <label><input type="checkbox" value="0">&nbsp</label>
+                <label asp-for="IsExcludeZeroBalance" class="label-ajt-sm "></label>
+
+                <span asp-validation-for="IsExcludeZeroBalance" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnTrailBalance">PDF</button>
+                <button type="button" class="btn btn-sm btn-primary" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+
+@section scripts{
+    <script>
+         function GetCompanyWiseBusinessList(CompanyId) {
+
+            GenerateDropDown("CommonDropDown", "ddlBusiness", { "CompanyId": CompanyId }, "BusinessID", "");
+        }
+        function TrialBalanceActivity(reportFormat) {
+                debugger;
+                var CompanyId = $("#CompanyID").val();
+            var BusinessId = 0;
+                var DateFrom = $("#DateFromStr").val();
+                var DateTo = $("#DateToStr").val();
+                var AccCategoryId = $("#AccCategoryId").val();
+                var PostedType = $("#PostedType").val();
+                var SelectWithDetail = 0; //$("#SelectWithDetail").val();
+                var IsExcludeZeroBalance = 0;//$("#IsExcludeZeroBalance").val();
+
+            var _BusinessId = $("#BusinessID").val();
+            if (_BusinessId) {
+                BusinessId = _BusinessId;
+            }
+
+                if ($('#SelectWithDetail').is(":checked")) {
+                    SelectWithDetail = 1
+                }
+                if ($('#IsExcludeZeroBalance').is(":checked")) {
+                    IsExcludeZeroBalance = 1
+                }
+
+
+                if (!DateFrom) {
+                    DateFrom = @DateTime.Now.ToShortDateString();
+                }
+                   if (!DateTo) {
+                    DateTo = @DateTime.Now.ToShortDateString();
+                }
+                var url = `/CostCenterReport/TrialBalanceActivity?CompanyId=${CompanyId}&BusinessId=${BusinessId}&DateFrom=${DateFrom}&DateTo=${DateTo}&AccCategoryId=${AccCategoryId}&PostedType=${PostedType}&SelectWithDetail=${SelectWithDetail}&IsExcludeZeroBalance=${IsExcludeZeroBalance}&ReportFormat=${reportFormat}`;
+
+                window.open(url,"Trail Balance", "status=1,toolbar=0");
+          return false;
+
+        }
+
+        $(document).ready(function () {
+
+          $("#btnTrailBalance").click(function () {
+                TrialBalanceActivity("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                TrialBalanceActivity("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+            $("#CompanyId").change(function () {
+                var CompanyId = $("#CompanyId").val();
+                GetCompanyWiseBusinessList(CompanyId);
+            })
+
+           
+        })
+
+
+
+    </script>
+
+}

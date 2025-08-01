@@ -1,0 +1,7 @@
+﻿
+@{
+    ViewData["Title"] = "GetEmpReport";
+}
+
+<h2>GetEmpReport</h2>
+

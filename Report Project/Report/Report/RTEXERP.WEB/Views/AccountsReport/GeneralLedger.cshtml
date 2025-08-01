@@ -1,0 +1,184 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.GeneralLedgerReportViewModel
+@{
+    ViewData["Title"] = "General Ledger";
+    ViewData["pageTitle"] = "General Ledger";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form id="frmGeneralLedger" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="CompanyID"></label>
+                <select class="form-control form-control-sm" required asp-for="CompanyID" asp-items="Model.DDLCompany"></select>
+            </div>
+        </div>
+        @*<select id="cs3" name="cs3" class="cs3 form-control input-small"> </select>*@
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="CostCenterID"></label>
+                <select class="form-control form-control-sm" asp-for="CostCenterID" asp-items="Model.DDLCostCenterList"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="ActivityID"> </label>
+                <select class="form-control form-control-sm" asp-for="ActivityID" asp-items="Model.DDLActivityList"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="AccCategoryID"> </label>
+                <select class="form-control form-control-sm" asp-for="AccCategoryID" asp-items="Model.DDLCategoryList"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-group">
+                <label class="label-ajt-sm required input-group-sm" asp-for="AccID"> </label>
+
+                <select class="form-control " asp-for="AccID" asp-items="Model.DDLAccList"></select>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="DateFrom"></label>
+                <input type="text" autocomplete="off" asp-for="DateFrom" class="form-control form-control-sm dateField" readonly required>
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="DateTo"> </label>
+                <input type="text" autocomplete="off" asp-for="DateTo" class="form-control form-control-sm dateField" readonly required>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{
+    <script type="text/javascript">
+        function GetCostCenterByCompany(CompanyId) {
+            GenerateDropDown("CommonDropDown", "ddlCostCenter", { "CompanyID": CompanyId, isDefault:1 }, "CostCenterID", "");
+        }
+        function GetAccCategoryByCompany(CompanyId) {
+            GenerateDropDown("CommonDropDown", "ddlAccCategory", { "CompanyID": CompanyId }, "AccCategoryID", "");
+        }
+        function GetActivityByCostCenter(CostCenterID) {
+            GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": CostCenterID, isDefault: 1 }, "ActivityID", "");
+        }
+        function GetAccLedgerByCompany(CompanyId, CategoryID) {
+            $('#AccID').html("");
+            GenerateDropDown("CommonDropDown", "DDLCategoryChartOfAccounts", { "CompanyID": CompanyId, CategoryID: CategoryID }, "AccID", "");
+            $('#AccID').trigger("chosen:updated");
+        }
+         function GetGeneralLedger(reportFormat) {
+               
+                var CompanyId = $("#CompanyID").val();
+                var DateFrom = $("#DateFrom").val();
+                var DateTo = $("#DateTo").val();
+                var AccID = $("#AccID").val();
+             var CostCenterID = $("#CostCenterID").val();
+             let ActivityID = $("#ActivityID").val();
+              
+               if (!DateFrom) {
+                    DateFrom = @DateTime.Now.ToShortDateString();
+                }
+               if (!DateTo) {
+                    DateTo = @DateTime.Now.ToShortDateString();
+             }
+               if (!AccID) {
+                 $.alert.open("Error", "Please enter Chart Of Accounts ");
+                 return;
+             }
+             debugger;
+             let _dateFrom = DateFormat_dd_mm_yyyy(DateFrom);
+             let _dateTo = DateFormat_dd_mm_yyyy(DateTo); 
+             let markeParameter = `<Report><Account FromDate="${_dateFrom}" ToDate="${_dateTo}" AccountID="${AccID}" CompanyID="${CompanyId}">`;
+
+             if (CostCenterID) {
+                 markeParameter += `<CostCenter ID="${CostCenterID}" />`;
+             }
+             if (ActivityID) {
+                 markeParameter += `<Activity ID="${ActivityID}" />`;
+             }
+             markeParameter += "</Account></Report>";
+
+                var url = `/AccountsReport/ChartOfAccountsGeneralLedger?inputXML=${markeParameter}&ReportFormat=${reportFormat}`;
+
+                window.open(url,"Trail Balance", "status=1,toolbar=0");
+          return false;
+
+        }
+
+        $(document).ready(function () {
+
+            $("#AccID").chosen();
+            $("#CompanyID").change(function () {
+                debugger;
+                let CompanyID = $("#CompanyID").val();
+                GetCostCenterByCompany(CompanyID);
+                // for nex  function delay
+                setTimeout(function () { }, 1000);
+                GetAccCategoryByCompany(CompanyID);
+                // for nex  function delay
+                let CategoryID = $("#AccCategoryID").val();
+                if (CategoryID == "") {
+                    CategoryID = 0;
+                }
+                setTimeout(function () { }, 1000);
+                GetAccLedgerByCompany(CompanyID, CategoryID);
+            });
+            $("#CostCenterID").change(function () {
+                debugger;
+                //let CompanyID = $("#CompanyID").val();
+                let CostCenterID = $("#CostCenterID").val();
+                if (CostCenterID != "") {
+                    GetActivityByCostCenter( CostCenterID)
+                }
+                
+            });
+            $("#AccCategoryID").change(function () {
+                debugger;
+                let CompanyID = $("#CompanyID").val();
+                let CategoryID = $("#AccCategoryID").val();
+                if (CategoryID == "") {
+                    CategoryID = 0;
+                }
+                GetAccLedgerByCompany(CompanyID, CategoryID)
+            });
+
+            $("#btnPdf").click(function () {
+                GetGeneralLedger("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            
+            $("#btnExcel").click(function () {
+                GetGeneralLedger("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+
+        });
+    </script>
+
+}
+
+
+ 

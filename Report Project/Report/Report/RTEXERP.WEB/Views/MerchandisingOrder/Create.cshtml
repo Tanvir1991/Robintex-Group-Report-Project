@@ -1,0 +1,376 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.Mer_StyleMasterVM
+
+@{
+    ViewData["Title"] = "Create";
+    ViewData["pageTitle"] = "Create";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .inputText {
+        width: 50px;
+    }
+
+    .inputTextNum {
+        width: 65px;
+    }
+
+    .inputPantone {
+        width: 100px;
+    }
+</style>
+<form method="post" enctype="multipart/form-data" asp-controller="MerchandisingOrder" name="frmOrderCreate" id="frmOrderCreate" asp-action="Create">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm" required asp-for="BuyerID" asp-items="Model.BuyerList"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="ZoneID"></label>
+                <select class="form-control form-control-sm" required asp-for="ZoneID">
+                    @{
+                        foreach (var item in Model.ZoneList)
+                        {
+                            <option value="@item.Value" data-ZoneCode="@item.Custome1">@item.Text</option>
+                        }
+                    }
+
+                </select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="SeasonID"></label>
+                <select class="form-control form-control-sm" required asp-for="SeasonID">
+                    @{
+                        foreach (var item in Model.SeasonList)
+                        {
+                            <option value="@item.Value" data-SeasonCode="@item.Custome1">@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="StyleNo"></label>
+                <input type="text" autocomplete="off" asp-for="StyleNo" class="form-control form-control-sm">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="NoOfPO"></label>
+                <select class="form-control form-control-sm" required asp-for="NoOfPO" asp-items="Model.NoList"></select>
+            </div>
+        </div>
+    </div>
+
+    <div   id="divPO">
+
+    </div>
+
+    @*<div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="OrderNo"></label>
+                    <input type="text" autocomplete="off" asp-for="OrderNo" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="StyleNo"></label>
+                    <input type="text" autocomplete="off" asp-for="StyleNo" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="ExFactoryDate"></label>
+                    <input type="text" autocomplete="off" asp-for="ExFactoryDate" class="form-control form-control-sm dateField">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="NoOfColor"></label>
+                    <select class="form-control form-control-sm" required asp-for="NoOfColor" asp-items="Model.NoList"></select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required" asp-for="NoOfSize"></label>
+                    <select class="form-control form-control-sm" required asp-for="NoOfSize" asp-items="Model.NoList"></select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required"> Total Quantity</label>
+                    <input type="text" readonly id="ShowTotalQuantity" class="form-control form-control-sm">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped" id="tblColorSize">
+                    <thead class="bg-primary text-center"></thead>
+                    <tbody class="text-center"></tbody>
+                </table>
+            </div>
+
+        </div>*@
+    <div class="row pt-2">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    function GenerateColorSizeTable(that) {
+        debugger;
+        let thatElement = $(that);
+
+        let noOfColor = thatElement.closest('.divStylePODetail').find('.NoOfColor').val();
+        let noOfSize = thatElement.closest('.divStylePODetail').find('.NoOfSize').val();
+        if (noOfColor > 0 && noOfSize > 0) {
+            let th = '<tr><td>Pantone No</td><td colspan=' + noOfSize + '>Size wise quantity</td></tr>'
+            let thTr = '<tr><td class="bg-warning text-right">Size(s)</td>';
+            let tr = '';
+            for (var i = 1; i <= noOfColor; i++) {
+                tr = tr + '<tr><td class="bg-danger"><input type="text" class="clsPantoneNo inputPantone text-center"/></td>'
+                for (var j = 1; j <= noOfSize; j++) {
+                    if (i === 1) {
+                        thTr = thTr + '<td class="bg-warning"><input type="text" class="clsSizeName inputText text-center"/></td>';
+                    }
+                    tr = tr + '<td><input type="text" class="clsQuantity inputTextNum text-center"/></td>'
+                }
+                tr = tr + '</tr>'
+            }
+            thTr = thTr + '</tr>';
+
+            thatElement.closest('.divStylePODetail').find(".tblColorSize thead").html(th);
+            thatElement.closest('.divStylePODetail').find(".tblColorSize tbody").html(thTr + tr);
+        }
+    }
+
+    function GeneratePODiv() {
+        debugger;
+        let poDiv = '';
+        let options = $("#NoOfPO").html();
+        let noOfPO = $("#NoOfPO").val();
+
+        let currentPODivCount = $('.divStylePODetail').length;
+
+        if (currentPODivCount < noOfPO) {
+            for (var i = currentPODivCount; i < noOfPO; i++) {
+                poDiv = '<div class="divStylePODetail" style="border: 1px solid;padding: 10px;box-shadow: 1px 2px #888888;margin-top:10px;" >' +
+                    '<p style="padding:10px;font-weight:bold;text-decoration:underline;">PO Information ' + (i + 1) + ':</p>' +
+                    '<div class="row" style="margin:-5px;">' +
+                    '<div class="col-md-3" >' +
+                    '<div class="form-group">' +
+                    '<label class="label-ajt-sm required">PO Number</label>' +
+                    '<input type="text" autocomplete="off" class="form-control form-control-sm PONumber">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-md-3" >' +
+                    '<div class="form-group">' +
+                    '<label class="label-ajt-sm required">Order No</label>' +
+                    '<input type="text" autocomplete="off" class="form-control form-control-sm OrderNo">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                    '<div class="form-group">' +
+                    '<label class="label-ajt-sm required">Ex Factory Date</label>' +
+                    '<input type="text" autocomplete="off" class="form-control form-control-sm ExFactoryDate dateField">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-md-2">' +
+                    ' <div class="form-group">' +
+                    '<label class="label-ajt-sm required">FOB</label>' +
+                    '<input type="text" autocomplete="off" class="form-control form-control-sm FOB">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-md-1">' +
+                    ' <div class="form-group">' +
+                    '<label class="label-ajt-sm required">Quantity</label>' +
+                    '<input type="text" autocomplete="off" class="form-control form-control-sm Quantity">' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="row" style="margin:-5px;">' +
+                    '<div class="col-md-3">' +
+                    '<div class="form-group">' +
+                    '<label class="label-ajt-sm required">No Of Color(s)</label>' +
+                    '<select class="form-control form-control-sm NoOfColor" required onchange="GenerateColorSizeTable(this);">' + options + '</select>' +
+                    ' </div>' +
+                    '</div>' +
+                    ' <div class="col-md-3">' +
+                    '<div class="form-group">' +
+                    '<label class="label-ajt-sm required">No Of Size(s)</label>' +
+                    ' <select class="form-control form-control-sm NoOfSize" required onchange="GenerateColorSizeTable(this);">' + options + '</select>' +
+                    ' </div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="row" style="margin:-5px;">' +
+                    '<div class="col-md-12">' +
+                    '<table class="table table-sm table-bordered table-striped tblColorSize" >' +
+                    '<thead class="bg-primary text-center"></thead>' +
+                    '<tbody class="text-center"></tbody>' +
+                    '</table>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                $("#divPO").append(poDiv);
+                $(".divStylePODetail").last().find('.dateField').datepicker({
+                    showOtherMonths: true,
+                    selectOtherMonths: true,
+                    dateFormat: 'dd-M-yy',
+                    changeMonth: true,
+                    changeYear: true
+                });
+                GenerateColorSizeTable($(".divStylePODetail").last().find('.NoOfSize'));
+            }
+
+        } else if (currentPODivCount > noOfPO) {
+            for (var i = noOfPO; i < currentPODivCount; i++) {
+                $(".divStylePODetail").last().remove();
+            }
+        }
+    }
+
+    $(function () {
+
+        GeneratePODiv();
+        //GenerateColorSizeTable(that);
+        $("#NoOfPO").change(function () {
+            GeneratePODiv();
+        });
+
+        //$("#NoOfColor,#NoOfSize").change(function () {
+        //    GenerateColorSizeTable();
+        //});
+
+
+
+        $("#btnSave").click(function () {
+            debugger;
+            let stylePODetailList = new Array();
+
+            let hasQuantityMisMas = 0;
+            let buyerID = $("#BuyerID").val();
+            let zoneID = $("#ZoneID").val();
+            let seasonID = $("#SeasonID").val();
+
+            let styleNo = $("#StyleNo").val();
+            let zoneCode = $("#ZoneID").find(':selected').attr('data-ZoneCode')
+            let seasonCode = $("#SeasonID").find(':selected').attr('data-SeasonCode')
+            $("#Color").find(':selected').attr('data-custome1')
+            if (buyerID != "" && zoneID != "" && seasonID != "" && styleNo != "") {
+
+                $('.divStylePODetail').each(function () {
+
+                    let colorWiseSizeList = new Array();
+                    let that = $(this);
+                    let poNumber = that.find('.PONumber').val();
+                    if (poNumber) {
+                        poNumber = poNumber.trim();
+                    }
+                    let orderNo = that.find('.OrderNo').val();
+                    let exFactoryDate = that.find('.ExFactoryDate').val();
+                    let fob = that.find('.FOB').val();
+                    let givenQuantity = that.find('.Quantity').val();
+                    let assignedQuantity = 0;
+                    that.find('.clsQuantity').each(function () {
+                        assignedQuantity = assignedQuantity + parseInt($(this).val());
+                    });
+
+                    if (givenQuantity == assignedQuantity && orderNo != "" && exFactoryDate != "" && fob != "") {
+                        let sizeNameTr = that.find(".tblColorSize tbody tr:first");
+                        that.find(".tblColorSize tbody tr").each(function () {
+                            let that = $(this);
+                            let trIndex = that.index();
+                            if (trIndex > 0) {
+                                let pantoneNo = that.find('.clsPantoneNo').val();
+                                that.find('.clsQuantity').each(function () {
+                                    let thatQty = $(this);
+                                    let qty = thatQty.val();
+                                    let qtyIndex = thatQty.parent().index();
+                                    let sizeName = sizeNameTr.find('td').eq(qtyIndex).find('.clsSizeName').val();
+                                    if (pantoneNo != "" && qty > 0 && sizeName != "") {
+                                        let colorWiseSize = {
+                                            PantoneNo: pantoneNo.trim(),
+                                            SizeName: sizeName.trim(),
+                                            Quantity: qty
+                                        }
+                                        colorWiseSizeList.push(colorWiseSize);
+                                    }
+                                });
+                            }
+                        });
+
+                        if (colorWiseSizeList.length > 0) {
+                            let poDetail = {
+                                PONumber: poNumber,
+                                OrderNo: orderNo.trim(),
+                                FOB: fob,
+                                ExFactoryDate: exFactoryDate,
+                                Mer_StylePOColorSizeQuantityDetail: colorWiseSizeList
+                            }
+                            stylePODetailList.push(poDetail);
+                        }
+                    } else {
+                        hasQuantityMisMas += 1;
+                        //   $.alert.open('warning', 'Please check the quantity or PO info.');
+                        return false;
+                    }
+
+                });
+                if (hasQuantityMisMas > 0) {
+                    $.alert.open('warning', 'Please check the quantity or PO info.');
+                    return false;
+                }
+                if (stylePODetailList.length > 0) {
+
+                    let master = {
+                        BuyerID: buyerID,
+                        ZoneID: zoneID,
+                        SeasonID: seasonID,
+                        ZoneCode: zoneCode,
+                        SeasonCode: seasonCode,
+                        StyleNo: styleNo,
+                        Mer_StylePODetail: stylePODetailList
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/MerchandisingOrder/OrderSave',
+                        data: { orderMaster: master },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open('success', data.message);
+                                $("#NoOfPO").val('1').trigger('change');
+                            } else {
+                                $.alert.open('error', data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+
+            } else {
+                $.alert.open('warning', 'Please provide required data');
+            }
+        })
+    })
+</script>

@@ -1,0 +1,247 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.InterOrderFabricTransferVM
+@{
+    ViewData["Title"] = "Inter Order Fabric Transfer";
+    ViewData["pageTitle"] = "Inter Order Fabric Transfer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form method="post" id="FrmFabricTransfer">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group row">
+                <label class="col-sm-6 label-ajt-sm required" asp-for="TransferDate"></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-sm dateField" asp-for="TransferDate" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="form-group row">
+                <label class="col-sm-5 label-ajt-sm required" asp-for="TransferedFromOrderID"></label>
+                <div class="col-sm-7">
+                    <select class="form-control form-control-sm" asp-for="TransferedFromOrderID" asp-items="Model.DDLFromOrder"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group row">
+                <label class="col-sm-4 label-ajt-sm required" asp-for="TransferTypeID"></label>
+                <div class="col-sm-8">
+                    <select class="form-control form-control-sm" asp-for="TransferTypeID" asp-items="Model.DDLTransferType"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-sm table-bordered table-striped text-sm text-center">
+            <thead class="bg-dark">
+                <tr><td colspan="12">Fabric Transfer From</td></tr>
+                <tr>
+                    <td></td>
+                    <td>SL #</td>
+                    <td>Type</td>
+                    <td>Quality</td>
+                    <td>Composition</td>
+                    <td>Width</td>
+                    <td>GSM</td>
+                    <td>Pantone</td>
+                    <td>OS Qty</td>
+                    <td>Prev. Trans. Qty</td>
+                    <td>Remaining Qty</td>
+                    <td>Trans. Qty</td>
+                </tr>
+            </thead>
+            <tbody id="tbodyFabricTransferFrom">
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="form-group row">
+                <label class="col-sm-5 label-ajt-sm required" asp-for="TransferedToOrderID"></label>
+                <div class="col-sm-7">
+                    <select class="form-control form-control-sm" asp-for="TransferedToOrderID" asp-items="Model.DDLToOrder"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-sm table-bordered table-striped text-sm text-center">
+            <thead class="bg-dark">
+                <tr><td colspan="10">Fabric Transfer To</td></tr>
+                <tr>
+                    <td></td>
+                    <td>SL #</td>
+                    <td>Type</td>
+                    <td>Quality</td>
+                    <td>Composition</td>
+                    <td>Width</td>
+                    <td>GSM</td>
+                    <td>Pantone</td>
+                    <td>OS Qty</td>
+                    <td>Prev. Trans. Received Qty</td>
+                </tr>
+            </thead>
+            <tbody id="tbodyFabricTransferTo">
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{
+    <script type="text/javascript">
+        function GetFabricTransferSenderInfo() {
+            let fromOrderID = $("#TransferedFromOrderID").val();
+            if (fromOrderID != "") {
+                let data = GetData('InterOrderFabricTransfer', 'GetFabricTransferSenderInfo', { orderID: fromOrderID });
+                if (data.length > 0) {
+                    let tr = '';
+                    
+                    $.each(data, function (i, v) {
+                        let inputDisabled = "";
+                        let inputDefaultText = "";
+                        if (v.RemainingQuantity===0) {
+                            inputDisabled = 'disabled';
+                            inputDefaultText = "Done";
+                        }
+                        tr = tr +
+                            `<tr>
+                                    <td><input type="radio" name="chkTransferFrom" class='chkTransferFrom' ${inputDisabled}></td>
+                                    <td><input type='hidden' class='hdnTransferedFromOrderID' value=${v.OrderID}>
+                                        <input type='hidden' class='hdnTransferedFromOrderNo' value='${v.OrderNo}'>
+                                        <input type='hidden' class='hdnTransferedFromOrderFabricAttributeInstanceID' value='${v.AttributeInstanceID}'>
+                                        <input type='hidden' class='hdnTransferedFromVersionID' value=${v.VersionID}>
+                                        ${++i}
+                                    </td>
+                                    <td>${v.FabricType}</td>
+                                    <td>${v.FabricQuality}</td>
+                                    <td>${v.FabricComposition}</td>
+                                    <td>${v.FinishedWidth}</td>
+                                    <td>${v.GSM}</td>
+                                    <td>${v.PantoneNo}</td>
+                                    <td>${v.OSQuantity}</td>
+                                    <td><span class="badge badge-danger text-md">${v.TransferedQuantity}</span></td>
+                                    <td>${v.RemainingQuantity}</td>
+                                    <td><input class="form-control form-control-sm transferQty" onkeypress="return checkNumeric(event);" ${inputDisabled} value='${inputDefaultText}' type="text" ></td>
+                                </tr>`;
+                    });
+                    $("#tbodyFabricTransferFrom").html(tr);
+                }
+            }
+        }
+        function GetFabricTransferReceiverInfo() {
+            let toOrderID = $("#TransferedToOrderID").val();
+            if (toOrderID != "") {
+                let data = GetData('InterOrderFabricTransfer', 'GetFabricTransferReceiverInfo', { orderID: toOrderID });
+                if (data.length > 0) {
+                    let tr = '';
+                    $.each(data, function (i, v) {
+                        tr = tr +
+                            `<tr>
+                                    <td><input type="radio" name="chkTransferTo" class='chkTransferTo'></td>
+                                    <td><input type='hidden' class='hdnTransferedToOrderID' value=${v.OrderID}>
+                                        <input type='hidden' class='hdnTransferedToOrderNo' value='${v.OrderNo}'>
+                                        <input type='hidden' class='hdnTransferedToOrderFabricAttributeInstanceID' value=${v.AttributeInstanceID}>
+                                        <input type='hidden' class='hdnTransferedToVersionID' value=${v.VersionID}>
+                                        ${++i}
+                                    </td>
+                                    <td>${v.FabricType}</td>
+                                    <td>${v.FabricQuality}</td>
+                                    <td>${v.FabricComposition}</td>
+                                    <td>${v.FinishedWidth}</td>
+                                    <td>${v.GSM}</td>
+                                    <td>${v.PantoneNo}</td>
+                                    <td>${v.OSQuantity}</td>
+                                    <td class="bg-info">${v.TransferedQuantity}</td>
+
+                                </tr>`;
+                    });
+                    $("#tbodyFabricTransferTo").html(tr);
+                }
+            }
+        }
+        $(function () {
+            $("#TransferedFromOrderID").select2();
+            $("#TransferedToOrderID").select2();
+
+            $("#TransferedFromOrderID").change(function () {
+                GetFabricTransferSenderInfo();
+            });
+            $("#TransferedToOrderID").change(function () {
+                GetFabricTransferReceiverInfo();
+            });
+            $("#btnSave").click(function () {
+
+                let transferDate = $("#TransferDate").val();
+                let transferTypeID = $("#TransferTypeID").val();
+                
+                let transferedFromOrderID = '';
+                let transferedFromOrderNo = '';
+                let transferedFromOrderFabricAttributeInstanceID = 0;
+                let transferedToOrderID = '';
+                let transferedToOrderNo = '';
+                let transferedToOrderFabricAttributeInstanceID = 0;
+                let transferedQuantity = 0;
+                let transferedFromVersionID = 0;
+                let transferedToVersionID = 0;
+                $("#tbodyFabricTransferFrom tr").each(function (i, v) {
+                    let thatTr = $(this);
+                    if (thatTr.find('.chkTransferFrom').is(':checked')) {
+                        transferedFromOrderID = thatTr.find('.hdnTransferedFromOrderID').val();
+                        transferedFromOrderNo = thatTr.find('.hdnTransferedFromOrderNo').val();
+                        transferedFromOrderFabricAttributeInstanceID = thatTr.find('.hdnTransferedFromOrderFabricAttributeInstanceID').val();
+                        transferedQuantity = thatTr.find('.transferQty').val();
+                        transferedFromVersionID = thatTr.find('.hdnTransferedFromVersionID').val();
+                }
+                });
+                $("#tbodyFabricTransferTo tr").each(function (i, v) {
+                    debugger;
+                    let thatTr = $(this);
+                    if (thatTr.find('.chkTransferTo').is(':checked')) {
+                    
+                    transferedToOrderID = thatTr.find('.hdnTransferedToOrderID').val();
+                    transferedToOrderNo = thatTr.find('.hdnTransferedToOrderNo').val();
+                    transferedToOrderFabricAttributeInstanceID = thatTr.find('.hdnTransferedToOrderFabricAttributeInstanceID').val();
+                    transferedToVersionID = thatTr.find('.hdnTransferedToVersionID').val();
+                    }
+                });
+                if (transferDate != "" && transferedFromOrderID != "" && transferedQuantity != "" && transferedToOrderID != "" && transferedToVersionID != "") {
+                    let transferObject = {
+                        TransferDate: transferDate,
+                        TransferedFromOrderID: transferedFromOrderID,
+                        TransferedFromOrderNo: transferedFromOrderNo,
+                        TransferedFromOrderFabricAttributeInstanceID: transferedFromOrderFabricAttributeInstanceID,
+                        TransferedToOrderID: transferedToOrderID,
+                        TransferedToOrderNo: transferedToOrderNo,
+                        TransferedToOrderFabricAttributeInstanceID: transferedToOrderFabricAttributeInstanceID,
+                        TransferedQuantity: transferedQuantity,
+                        TransferedFromVersionID: transferedFromVersionID,
+                        TransferedToVersionID: transferedToVersionID,
+                        TransferTypeID: transferTypeID
+                    }
+                    
+                    GenericSave("POST", "/InterOrderFabricTransfer/Create", { transferObject: transferObject }, ClearForm);
+                    GetFabricTransferSenderInfo();
+                    GetFabricTransferReceiverInfo();
+                } else {
+                    $.alert.open('error', 'Please provide all required data');
+                }
+
+            });
+        });
+        function ClearForm() {
+            @*$("#tbodyFabricTransferFrom").html('');
+            $("#tbodyFabricTransferTo").html('');
+            $('#TransferDate').val('@DateTime.Now.ToString("dd-MMM-yyyy")');
+            $('#TransferedFromOrderID').val(null).trigger('change');
+            $('#TransferedToOrderID').val(null).trigger('change');*@
+            $('.transferQty').val('')
+        }
+    </script>
+}

@@ -1,0 +1,98 @@
+﻿
+@{
+    ViewData["Title"] = "Create";
+    ViewData["pageTitle"] = "Cost Center Report Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{ 
+    <script>
+
+        function GetCompanyList() {
+              $.ajax({
+                type: "POST",
+               
+                url: "/CostCenterReport/ddlCOACompany",
+                dataType: "json",
+               // contentType: "application/json; charset=utf-8",
+
+                success: function (data) {
+                //var optionhtml1 = '<option value="' +
+                // 0 + '">' + "--Select Company--" + '</option>';
+               // $("#com").append(optionhtml1);
+
+                $.each(data, function (i) {
+
+                    var optionhtml = '<option value="' +
+                data[i].Value + '">' +data[i].Text + '</option>';
+                    $("#com").append(optionhtml);
+                });
+            }
+            });
+        }
+
+        $(document).ready(function () {
+            debugger;
+            GetCompanyList();
+
+
+        })
+
+
+
+
+    </script>
+
+
+
+
+}
+
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-control-sm"> Company </label>
+                <select class="form-control form-control-sm" id="com" name="com"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        @*<select id="cs3" name="cs3" class="cs3 form-control input-small"> </select>*@
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-control-sm"> Cost Center </label>
+                <select class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-control-sm"> Activities </label>
+                <select class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSubmit">Report</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnClear">PDF</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+

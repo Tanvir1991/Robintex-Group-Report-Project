@@ -1,0 +1,208 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.CMBL_SampleViewModel
+@{
+    ViewData["Title"] = "Sample Receiving";
+    ViewData["pageTitle"] = "Sample Receiving";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="Index" asp-controller="SampleReceiving" id="FrmSampleReceivingIndex" enctype="multipart/form-data" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="RequisitionNo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="RequisitionNo" class="form-control form-control-sm" onkeypress="return checkNumeric(event);" placeholder='Requisition No ...' />
+                <span asp-validation-for="RequisitionNo" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-md-1">
+            <label class="label-ajt-sm required">&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-warning" id="btnSearch">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <table class="table table-striped" id="tblSampleItems">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Item Name</th>
+                            <th class="text-center">Requisition Quantity</th>
+                            <th class="text-center">Unit</th>
+                            <th class="text-center">Rate</th>
+                            <th class="text-center">Total Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-right">Grand Total</th>
+                            <td class="text-center"><label id="lblGrandTotal">0</label></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="SupplierID" class="label-ajt-sm required"></label>
+                <select asp-for="SupplierID" asp-items="Model.SupplierList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="SupplierID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="ApproxDeliveryDate" class="label-ajt-sm required"></label>
+                <input type="date" asp-for="ApproxDeliveryDate" class="form-control form-control-sm" value="@DateTime.Now.ToString("dd-MMM-yyyy")"/>
+                <span asp-validation-for="ApproxDeliveryDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CurrencyID" class="label-ajt-sm required"></label>
+                <select asp-for="CurrencyID" asp-items="Model.CurrencyList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CurrencyID" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1">
+            <div class="form-group">
+               
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+                
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    function CalculateTotalRate(that) {
+        
+        var rate = $(that).val();
+        var quantity = parseFloat($(that).parent().parent().find(".itemQuantity").text());
+        var calculatedRate = parseFloat(rate * quantity).toFixed(3);
+        $(that).parent().parent().find(".totalRate").text(calculatedRate);
+        var grandTotal = 0;
+        $(".totalRate").each(function () {
+           
+            var total = parseFloat($(this).text());
+            grandTotal = parseFloat(parseFloat(grandTotal) + total).toFixed(3);
+        });
+        $("#lblGrandTotal").text(grandTotal);
+    }
+    $(function () {
+        $("#CompanyID").change(function () {
+
+            var companyId = $("#CompanyID").val();
+            if (companyId != "") {
+                GenerateDropDown("SampleReceiving", "GetSupplierList", { CompanyId: companyId }, "SupplierID", "");
+            } else {
+                ClearDropDown("SupplierID", "Please Select");                
+            }
+        });
+
+        $("#btnSearch").click(function () {
+            var CompanyID = $("#CompanyID").val();
+            var RequisitionNo = $("#RequisitionNo").val();
+            if (CompanyID != "" && RequisitionNo != "") {
+
+                var unitList = GenerateDropDownOptions("SampleReceiving", "GetUnitList", { CompanyId: CompanyID }, "");
+
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/SampleReceiving/GetRequisitionWiseItemList',
+                    data: { CompanyId: CompanyID, RequisitionNo: RequisitionNo },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        var tbody = $("#tblSampleItems tbody");
+                        tbody.text("");
+                        if (data.length > 0) {
+                            $.each(data, function (id, option) {
+                                tbody.append('<tr>' +
+                                    '<td class="text-center">' + option.ItemName + '<input type="hidden" class="hdnItemID" value=' + option.ItemID + '></td>' +
+                                    '<td class="text-center itemQuantity">' + option.Quantity + '<input type="hidden" class="hdnRequisitionDetailID" value=' + option.RequisitionDetailID + '></td>' +
+                                    '<td class="text-center"><select class="form-control form-control-sm itemUnit">' + unitList + '</select></td>' +
+                                    '<td class="text-center"><input type="text" class="form-control form-control-sm itemRate" onkeypress="return checkDecimal(event);" onkeyup="CalculateTotalRate(this);"/></td>' +
+                                    '<td class="text-center"><label class="totalRate">0.000</label></td>' +
+                                    '</tr > ')
+                            });
+                        }
+                    },
+                    error: function (request, status, error) {
+                        var options = "";
+
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+
+            } else {
+                $.alert.open("error", "Please Check Company Name And Requisition No.");
+            }
+        });
+
+        $("#btnSave").click(function () {
+            debugger;
+            var comapnyId = $("#CompanyID").val();
+            var requisitionNo = $("#RequisitionNo").val();
+            var supplierId = $("#SupplierID").val();
+            var deliveryDate = $("#ApproxDeliveryDate").val();
+            var currencyID = $("#CurrencyID").val();
+            var totalValue = parseFloat( $("#lblGrandTotal").text());
+            var tr = $("#tblSampleItems tbody tr");
+            if (comapnyId!="" && requisitionNo!="" && supplierId!="" && deliveryDate!="" && currencyID!="" && tr.length>0) {
+
+                var SampleItems = new Array();
+                $("#tblSampleItems tbody tr").each(function () {
+                    var that = $(this);
+                    var itemID = that.find(".hdnItemID").val();
+                    var itemUnit = that.find(".itemUnit").val();
+                    var requisitionDetailID = that.find(".hdnRequisitionDetailID").val();
+                    var itemQuantity = parseFloat(that.find(".itemQuantity").text());
+                    var itemRate = parseFloat(that.find(".itemRate").val());
+                   
+                    var item = {
+                        ItemID: itemID,
+                        UnitID: itemUnit,
+                        RequisitionDetailID: requisitionDetailID,
+                        Quantity: itemQuantity,
+                        Balance: itemQuantity,
+                        Rate: itemRate,
+                        CurrencyID: currencyID                        
+                    };
+                    SampleItems.push(item);
+                });
+
+                //var sampleReceiving = {
+                //    SupplierID: supplierId,
+                //    CompanyID:comapnyId
+                //}
+
+                var sample = {
+                    SupplierID: supplierId,
+                    CompanyID: comapnyId,
+                    TotalValue: totalValue,
+                    ApproxDeliveryDate: deliveryDate,                  
+                    CMBL_SampleItem: SampleItems,
+                    
+                }
+                if (sample != null) {
+                    GenericSave("POST", "/SampleReceiving/SampleReceivingSave", { sample: sample }, "","btnSave");
+                }
+            }
+        });
+    });
+</script>

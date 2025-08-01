@@ -1,0 +1,128 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.YarnStockModel
+@{
+    ViewData["Title"] = "Yarn Stock";
+    ViewData["pageTitle"] = "Yarn Stock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+ 
+@section scripts{
+    <script>
+
+        function changeClear() {
+            $("#yarn-stock-onDate").html("");
+            $("#btnExcel").hide();
+        }
+
+        $(document).ready(function () {
+            $("#btnShow").click(function () {
+                var CompanyID = $("#CompanyID").val();
+                var TransactionDate = $("#TransactionDate").val();
+                if (!CompanyID) {
+                    CompanyID = 0;
+                }
+                debugger;
+                if (!TransactionDate) {
+                    TransactionDate = new Date();
+                }
+                var YarnStockModel = {
+                    CompanyID: CompanyID,
+                    TransactionDate: TransactionDate
+                };
+                $("#yarn-stock-onDate").load("/CommonDropDown/GetViewComponent", { viewName: "YarnOnDateSummary", entity: JSON.stringify(YarnStockModel) });
+            })
+            $("#CompanyID").change(function () {
+                changeClear();
+            });
+            $("#TransactionDate").change(function () {
+                changeClear();
+            })
+            //fnHtmlToExcelReport()
+            $("#btnExcel").click(function () {
+                fnHtmlToExcelReport("YarnSummaryOnDate");
+            })
+
+        })
+
+    </script>
+ 
+}
+
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        height: 100px;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+        }
+
+    /* Just common table stuff. Really. */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px 16px;
+    }
+
+    th {
+        background: #eee;
+    }
+
+    /* Borders (if you need them) */
+    .tableFixHead /*, .tableFixHead td*/ {
+        box-shadow: inset 1px -1px #000;
+    }
+
+        .tableFixHead th {
+            box-shadow: inset 1px 1px #000, 0 1px #000;
+        }
+</style>
+<iframe id="txtArea1" style="display:none"></iframe>
+<form>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="TransactionDate" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="TransactionDate" value="@Model.TransactionDateST" class="dateField form-control form-control-sm" />
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnShow">Show</button>
+                <button id="btnExcel" type="button" data-id="Yarn summary" class="btn btn-sm btn-default"   style="display:none;">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive tableFixHead" id="yarn-stock-onDate" style="height:350px;font-size:11px;">
+
+        </div>
+    </div>
+</div>
+
+
+
+
+

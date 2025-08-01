@@ -1,0 +1,525 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.KnittingNeedleConsumptionMasterViewModel
+@using RTEXERP.WEB.Helper
+
+@{
+    ViewData["Title"] = "Knitting Needle Consumption";
+    ViewData["pageTitle"] = "Knitting Needle Consumption";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["btnText"] = "Go To List";
+  
+    ViewData["btnLink"] = "/MaterialsManagement/KnittingNiddle/Index";
+    var roleId = SessionData.Session_Role_ID;
+    var isSuperAdmin = SessionData.Session_User_IsSuperAdmin;
+
+}
+
+<form id="frmKnittingNeedleConsumptionMaster" method="post">
+    <input type="hidden" asp-for="ID" />
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm" ></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="MachineNo" class="label-ajt-sm required"></label>
+                <select asp-for="MachineNo" asp-items="Model.MachineNoList" class="form-control form-control-sm select2Filter"></select>
+                <span asp-validation-for="MachineNo" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ConsumptionDate" class="label-ajt-sm required"></label>
+                <input type="text"  asp-for="CreateDateTime" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="ConsumptionDate" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ItemCategoryID" class="label-ajt-sm required"></label>
+                <select asp-for="ItemCategoryID" asp-items="Model.ItemCategoryList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="ItemCategoryID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BroadGroupOne" class="label-ajt-sm required"></label>
+                <select asp-for="BroadGroupOne" asp-items="Model.BroadGroupOneList" class="form-control form-control-sm select2Filter"></select>
+                <span asp-validation-for="BroadGroupOne" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BroadGroupTwo" class="label-ajt-sm required"></label>
+                <select asp-for="BroadGroupTwo" asp-items="Model.BroadGroupTwoList" class="form-control form-control-sm select2Filter"></select>
+                <span asp-validation-for="BroadGroupTwo" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BroadGroupThree" class="label-ajt-sm required"></label>
+                <select asp-for="BroadGroupThree" asp-items="Model.BroadGroupThreeList" class="form-control form-control-sm select2Filter"></select>
+                <span asp-validation-for="BroadGroupThree" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ItemID" class="label-ajt-sm required"></label>
+                <select asp-for="ItemID" asp-items="Model.ItemList" class="form-control form-control-sm ItemName select2Filter"></select>
+                <span asp-validation-for="ItemID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required">Rate</label>
+                <input readonly class="form-control form-control-sm UnitRate" autocomplete="off" />
+                <input type="hidden" asp-for="KnittingNeedleConsumptionDetails[0].UnitID" class="UnitID" />
+                <span asp-validation-for="KnittingNeedleConsumptionDetails[0].UnitRate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required">Quantity</label>
+                <input type="number" onkeyup="GetTotalValue(this)" class="form-control form-control-sm QuantityAmount" autocomplete="off" />
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm">Total Value</label>
+                <input readonly class="form-control form-control-sm TotalValue" autocomplete="off" />
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer" style="text-align:center">
+                <button type="button" class="btn btn-sm btn-success" id="btnAdd">Add</button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped table-sm table-bordered text-center mdReport mt-0 pt-0 text-sm">
+                <thead class="bg-dark">
+                    <tr class="table-head-fixed">
+                        <th style="width:5%">SL.</th>
+                        <th style="width:45%">Item</th>
+                        <th style="width:10%"> Category</th>
+                        <th style="width:10%">Quantity</th>
+                        <th style="width:10%">Rate</th>
+                        <th style="width:10%">Total Value</th>
+                        <th style="width:10%">Action</th>
+                    </tr>
+                </thead>
+                @if (Model.IsEdit)
+                {
+                    var sl = 0;
+                    <tbody class="knittingNeedleConsumption">
+                        @foreach (var item in Model.KnittingNeedleConsumptionDetails)
+                        {
+                            var totalValue = item.Quantity * item.UnitRate;
+                        <tr class="knittingNeedleConsumptionDetails">
+                            <td style="width:5%" class="rowSl">@(++sl)</td>
+                            <td style="width:45%">
+                                @item.ItemName
+                                <input type="hidden" class="ID" value="@item.ID" />
+                                <input type="hidden" class="ItemID" value="@item.ItemID" />
+                                <input type="hidden" class="SelectedUnitID" value="@item.UnitID" />
+                                <input type="hidden" class="KnittingNeedleConsumptionMasterID" value="@item.KnittingNeedleConsumptionMasterID" />
+                            </td>
+                            <td style=" width:10%" class="">
+                                @item.KnittingRepairItemCategoryName
+                                <input type="hidden" class="KnittingRepairItemCategoryID" value="@item.KnittingRepairItemCategoryID" />
+                            </td>
+                            @if (roleId == 1 && isSuperAdmin == true)
+                            {
+                                <td style="width:10%" class=""><input type="number" onkeyup="CalcultaSelectedTotalValue(this)" class="form-control form-control-sm quantity" value="@String.Format("{0:n2}", item.Quantity)" />    </td>
+                            }
+                            else
+                            {
+                                <td style="width:10%" class=""><input type="number" readonly class="form-control form-control-sm quantity" value="@String.Format("{0:n2}", item.Quantity)" />    </td>
+                            }
+                            <td style="width:10%" class=""><input type="number" readonly class="form-control form-control-sm rate" value="@String.Format("{0:n2}", item.UnitRate)" /> </td>
+                            <td style="width:10%" class="totalValue">@String.Format("{0:n2}", totalValue)</td>
+                            <td style="width:10%"><input type="button" onclick="RemoveTr(this)" class="btn btn-xs btn-danger" value="Remove" /></td>
+                            
+                        </tr>
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody class="knittingNeedleConsumption" id="knittingNeedleConsumption">
+                    </tbody>
+                }
+
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer" style="text-align:center">
+                @if (Model.IsEdit == true)
+                {
+                    <button type="button" class="btn btn-sm btn-success" id="btnUpdate"> Update</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+                }
+
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{
+    <script>
+        function GetTotalValue(that) {
+            var thatVal = RtnNumber($(that).val());
+            var rate = RtnFloatUpToPrecision($(".UnitRate").val(), 3);
+            var totalval = RtnFloatUpToPrecision(thatVal * rate, 3);
+            $(".TotalValue").val(totalval);
+
+        }
+
+        function CalcultaSelectedTotalValue(that) {
+            let quantity = $(that).parent().parent().find('.quantity').val();
+            let rate = $(that).parent().parent().find('.rate').val();
+            let total = RtnFloatUpToPrecision(quantity * rate, 2)
+            $(that).parent().parent().find('.totalValue').text(total);
+
+        }
+
+        $(document).ready(function () {
+
+            $("#CompanyID").change(function () {
+                var CompanyId = $("#CompanyID").val();
+              //  GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetCompanyWiseMachineNo", { "companyID": 0 }, "MachineNo", "");
+                GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetBroadGroupOne", { "companyID": CompanyId }, "BroadGroupOne", "");
+                $("#BroadGroupOne").trigger("change");
+            });
+
+
+            $("#BroadGroupOne").change(function () {
+                var BroadGroupOne = $("#BroadGroupOne").val();
+                GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetBroadGroupTwoList", { "parentAttributeId": BroadGroupOne }, "BroadGroupTwo", "");
+                $("#BroadGroupTwo").trigger('change');
+            })
+
+
+            $("#BroadGroupTwo").change(function () {
+                var BroadGroupTwo = $("#BroadGroupTwo").val();
+                GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetBroadGroupThreeList", { "parentAttributeId": BroadGroupTwo }, "BroadGroupThree", "");
+                $("#BroadGroupThree").trigger('change');
+            })
+
+
+            $("#BroadGroupThree").change(function () {
+                var BroadGroupThree = $("#BroadGroupThree").val();
+                GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetBroadGroupItemList", { "parentAttributeId": BroadGroupThree }, "ItemID", "");
+                $("#ItemID").trigger('change');
+            })
+
+            $("#ItemID").change(function () {
+                var itemID = $("#ItemID").val();
+                if (itemID != null && itemID != "") {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/MaterialsManagement/KnittingNiddle/GetDocumentTypeWiseRate',
+                        data: { itemid: itemID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            $(".UnitRate").val("");
+                            $(".TotalValue").val("");
+                            $(".QuantityAmount").val("");
+                            $(".UnitID").val("");
+                            $(".UnitRate").val(data.UnitRate);
+                            $(".UnitID").val(data.UnitID);
+                        },
+
+                    });
+                } else {
+                    $(".UnitRate").val("");
+                    $(".TotalValue").val("");
+                    $(".QuantityAmount").val("");
+                    $(".UnitID").val("");
+                }
+            });
+
+            $("#btnAdd").click(function () {
+                let rate = $(".UnitRate").val();
+                let quantity = $(".QuantityAmount").val();
+                let totalValue = $(".TotalValue").val();
+                let itemName = $(".ItemName option:selected").text();
+                let itemID = RtnNumber($("#ItemID").val());
+                let unitId = RtnNumber($(".UnitID").val());
+                let itemCategoryID = RtnNumber($("#ItemCategoryID").val());
+                let itemCategoryName = $("#ItemCategoryID option:selected").text();
+                var isExistTr = ValidData();
+                let trCount = $(".knittingNeedleConsumption tr").length;
+
+             
+
+                if (isExistTr) {
+                    if (rate >= 0 && quantity > 0 && totalValue >= 0 && itemID > 0) {//
+                        var tr = `<tr class="knittingNeedleConsumptionDetails">
+                                <td style="width:5%" class="rowSl">${++trCount}</td>
+                                 <td style="width:45%" class="">${itemName}
+                                        <input type="hidden" class="ID"/>
+                                        <input type="hidden" class="ItemID" value="${itemID}" />
+                                        <input type="hidden" class="SelectedUnitID" value="${unitId}"/>
+                                        <input type="hidden" class="KnittingNeedleConsumptionMasterID" />
+                                </td>
+                                <td style=" width:10%" class="">${itemCategoryName}
+                                    <input type="hidden" class="KnittingRepairItemCategoryID" value="${itemCategoryID}" />
+                                </td>
+                                <td style="width:10%" class=""> <input type="number" onkeyup="CalcultaSelectedTotalValue(this)" class="form-control form-control-sm quantity text-center" value="${quantity}" />  </td>
+                                <td style="width:10%" class=""> <input type="text" readonly class="form-control form-control-sm rate text-center" value="${rate}" />  </td>
+                                <td style="width:10%" class="totalValue">${totalValue}</td>
+                                <td style="width:10%"><input type="button" onclick="RemoveTr(this)" class="btn btn-xs btn-danger" value="Remove"/></td>
+                                </tr>`
+                        $(".knittingNeedleConsumption").append(tr);
+                        $(".TotalValue").val("");
+                        $(".QuantityAmount").val("");
+                        //$("#ItemID").val("");
+                        $('#ItemID').val(null).trigger('change');
+                        $(".UnitRate ").val("");
+                    }
+                }
+                masterDisabled();
+            });
+
+            $("#btnSave").click(function () {
+                
+                let trLength = $("tbody tr").length;
+                if (trLength > 0) {
+                    debugger;
+                    let machineNo = RtnNumber($("#MachineNo").val());
+                    if (machineNo > 0) {
+                        let masterID = RtnNumber($("#ID").val());
+                        let companyID = 0;// RtnNumber($("#CompanyID").val());
+                        let machineNo = RtnNumber($("#MachineNo").val());
+                        let consumptionDate = $("#CreateDateTime").val();
+                        // let itemCategoryID = RtnNumber($("#ItemCategoryID").val());
+                        let knittingNeedleConsumptionList = new Array();
+                        $(".knittingNeedleConsumptionDetails").each(function () {
+                            
+                            let that = $(this);
+                            let Id = RtnNumber(that.find(".ID").val());
+                            let itemId = RtnNumber(that.find(".ItemID").val());
+                            let knittingRepairItemCategoryID = RtnNumber(that.find(".KnittingRepairItemCategoryID").val());
+
+                            let rate = RtnFloatUpToPrecision(that.find(".rate").val(), 3);
+                            let quantity = RtnNumber(that.find(".quantity").val());
+                            let unitID = RtnNumber(that.find(".SelectedUnitID").val());
+                            let detailsObj = {
+                                ID: Id,
+                                KnittingNeedleConsumptionMasterID: masterID,
+                                ItemID: itemId,
+                                Quantity: quantity,
+                                UnitID: unitID,
+                                UnitRate: rate,
+                                KnittingRepairItemCategoryID: knittingRepairItemCategoryID
+                            }
+                            knittingNeedleConsumptionList.push(detailsObj);
+                        })
+                        var masterObj = {
+                            ID: masterID,
+                            CompanyID: companyID,
+                            MachineNo: machineNo,
+                            ConsumptionDate: consumptionDate,
+                            KnittingNeedleConsumptionDetails: knittingNeedleConsumptionList
+                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: '/MaterialsManagement/KnittingNiddle/CreateKnittingNeedle',
+                            data: { knittingNeedleConsumption: masterObj },
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                if (data.result == 1) {
+                                    $.alert.open('Success', data.message);
+                                   
+                                } else {
+                                    $.alert.open('error', data.message);
+                                }
+                            },
+                            error: function (request, status, error) {
+                                alert(request.statusText + "/" + request.statusText + "/" + error);
+                            }
+                        });
+                        clear();
+                    }
+                    else {
+                        $.alert.open("error", "Machine No is Required ")
+                    }
+
+                }
+                $(".knittingNeedleConsumption").html("");
+            })
+            $("#btnUpdate").click(function () {
+
+                let trLength = $("tbody tr").length;
+                if (trLength > 0) {
+
+                    let machineNo = RtnNumber($("#MachineNo").val());
+                    if (machineNo > 0) {
+                        let masterID = RtnNumber($("#ID").val());
+                        let companyID = RtnNumber($("#CompanyID").val());
+                        let machineNo = RtnNumber($("#MachineNo").val());
+                        let consumptionDate = $("#CreateDateTime").val();
+                        //  let itemCategoryID = RtnNumber($("#ItemCategoryID").val());
+                        let knittingNeedleConsumptionList = new Array();
+                        $(".knittingNeedleConsumptionDetails").each(function () {
+
+                            let that = $(this);
+                            let Id = RtnNumber(that.find(".ID").val());
+                            let itemId = RtnNumber(that.find(".ItemID").val());
+                            let rate = RtnFloatUpToPrecision(that.find(".rate").val(), 3);
+                            let quantity = RtnNumber(that.find(".quantity").val());
+                            let knittingRepairItemCategoryID = RtnNumber(that.find(".KnittingRepairItemCategoryID").val());
+                            let unitID = RtnNumber(that.find(".SelectedUnitID").val());
+                            let detailsObj = {
+                                ID: Id,
+                                KnittingNeedleConsumptionMasterID: masterID,
+                                ItemID: itemId,
+                                Quantity: quantity,
+                                UnitID: unitID,
+                                UnitRate: rate,
+                                KnittingRepairItemCategoryID: knittingRepairItemCategoryID
+                            }
+                            knittingNeedleConsumptionList.push(detailsObj);
+                        })
+                        var masterObj = {
+                            ID: masterID,
+                            CompanyID: companyID,
+                            MachineNo: machineNo,
+                            ConsumptionDate: consumptionDate,
+                            KnittingNeedleConsumptionDetails: knittingNeedleConsumptionList
+                        }
+
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/MaterialsManagement/KnittingNiddle/CreateKnittingNeedle',
+                            data: { knittingNeedleConsumption: masterObj },
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                if (data.result == 1) {
+                                    $.alert.open('success', data.message, function (button) {
+                                        if (button == 'ok') {
+                                            window.location.href = "/MaterialsManagement/KnittingNiddle/Index";
+                                        }
+                                    });
+                                } else {
+                                    $.alert.open('error', data.message);
+                                }
+                            },
+                            error: function (request, status, error) {
+                                alert(request.statusText + "/" + request.statusText + "/" + error);
+                            }
+                        });
+                        clear();
+                    }
+                    else {
+                        $.alert.open("error", "Machine No is Required ")
+                    }
+
+                }
+                // $(".knittingNeedleConsumption").html("");
+            })
+
+        })
+
+        function ValidData() {
+            let isvalid = true;
+            let trLength = $("tbody tr").length;
+
+            if (trLength > 0) {
+                $(".knittingNeedleConsumptionDetails").each(function () {
+                    if (isvalid) {
+                        
+                        let that = $(this);
+                        let itemId = RtnNumber(that.find(".ItemID").val());
+                        let newItemID = RtnNumber($("#ItemID").val())
+
+                        if (newItemID == itemId) {
+                            $.alert.open("error", "Duplicate Item");
+                            isvalid = false;
+                        } else {
+                            isvalid = true;
+                        }
+                    }
+
+                })
+            }
+
+            else {
+                isvalid = true;
+            }
+            return isvalid
+        }
+
+        function RemoveTr(that) {
+            //$.alert.open('confirm', 'Are you sure to remove this record', function (button) {
+            //    if (button == 'yes') {
+                    let thatTr = $(that)
+                    $(thatTr).parent().parent().remove();
+                    $(".rowSl").each(function (i, v) {
+                        $(this).text(++i);
+                    });
+            masterDisabled();
+            //    }
+            //});           
+        }
+        function clear() {
+            $('#CompanyID').val(null).trigger('change');
+            $('#MachineNo').val(null).trigger('change');
+            $('#BroadGroupOne').val(null).trigger('change');
+            $('#BroadGroupTwo').val(null).trigger('change');
+            $('#BroadGroupThree').val(null).trigger('change');
+            $('#ItemID').val(null).trigger('change');
+            $(".UnitRate ").val("");
+            $("#ID").val("");
+            $('#ItemCategoryID').val(1).trigger('change');
+        }
+
+        function masterDisabled() {
+            debugger;
+            var tbodyLength = $("#knittingNeedleConsumption tr").length;
+            if (tbodyLength >= 1) {
+                $("#CompanyID").attr("disabled", "disabled");
+                $("#MachineNo").attr("disabled", "disabled");
+                $("#CreateDateTime").attr("disabled", "disabled");
+                $("#CreateDateTime").removeClass("dateField");
+            } else {
+                $("#CompanyID").removeAttr("disabled");
+                $("#MachineNo").removeAttr("disabled");
+                $("#CreateDateTime").removeAttr("disabled");
+                $("#CreateDateTime").addClass("dateField");
+            }
+        }
+    </script>
+
+
+
+
+}

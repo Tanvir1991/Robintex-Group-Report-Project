@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Ordersheet Summary";
+    ViewData["pageTitle"] = "Ordersheet Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label for="DateFrom" class="label-ajt-sm required">Date From</label>
+            <input type="text" id="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label for="DateTo" class="label-ajt-sm required">Date To</label>
+            <input type="text" id="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label  class="label-ajt-sm required">&nbsp;</label>
+        <div class="form-group">
+            <button type="button" class="btn btn-sm btn-danger" id="btnPDF">Print</button>
+            <button type="button" class="btn btn-sm btn-primary" id="btnExcel">Excel</button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+    function showReport(reportFormat) {
+        debugger;
+        let DateFrom = $("#DateFrom").val();
+        let DateTo = $("#DateTo").val();
+
+        if (DateFrom != "" && DateTo != "") {
+            var url = `/MaxcoReport/PrintOrderSheetSummary?DateFrom=${DateFrom}&DateTo=${DateTo}&ReportFormat=${reportFormat}`;
+            window.open(url, "Ordersheet Summary Report", `status=1,toolbar=0,width=${screen.width}`);
+        } else {
+            alert("Please provide all data");
+        }
+
+    }
+    $(document).ready(function () {
+           $("#btnPDF").click(function () {
+               showReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            $("#btnExcel").click(function () {
+                showReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+    });
+    </script>
+
+}

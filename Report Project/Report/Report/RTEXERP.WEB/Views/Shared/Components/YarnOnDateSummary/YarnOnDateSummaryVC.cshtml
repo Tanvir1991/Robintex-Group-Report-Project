@@ -1,0 +1,76 @@
+﻿@using System.Data;
+@model RTEXERP.Contracts.Common.RResult<System.Data.DataTable>
+@{
+    int i = 1;
+    string CompositionName = "";
+    string YarnCount = "";
+}
+<style type="text/css">
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnExcel").show();
+    });
+</script>
+
+<table class="table table-sm table-bordered table-striped" id="YarnSummaryOnDate" style="font-size:12px;">
+    <thead>
+        <tr>
+            <th>SL</th>
+            @foreach (System.Data.DataColumn col in Model.modelObject.Columns)
+            {
+
+                <th>@col.ColumnName</th>
+            }
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (System.Data.DataRow row in Model.modelObject.Rows)
+        {
+            decimal rowTotal = 0;
+            CompositionName = row["YarnComposition"].ToString();
+            <tr>
+                <td>@i</td>
+                @foreach (System.Data.DataColumn col in Model.modelObject.Columns)
+                {
+                    decimal ColumnAmount = 0;
+                    string columnString = "";
+                    bool isNumeric = false;
+            <td>
+                @{
+                    isNumeric = decimal.TryParse(row[col.ColumnName].ToString(), out ColumnAmount);
+                    if (isNumeric)
+                    {
+                        rowTotal = rowTotal + ColumnAmount;
+                        columnString = row[col.ColumnName].ToString();
+                        YarnCount = col.ColumnName;
+                    }
+                    else
+                    {
+                        columnString = row[col.ColumnName].ToString();
+                        if (columnString == "")
+                        {
+                            columnString = "0";
+                        }
+                    }
+
+                }
+                @if (isNumeric)
+                {
+                    <a target="_blank" href="/CostCenterReport/YarnStockDetails?YarnComposition=@CompositionName&YarnCount=@YarnCount&TransactionDate=@Model.statusMsg&CompanyID=@Model.statusCode" title="Details">@columnString</a>
+                }
+                else
+                {
+                    @columnString
+                }
+
+            </td>
+            }
+                <td style="background:#ced1e5">@rowTotal</td>
+            </tr>
+                                i = i + 1;
+                            }
+    </tbody>
+</table>
+

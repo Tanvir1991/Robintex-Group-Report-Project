@@ -1,0 +1,1258 @@
+﻿@model RTEXERP.Contracts.BLModels.CMS.GarmentsProductionData
+@{
+    ViewData["Title"] = $"Garments Production Report";
+    Layout = null;
+    int sl = 0;
+    long workingHour = 0;
+    long TotalWorkingHour = 0;
+    string oldBuildingName = "";
+    string oldFloorName = "";
+    string oldLine = "";
+    string bgColor = "";
+    DateTime productionDate = new DateTime(2000, 1, 1);
+
+    decimal LinetotalEarningBDT = 0;
+    decimal LinetotalEarningDol = 0;
+    decimal GrandTotalsummeryProfit = 0;
+
+    decimal floorTotal = 0;
+    decimal buildingTotal = 0;
+
+    var totalRowData = Model.InhouseGarmentsProductionList.Count() - 1;
+    var LineListSummary = Model.InhouseGarmentsProductionList.GroupBy(g => new { g.BuildingName, g.FloorName, g.LineName, g.LineSalary, g.Line_OT,g.IsOutSideOrder })
+        .Select(s => new
+        {
+
+            s.Key.BuildingName,
+            s.Key.FloorName,
+            s.Key.LineName,
+            s.Key.LineSalary,
+            s.Key.Line_OT,
+            s.Key.IsOutSideOrder,
+            EarningUSD = s.Sum(b => b.TotalCMDol),
+            EarningTK = s.Sum(b => b.TotalCMTk)
+        }).ToList();
+
+    var SubContractLineListSummary = Model.SubContractGarmentsProductionList
+         .GroupBy(g => new { g.BuildingName, g.FloorName, g.LineName, g.LineSalary, g.Line_OT, g.IsOutSideOrder })
+       .Select(s => new
+       {
+
+           s.Key.BuildingName,
+           s.Key.FloorName,
+           s.Key.LineName,
+           s.Key.LineSalary,
+           s.Key.Line_OT,
+           s.Key.IsOutSideOrder,
+           EarningUSD = s.Sum(b => b.TotalCMDol),
+           EarningTK = s.Sum(b => b.TotalCMTk),
+           StyleSubContractAmount = s.Sum(b => b.StyleSubContractAmount),
+           TotalSubContractCharge = s.Sum(b => b.StyleSubContractAmount) + s.Key.LineSalary + s.Key.Line_OT,// b.LineSalary + b.Line_OT),
+           LineProfit = s.Sum(b => b.TotalCMTk) - (s.Sum(b => b.StyleSubContractAmount) + s.Key.LineSalary + s.Key.Line_OT)
+
+       }).ToList();
+
+    string ReportName = Model.ReportFor == 2 ? "Production" : "Finishing";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Garments @ReportName Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+
+    <!--<link rel="stylesheet" href="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">-->
+    @*<link href="https:/ /cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">*@
+    <!--<script src="https:/ /code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>-->
+    <style>
+        table.floatThead-table {
+            border-top: none;
+            border-bottom: none;
+            background-color: #fff;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+</head>
+<body>
+    @*<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow no-print noprint">
+            <div class="navbar-brand col-sm-12 col-md-12 mr-0">Garments @ReportName</div>
+        </nav>*@
+
+    <div class="container-fluid">
+        <div class="col-md-12 col-sm-12 col-lg-12 printArea">
+            @*<main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">*@
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Garments @ReportName Report</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Date Duration @Model.DateFrom To @Model.DateTo</span>
+                </div>
+            </div>
+
+            @*<div class="row">
+                    <div class="col-md-6">
+                        <span style="font-weight:bold;font-size:13px;">  Doller Rate :@String.Format("{0:n2}", Model.InhouseGarmentsProductionList[0].DollerRate)</span>
+                    </div>
+                </div>*@
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered table-bordered2 text-center table-striped text-xs text-bold">
+                        <tbody>
+                            <tr>
+                                <td rowspan="2" style="width:14%">&nbsp;</td>
+                                <td rowspan="2" style="width:8%" vertical-align:middle;">Production<br />(Pcs.)</td>
+                                <td rowspan="2" style="width:7%" vertical-align:middle;">Earning<br />(USD)</td>
+                                <td rowspan="2" style="width:10%" vertical-align:middle;">Earning<br />(BDT @String.Format("{0:n2}", Model.InhouseGarmentsProductionList[0].DollerRate))</td>
+                                <td colspan="5" style="width:50%" vertical-align:middle;">Line Cost</td>
+                                <td rowspan="2" style="width:9%" vertical-align:middle;">Gross Profit</td>
+                            </tr>
+                            <tr>
+                                @*<th>&nbsp;</th>*@
+                                <td style="width:20%">Line Salary</td>
+                                <td style="width:15%">OT</td>
+                                <td style="width:20%">Total Salary</td>
+                                <td style="width:15%">Sub.Cont. Cost</td>
+                                <td style="width:30%">Total Cost</td>
+
+                            </tr>
+                            <tr>
+                                @{
+                                    var inHousegrossProfit = (LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK) 
+                                         - LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary) 
+                                         - LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT));
+                                    bgColor = inHousegrossProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                }
+                                <td>In-House</td>
+                                <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Ttl_Ok_Qty))</td>
+                                <td>@String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningUSD))</td>
+                                <td>@String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK))</td>
+                                <td>@String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary))</td>
+                                <td>@String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT))</td>
+                                <td>@String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary) 
+                                                           + LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT))</td>
+                                <td>0</td>
+                                <td>
+                                    @String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                                                           + LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT))
+                            </td>
+                            <td class="@bgColor">
+                                @String.Format("{0:n2}", (LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK)
+                                                        - LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                                                        - LineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT)))
+                        </td>
+                        </tr>
+                            <tr>
+                                @{
+                                    var outSide_grossProfit = (LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.EarningTK)
+                                                             - LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.LineSalary)
+                                                             - LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Line_OT)
+                                                             - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.StyleSubContractAmount)
+                                                             );
+                                    bgColor = outSide_grossProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                }
+                                <td>Sub-Contract for Other Factory</td>
+                                <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Ttl_Ok_Qty))</td>
+                                <td>@String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.EarningUSD))</td>
+                                <td>@String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.EarningTK))</td>
+                                <td>@String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.LineSalary))</td>
+                                <td>@String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Line_OT))</td>
+                                <td>
+                                    @String.Format("{0:n0}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.LineSalary)
+                                                       + LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Line_OT))
+                            </td>
+                            <td>@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.StyleSubContractAmount))</td>
+                            <td>
+                                @String.Format("{0:n2}", LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.LineSalary)
+                                                       + LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Line_OT)
+                                                       + SubContractLineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.StyleSubContractAmount))
+                            </td>
+                            <td class="@bgColor">
+                                @String.Format("{0:n2}", (LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.EarningTK)
+                                                    - LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.LineSalary)
+                                                    - LineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.Line_OT)
+                                                    - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 1).Sum(b => b.StyleSubContractAmount)))
+                            </td>
+                            </tr>
+                        <tr>
+                            @{
+                                var subContactgrossProfit = (SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.StyleSubContractAmount));
+                                bgColor = subContactgrossProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                            }
+                            <td>Sub-Contract</td>
+                            <td>@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Ttl_Ok_Qty))</td>
+                            <td>@String.Format("{0:n0}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningUSD))</td>
+                            <td>@String.Format("{0:n0}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK))</td>
+                            <td>@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary))</td>
+                            <td>@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT))</td>
+                            <td>@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                                                       + SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT))</td>
+                            <td>@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.StyleSubContractAmount))</td>
+                            <td>
+                                @String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                           + SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT)
+                           + SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.StyleSubContractAmount))
+                            </td>
+                            <td class="@bgColor">
+                                @String.Format("{0:n2}", (SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.EarningTK)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.LineSalary)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.Line_OT)
+                           - SubContractLineListSummary.Where(b => b.IsOutSideOrder == 0).Sum(b => b.StyleSubContractAmount)))
+                            </td>
+                        </tr>
+                        <tr>
+                            @{
+                                var totalGrossProfit = LineListSummary.Sum(b => b.EarningTK)
+                                                  - LineListSummary.Sum(b => b.LineSalary)
+                                                    - LineListSummary.Sum(b => b.Line_OT)
+                                                   + SubContractLineListSummary.Sum(b => b.EarningTK)
+                                                   - SubContractLineListSummary.Sum(b => b.LineSalary)
+                                                            - SubContractLineListSummary.Sum(b => b.Line_OT)
+                                                   - SubContractLineListSummary.Sum(b => b.StyleSubContractAmount);
+                                bgColor = totalGrossProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                            }
+                            <td>Total</td>
+                            <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty) + Model.SubContractGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty))</td>
+                            <td>@String.Format("{0:n0}", LineListSummary.Sum(b => b.EarningUSD) + SubContractLineListSummary.Sum(b => b.EarningUSD))</td>
+                            <td>@String.Format("{0:n0}", LineListSummary.Sum(b => b.EarningTK) + SubContractLineListSummary.Sum(b => b.EarningTK))</td>
+                            <td>
+                                @String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary) + SubContractLineListSummary.Sum(b => b.LineSalary))
+                            </td>
+                            <td>
+                                @String.Format("{0:n2}", LineListSummary.Sum(b => b.Line_OT) + SubContractLineListSummary.Sum(b => b.Line_OT))
+                            </td>
+                            <td>
+                                @String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary) + LineListSummary.Sum(b => b.Line_OT)
+                                           + SubContractLineListSummary.Sum(b => b.LineSalary)
+                                           + SubContractLineListSummary.Sum(b => b.Line_OT))
+                            </td>
+                            <td>@String.Format("{0:n2}", 0 + SubContractLineListSummary.Sum(b => b.StyleSubContractAmount))</td>
+                            <td>
+                                @String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary)
+                                 + LineListSummary.Sum(b => b.Line_OT)
+                                 + SubContractLineListSummary.Sum(b => b.StyleSubContractAmount)
+                                  + SubContractLineListSummary.Sum(b => b.Line_OT))
+                            </td>
+                            <td class="@bgColor">
+                                @String.Format("{0:n2}", LineListSummary.Sum(b => b.EarningTK)
+                                                  - LineListSummary.Sum(b => b.LineSalary)
+                                                    - LineListSummary.Sum(b => b.Line_OT)
+                                                   + SubContractLineListSummary.Sum(b => b.EarningTK)
+                                                   - SubContractLineListSummary.Sum(b => b.LineSalary)
+                                                            - SubContractLineListSummary.Sum(b => b.Line_OT)
+                                                   - SubContractLineListSummary.Sum(b => b.StyleSubContractAmount))
+                            </td>
+                        </tr>
+                        </tbody>
+                        @*<tbody>
+                                <tr>
+                                    <td>Production</td>
+                                    <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty)+Model.SubContractGarmentsProductionList.Sum(b=>b.Ttl_Ok_Qty))</td>
+                                    <td>Earning (USD)</td>
+                                    <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMDol))</td>
+                                    <td>Earning BDT($@String.Format("{0:n2}", Model.InhouseGarmentsProductionList[0].DollerRate))</td>
+                                    <td>@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMTk))</td>
+
+                                    @if (Model.InhouseGarmentsProductionList[0].IsShowSalary > 0)
+                                    {
+                                        <td>Line Salary</td>
+                                        <td>@String.Format("{0:n2}", Model.InhouseGarmentsProductionList[0].TotalSalary)</td>
+                                        <td>Gross Profit</td>
+                                        <td>@String.Format("{0:n2}", (Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMTk) - Model.InhouseGarmentsProductionList[0].TotalSalary))</td>
+                                    }
+
+                                </tr>
+                            </tbody>*@
+                    </table>
+                </div>
+            </div>
+            @*Garment Production*@
+            @if (Model.ReportFor == 2)
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive-sm table-responsive-lg">
+                            <h6 style="background:#ed8080" class="text-center p-1">In-House Production</h6>
+                            <table class="table table-striped table-sm  table-bordered mdReport borderColor sticky-header">
+                                <thead>
+                                    <tr class="table-thead">
+                                        <th width="3%">SL</th>
+                                        <th width="7%">Production <br /> Date</th>
+                                        <th width="7%">Order NO</th>
+                                        <th width="5%">Style</th>
+                                        <th width="5%">Color</th>
+                                        <th width="4%">Line <br /> Name</th>
+                                        <th width="4%">Rcv.<br />Qty</th>
+                                        <th width="4%">Alter <br /> Qty</th>
+                                        <th width="4%">Spot <br /> Qty</th>
+                                        <th width="3%">Reject <br /> Qty</th>
+                                        <th width="5%">Pass <br /> Qty</th>
+                                        <th width="4%">W.<br /> HR</th>
+                                        <th width="5%">Target <br /> Qty</th>
+                                        <th width="4%">Target <br /> Effi.</th>
+                                        <th width="4%">Achieve  <br /> Effi.</th>
+                                        <th width="3%">CM/PC</th>
+                                        <th width="6%">Earning <br />(USD)</th>
+                                        <th width="6%">Earning <br />(BDT)</th>
+                                        <th width="5%">Line<br />Salary</th>
+                                        <th width="5%">Line<br />OT</th>
+                                        <th width="5%">Total<br />Salary</th>
+                                        <th width="5%">Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+
+                                    @{
+
+                                        for (var aop = 0; aop < Model.InhouseGarmentsProductionList.Count; aop++)
+                                        {
+
+                                            var lineAmountInfo = LineListSummary.Where(l => l.LineName == Model.InhouseGarmentsProductionList[aop].LineName).FirstOrDefault();
+
+                                            sl = sl + 1;
+                                            workingHour = Math.Abs(Model.InhouseGarmentsProductionList[aop].StartHour.Value - Model.InhouseGarmentsProductionList[aop].EndHour.Value);
+                                            TotalWorkingHour += workingHour;
+
+
+
+                                            @if (Model.InhouseGarmentsProductionList[aop].BuildingName != oldBuildingName)
+                                            {
+                                                buildingTotal = 0;
+                                                <tr>
+                                                    <td class="text-center" colspan="22" style="font-weight:bold;font-size:13px">@Model.InhouseGarmentsProductionList[aop].BuildingName</td>
+                                                </tr>
+                                            }
+
+
+                                            @if (Model.InhouseGarmentsProductionList[aop].FloorName != oldFloorName)
+                                            {
+                                                <tr>
+                                                    <td class="text-center" colspan="22" style="font-weight:bold;font-size:13px">@Model.InhouseGarmentsProductionList[aop].FloorName</td>
+                                                </tr>
+                                            }
+
+                                            <tr>
+
+
+                                                <td>@sl</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].ProductionDate</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].OrderNo</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].StyleName</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].PantoneNo</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].LineName</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].RcvQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].ALterQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].SpotQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].RejectQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].Ttl_Ok_Qty</td>
+                                                <td class="text-right"><span style="font-size:8px;color:#eee;">@Model.InhouseGarmentsProductionList[aop].StartHour-@Model.InhouseGarmentsProductionList[aop].EndHour</span>@Model.InhouseGarmentsProductionList[aop].WorkingHour </td>
+                                                @{
+                                                    bgColor = @Model.InhouseGarmentsProductionList[aop].TargetQuantity == 0 ? "bg-secondary" : "";
+                                                }
+
+                                                <td class="text-center @bgColor">@Model.InhouseGarmentsProductionList[aop].TargetQuantity</td>
+                                                <td class="text-right">
+                                                    @if(@Model.InhouseGarmentsProductionList[aop].Ttl_Ok_Qty > 0)
+                                                    {
+                                                        <span title="Line Manpower">M=@Model.InhouseGarmentsProductionList[aop].LineManpower</span><br />
+                                                    }
+                                                    @Model.InhouseGarmentsProductionList[aop].TargetEffiency
+                                                </td>
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].AchiveEfficiency >= 55)
+                                                    {
+                                                        bgColor = "";
+                                                    }
+                                                    else if (Model.InhouseGarmentsProductionList[aop].AchiveEfficiency < 55 && Model.InhouseGarmentsProductionList[aop].AchiveEfficiency >= 50)
+                                                    {
+                                                        bgColor = "bg-info";
+                                                    }
+                                                    else if (Model.InhouseGarmentsProductionList[aop].AchiveEfficiency < 50 && Model.InhouseGarmentsProductionList[aop].AchiveEfficiency >= 45)
+                                                    {
+                                                        bgColor = "bg-yellow";
+                                                    }
+                                                    else if (Model.InhouseGarmentsProductionList[aop].AchiveEfficiency < 45 && Model.InhouseGarmentsProductionList[aop].AchiveEfficiency >= 40)
+                                                    {
+                                                        bgColor = "bg-orange";
+                                                    }
+                                                    else
+                                                    {
+                                                        bgColor = "bg-danger";
+                                                    }
+                                                    /* bgColor = Model.InhouseGarmentsProductionList[aop].AchiveEfficiency < Model.InhouseGarmentsProductionList[aop].TargetEffiency ? "text-light bg-danger" : "";*/
+
+                                                }
+                                                <td class="text-right  @bgColor">@Model.InhouseGarmentsProductionList[aop].AchiveEfficiency</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].CM_PC</td>
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].LineName != oldLine)
+                                                    {
+
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@lineAmountInfo.EarningUSD</td>
+                                                    }
+                                                }
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].LineName != oldLine)
+                                                    {
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@lineAmountInfo.EarningTK</td>
+                                                    }
+                                                }
+
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].LineName != oldLine)
+                                                    {
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.InhouseGarmentsProductionList[aop].LineSalary</td>
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.InhouseGarmentsProductionList[aop].Line_OT</td>
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@(Model.InhouseGarmentsProductionList[aop].LineSalary+ Model.InhouseGarmentsProductionList[aop].Line_OT)</td>
+                                                    }
+                                                }
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].LineName != oldLine)
+                                                    {
+                                                        var profitLose = lineAmountInfo.EarningTK - lineAmountInfo.LineSalary - lineAmountInfo.Line_OT;
+                                                        bgColor = profitLose >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right @bgColor" style="vertical-align:middle">@(lineAmountInfo.EarningTK - lineAmountInfo.LineSalary- lineAmountInfo.Line_OT)</td>
+                                                    }
+                                                }
+
+                                                @*<td class="text-right">@workingHour</td>*@
+                                            </tr>
+                                            //Floor Total
+                                            @if (aop == totalRowData || Model.InhouseGarmentsProductionList[aop].FloorName != Model.InhouseGarmentsProductionList[aop + 1].FloorName)
+                                            {
+                                                <tr class="table-thead" style="font-weight:bold;">
+                                                    <td class="text-right" colspan="6">@Model.InhouseGarmentsProductionList[aop].FloorName Total</td>
+
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.RcvQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.ALterQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.SpotQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.RejectQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                    <td>&nbsp;</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.TargetQuantity))</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td class="text-right">$ @String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.TotalCMDol))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.TotalCMTk))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.LineSalary))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.Line_OT))</td>
+                                                    <td class="text-right">
+                                                        @String.Format("{0:n2}", LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.LineSalary)
+                                                                          + LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.Line_OT))
+                                                    </td>
+                                                    @{
+                                                        var profitLose = LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.EarningTK - b.LineSalary - b.Line_OT);
+                                                        bgColor = profitLose >= 0 ? "text-light bg-success" : "text-light bg-danger";
+
+                                                    }
+                                                    <td class="text-right @bgColor">@String.Format("{0:n2}", LineListSummary.Where(b => b.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).Sum(b => b.EarningTK - b.LineSalary - b.Line_OT))</td>
+                                                    @*<td>&nbsp;</td>*@
+                                                    @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                </tr>
+
+                                            }
+
+                                            //Building Total
+                                            @if (aop == totalRowData || Model.InhouseGarmentsProductionList[aop].BuildingName != Model.InhouseGarmentsProductionList[aop + 1].BuildingName)
+                                            {
+                                                <tr class="table-thead" style="font-weight:bold;">
+                                                    <td class="text-right" colspan="6">@Model.InhouseGarmentsProductionList[aop].BuildingName Total</td>
+
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.RcvQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.ALterQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.SpotQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.RejectQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                    <td>&nbsp;</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.TargetQuantity))</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td class="text-right">$ @String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMDol))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMTk))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.Line_OT))</td>
+                                                    <td class="text-right">
+                                                        @String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary)
+                                                                             + LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.Line_OT))
+                                                    </td>
+                                                    @{
+                                                        var profitLose = LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.EarningTK - b.LineSalary - b.Line_OT);
+                                                        bgColor = profitLose >= 0 ? "text-light bg-success" : "text-light bg-danger";
+
+                                                    }
+                                                    <td class="text-right @bgColor">@String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.EarningTK - b.LineSalary - b.Line_OT))</td>
+                                                    @*<td>&nbsp;</td>*@
+                                                    @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                </tr>
+                                                <tr class="invisible">
+                                                    <td colspan="16">&nbsp;</td>
+                                                </tr>
+                                            }
+
+
+                                            oldLine = Model.InhouseGarmentsProductionList[aop].LineName;
+                                            oldBuildingName = Model.InhouseGarmentsProductionList[aop].BuildingName;
+                                            oldFloorName = Model.InhouseGarmentsProductionList[aop].FloorName;
+
+
+
+                                        }
+
+                                    }
+
+
+                                    <tr class="table-thead" style="font-weight:bold;">
+                                        <td class="text-right" colspan="6">In-hourse Total</td>
+
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.RcvQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.ALterQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.SpotQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.RejectQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty))</td>
+                                        <td>&nbsp;</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.TargetQuantity))</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td class="text-right">$ @String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMDol))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMTk))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.Line_OT))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary) + LineListSummary.Sum(b => b.Line_OT))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.EarningTK - b.LineSalary - b.Line_OT))</td>
+                                        @*<td>&nbsp;</td>*@
+                                        @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+
+                                </tfoot>
+                            </table>
+
+                            <h6 class="text-center p-1" style="background:#ed8080">Sub-Contract Production</h6>
+                            @if (Model.SubContractGarmentsProductionList.Count > 0)
+                            {
+                                oldLine = "";
+                                oldBuildingName = "";
+                                oldFloorName = "";
+                                <table class="table table-striped table-sm  table-bordered mdReport borderColor sticky-header">
+                                    <thead>
+                                        <tr class="table-thead" style="vertical-align:middle">
+                                            <th width="3%">SL</th>
+                                            <th width="5%">Production <br /> Date</th>
+                                            <th width="7%">Order NO</th>
+                                            <th width="5%">Style</th>
+                                            <th width="5%">Color</th>
+                                            <th width="5%">Line <br /> Name</th>
+                                            <th width="4%">Receive <br /> Qty</th>
+                                            <th width="4%">Alter <br /> Qty</th>
+                                            <th width="4%">Spot <br /> Qty</th>
+                                            <th width="3%">Reject <br /> Qty</th>
+                                            <th width="5%">Pass <br /> Qty</th>
+                                            <th width="4%">W.<br /> HR</th>
+                                            <th width="5%">Target <br /> Qty</th>
+                                            <th width="4%">Target <br /> Effi.</th>
+                                            <th width="4%">Achieve  <br /> Effi.</th>
+                                            <th width="4%">CM/PC</th>
+                                            <th width="5%">Earning <br />(USD)</th>
+                                            <th width="5%">Earning <br />(BDT)</th>
+                                            <th width="5%">Line <br /> Salary</th>
+                                            <th width="5%">OT</th>
+                                            <th width="5%">Total <br /> Salary</th>
+                                            <th width="5%">Sub. Rate<br>Per Pcs </th>
+                                            <th width="5%">Total Sub.<br>Charge</th>
+                                            <th width="5%">Total<br>Cost</th>
+                                            <th width="5%">P1rofit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-body">
+
+                                        @{
+                                            totalRowData = Model.SubContractGarmentsProductionList.Count() - 1;
+                                            for (var aop = 0; aop < Model.SubContractGarmentsProductionList.Count; aop++)
+                                            {
+                                                var SublineAmountInfo = SubContractLineListSummary.Where(l => l.LineName == Model.SubContractGarmentsProductionList[aop].LineName).FirstOrDefault();
+
+                                                sl = sl + 1;
+                                                workingHour = Math.Abs(Model.SubContractGarmentsProductionList[aop].StartHour.Value - Model.SubContractGarmentsProductionList[aop].EndHour.Value);
+                                                TotalWorkingHour += workingHour;
+
+
+
+                                                @if (Model.SubContractGarmentsProductionList[aop].BuildingName != oldBuildingName)
+                                                {
+                                                    buildingTotal = 0;
+                                                    <tr>
+                                                        <td class="text-center" colspan="25" style="font-weight:bold;font-size:13px">@Model.SubContractGarmentsProductionList[aop].BuildingName</td>
+                                                    </tr>
+                                                }
+
+
+                                                @if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                {
+                                                    <tr>
+                                                        <td class="text-center" colspan="25" style="font-weight:bold;font-size:13px">@Model.SubContractGarmentsProductionList[aop].FloorName</td>
+                                                    </tr>
+                                                }
+
+                                    <tr>
+
+
+                                        <td>@sl</td>
+                                        <td>@Model.SubContractGarmentsProductionList[aop].ProductionDate</td>
+                                        <td>@Model.SubContractGarmentsProductionList[aop].OrderNo</td>
+                                        <td>@Model.SubContractGarmentsProductionList[aop].StyleName</td>
+                                        <td>@Model.SubContractGarmentsProductionList[aop].PantoneNo</td>
+                                        <td>@Model.SubContractGarmentsProductionList[aop].LineName</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].RcvQty</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].ALterQty</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].SpotQty</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].RejectQty</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].Ttl_Ok_Qty</td>
+                                        <td class="text-right"><span style="color:#eee;font-size:9px;">@Model.SubContractGarmentsProductionList[aop].StartHour-@Model.SubContractGarmentsProductionList[aop].EndHour</span> @Model.SubContractGarmentsProductionList[aop].WorkingHour</td>
+
+                                        @{
+                                            bgColor = @Model.SubContractGarmentsProductionList[aop].TargetQuantity == 0 ? "bg-secondary" : "";
+                                        }
+                                        <td class="text-center @bgColor">@Model.SubContractGarmentsProductionList[aop].TargetQuantity</td>
+                                        <td class="text-right">
+                                            @if (@Model.SubContractGarmentsProductionList[aop].Ttl_Ok_Qty > 0)
+                                            {
+                                                <span title="Line Manpower">M=@Model.SubContractGarmentsProductionList[aop].LineManpower</span><br />
+                                            }
+                                            @Model.SubContractGarmentsProductionList[aop].TargetEffiency
+                                        </td>
+                                        @{
+                                            if (Model.SubContractGarmentsProductionList[aop].AchiveEfficiency >= 55)
+                                            {
+                                                bgColor = "";
+                                            }
+                                            else if (Model.SubContractGarmentsProductionList[aop].AchiveEfficiency < 55 && Model.SubContractGarmentsProductionList[aop].AchiveEfficiency >= 50)
+                                            {
+                                                bgColor = "bg-info";
+                                            }
+                                            else if (Model.SubContractGarmentsProductionList[aop].AchiveEfficiency < 50 && Model.SubContractGarmentsProductionList[aop].AchiveEfficiency >= 45)
+                                            {
+                                                bgColor = "bg-yellow";
+                                            }
+                                            else if (Model.SubContractGarmentsProductionList[aop].AchiveEfficiency < 45 && Model.SubContractGarmentsProductionList[aop].AchiveEfficiency >= 40)
+                                            {
+                                                bgColor = "bg-orange";
+                                            }
+                                            else
+                                            {
+                                                bgColor = "bg-danger";
+                                            }
+                                            /* bgColor = Model.InhouseGarmentsProductionList[aop].AchiveEfficiency < Model.InhouseGarmentsProductionList[aop].TargetEffiency ? "text-light bg-danger" : "";*/
+
+                                        }
+                                        <td class="text-right  @bgColor">@Model.SubContractGarmentsProductionList[aop].AchiveEfficiency</td>
+                                        <td class="text-right">@Model.SubContractGarmentsProductionList[aop].CM_PC</td>
+                                        @{
+                                            if (Model.SubContractGarmentsProductionList[aop].LineName != oldLine)
+                                            {
+
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@SublineAmountInfo.EarningUSD</td>
+                                            }
+                                        }
+                                        @{
+                                            if (Model.SubContractGarmentsProductionList[aop].LineName != oldLine)
+                                            {
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@SublineAmountInfo.EarningTK</td>
+                                            }
+                                        }
+                                        <td style="display:none;" class="text-center">@Model.SubContractGarmentsProductionList[aop].StartHour - @Model.SubContractGarmentsProductionList[aop].EndHour</td>
+                                        @{
+                                            if (Model.SubContractGarmentsProductionList[aop].LineName != oldLine)
+                                            {
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.SubContractGarmentsProductionList[aop].LineSalary</td>
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.SubContractGarmentsProductionList[aop].Line_OT</td>
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">
+                                                    @(Model.SubContractGarmentsProductionList[aop].LineSalary
+                                                                            + Model.SubContractGarmentsProductionList[aop].Line_OT)
+                                                </td>
+                                            }
+                                        }
+
+
+                                        @{
+                                            var subContacTRateParePec = Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractRate, 2);
+                                            bgColor = subContacTRateParePec == 0 ? "text-light bg-warning" : "";
+                                        }
+                                        @if (Model.SubContractGarmentsProductionList[aop].StyleSubContractRate == 0)
+                                        {
+                                            <td class="text-center font-weight-bold @bgColor" title="Add Subcontact Rate">@Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractRate, 2)</td>
+                                        }
+                                        else
+                                        {
+
+
+                                            <td class="text-center font-weight-bold @bgColor">@Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractRate, 2)</td>
+                                        }
+
+                                        <td class="text-right">@Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractAmount, 2)</td>
+
+                                        @if (Model.SubContractGarmentsProductionList[aop].LineName != oldLine)
+                                        {
+                                            <td class="text-right" rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" style="vertical-align:middle">@Math.Round(SublineAmountInfo.TotalSubContractCharge, 2)</td>
+                                        }
+
+                                        @{
+                                            if (Model.SubContractGarmentsProductionList[aop].LineName != oldLine)
+                                            {
+                                                var profitLose = @Math.Round(SublineAmountInfo.EarningTK - SublineAmountInfo.TotalSubContractCharge, 2);
+                                                bgColor = profitLose >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                                <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right @bgColor" style="vertical-align:middle">@Math.Round(SublineAmountInfo.EarningTK - SublineAmountInfo.TotalSubContractCharge, 2)</td>
+                                            }
+                                        }
+                                    </tr>
+                                                //Floor Total
+                                                @if (aop == totalRowData || Model.SubContractGarmentsProductionList[aop].FloorName != Model.SubContractGarmentsProductionList[aop + 1].FloorName)
+                                                {
+                                                    <tr class="table-thead" style="font-weight:bold;">
+                                                        <td class="text-right" colspan="6">@oldFloorName Total</td>
+
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.RcvQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.ALterQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.SpotQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.RejectQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.TargetQuantity))</td>
+                                                        <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">$ @String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.TotalCMDol))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.TotalCMTk))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.LineSalary))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.Line_OT))</td>
+                                                        <td class="text-right">
+                                                            @String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.LineSalary)
+                                                       + SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.Line_OT))
+                                                        </td>
+                                                        <td>&nbsp;</td>
+                                                        @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.StyleSubContractAmount))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.TotalSubContractCharge))</td>
+                                                        @{
+                                                            var rGSProfit = SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineProfit);
+                                                            bgColor = rGSProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                                        }
+                                                        <td class="text-right @bgColor">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.FloorName == Model.SubContractGarmentsProductionList[aop].FloorName).Sum(b => b.LineProfit))</td>
+
+                                                    </tr>
+
+                                                }
+
+                                                //Building Total
+                                                @if (aop == totalRowData || Model.SubContractGarmentsProductionList[aop].BuildingName != Model.SubContractGarmentsProductionList[aop + 1].BuildingName)
+                                                {
+                                                    <tr class="table-thead" style="font-weight:bold;">
+                                                        <td class="text-right" colspan="6">@oldBuildingName Total</td>
+
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.RcvQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.ALterQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.SpotQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.RejectQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TargetQuantity))</td>
+                                                        <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">$ @String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMDol))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMTk))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.Line_OT))</td>
+                                                        <td class="text-right">
+                                                            @String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary)
+                                                       + SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.Line_OT))
+                                                        </td>
+                                                        <td>&nbsp;</td>
+                                                        @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.StyleSubContractAmount))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalSubContractCharge))</td>
+                                                        @{
+                                                            var garmentsBuildingsProfit = SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineProfit);
+                                                            bgColor = garmentsBuildingsProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                                        }
+
+                                                        <td class="text-right @bgColor">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineProfit))</td>
+
+                                                    </tr>
+                                                    <tr class="invisible">
+                                                        <td colspan="19">&nbsp;</td>
+                                                    </tr>
+                                                }
+
+
+                                                oldLine = Model.SubContractGarmentsProductionList[aop].LineName;
+                                                oldBuildingName = Model.SubContractGarmentsProductionList[aop].BuildingName;
+                                                oldFloorName = Model.SubContractGarmentsProductionList[aop].FloorName;
+
+
+
+                                            }
+
+                                        }
+
+
+                                        <tr class="table-thead text-xs" style="font-weight:bold;">
+                                            <td class="text-right" colspan="6">Sub-Contract Total</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.RcvQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.ALterQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.SpotQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.RejectQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty))</td>
+                                            <td>&nbsp;</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.TargetQuantity))</td>
+                                            <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
+                                            <td class="text-right">$ @String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.TotalCMDol))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.TotalCMTk))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.LineSalary))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.Line_OT))</td>
+                                            <td class="text-right">
+                                                @String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.LineSalary)
+                                           + SubContractLineListSummary.Sum(b => b.Line_OT))
+                                            </td>
+                                            <td>&nbsp;</td>
+                                            @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                            <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.StyleSubContractAmount))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.TotalSubContractCharge))</td>
+                                            @{
+                                                var lineProfit = SubContractLineListSummary.Sum(b => b.LineProfit);
+                                                bgColor = lineProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                            }
+                                            <td class="text-right @bgColor">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.LineProfit))</td>
+                                            @*<td>&nbsp;</td>*@
+                                            @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+
+
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+
+                                    </tfoot>
+                                </table>
+                            }
+                        </div>
+                    </div>
+
+
+                </div>
+            }
+
+            else //   @*Garment Production*@
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive-sm table-responsive-lg">
+                            <h6 style="background:#ed8080" class="text-center p-1">In-House Production</h6>
+                            <table class="table table-striped table-sm  table-bordered mdReport borderColor">
+                                <thead>
+                                    <tr class="table-thead">
+                                        <th style="width:30px;">SL</th>
+                                        <th width="80">Production <br /> Date</th>
+                                        <th width="80">Order NO</th>
+                                        <th width="120">Style</th>
+                                        <th>Color</th>
+                                        <th width="60">Floor <br /> Name</th>
+                                        <th>Receive <br /> Quantity</th>
+                                        <th>Alter <br /> Quantity</th>
+                                        <th>Spot <br /> Quantity</th>
+                                        <th>Reject <br /> Quantity</th>
+                                        <th>Pass <br /> Quantity</th>
+                                        <th>CM/PC</th>
+                                        <th>Earning <br />(USD)</th>
+                                        <th>Earning <br />(BDT)</th>
+                                        <th style="display:none;">Working <br /> Duration</th>
+                                        <th>Line <br /> Salary</th>
+                                        <th>Profit</th>
+                                        @*<th>Working <br /> Hours</th>*@
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+
+                                    @{
+
+                                        for (var aop = 0; aop < Model.InhouseGarmentsProductionList.Count; aop++)
+                                        {
+                                            var lineAmountInfo = LineListSummary.Where(l => l.FloorName == Model.InhouseGarmentsProductionList[aop].FloorName).FirstOrDefault();
+
+                                            sl = sl + 1;
+                                            workingHour = Math.Abs(Model.InhouseGarmentsProductionList[aop].StartHour.Value - Model.InhouseGarmentsProductionList[aop].EndHour.Value);
+                                            TotalWorkingHour += workingHour;
+
+
+
+                                            @if (Model.InhouseGarmentsProductionList[aop].BuildingName != oldBuildingName)
+                                            {
+                                                buildingTotal = 0;
+                                                <tr>
+                                                    <td class="text-center" colspan="16" style="font-weight:bold;font-size:13px">@Model.InhouseGarmentsProductionList[aop].BuildingName</td>
+                                                </tr>
+                                            }
+
+
+                                            <tr>
+                                                <td>@sl</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].ProductionDate</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].OrderNo</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].StyleName</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].PantoneNo</td>
+                                                <td>@Model.InhouseGarmentsProductionList[aop].FloorName</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].RcvQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].ALterQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].SpotQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].RejectQty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].Ttl_Ok_Qty</td>
+                                                <td class="text-right">@Model.InhouseGarmentsProductionList[aop].CM_PC</td>
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                    {
+
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@lineAmountInfo.EarningUSD</td>
+                                                    }
+                                                }
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                    {
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@lineAmountInfo.EarningTK</td>
+                                                    }
+                                                }
+                                                <td style="display:none;" class="text-center">@Model.InhouseGarmentsProductionList[aop].StartHour - @Model.InhouseGarmentsProductionList[aop].EndHour</td>
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                    {
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.InhouseGarmentsProductionList[aop].LineSalary</td>
+                                                    }
+                                                }
+                                                @{
+                                                    if (Model.InhouseGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                    {
+                                                        <td rowspan="@Model.InhouseGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@(lineAmountInfo.EarningTK - lineAmountInfo.LineSalary)</td>
+                                                    }
+                                                }
+
+                                                @*<td class="text-right">@workingHour</td>*@
+                                            </tr>
+
+                                            //Building Total
+                                            @if (aop == totalRowData || Model.InhouseGarmentsProductionList[aop].BuildingName != Model.InhouseGarmentsProductionList[aop + 1].BuildingName)
+                                            {
+                                                <tr class="table-thead" style="font-weight:bold;">
+                                                    <td class="text-right" colspan="6">@Model.InhouseGarmentsProductionList[aop].BuildingName Total</td>
+
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.RcvQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.ALterQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.SpotQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.RejectQty))</td>
+                                                    <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                    <td>&nbsp;</td>
+                                                    <td class="text-right">$ @String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMDol))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMTk))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary))</td>
+                                                    <td class="text-right">@String.Format("{0:n2}", LineListSummary.Where(b => b.BuildingName == Model.InhouseGarmentsProductionList[aop].BuildingName).Sum(b => b.EarningTK - b.LineSalary))</td>
+                                                    @*<td>&nbsp;</td>*@
+                                                    @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                </tr>
+                                                <tr class="invisible">
+                                                    <td colspan="16">&nbsp;</td>
+                                                </tr>
+                                            }
+
+
+                                            oldLine = Model.InhouseGarmentsProductionList[aop].LineName;
+                                            oldBuildingName = Model.InhouseGarmentsProductionList[aop].BuildingName;
+                                            oldFloorName = Model.InhouseGarmentsProductionList[aop].FloorName;
+
+
+
+                                        }
+
+                                    }
+
+
+                                    <tr class="table-thead" style="font-weight:bold;">
+                                        <td class="text-right" colspan="6">In-hourse Total</td>
+
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.RcvQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.ALterQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.SpotQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.RejectQty))</td>
+                                        <td class="text-right">@String.Format("{0:n0}", Model.InhouseGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty))</td>
+                                        <td>&nbsp;</td>
+                                        <td class="text-right">$ @String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMDol))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", Model.InhouseGarmentsProductionList.Sum(b => b.TotalCMTk))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.LineSalary))</td>
+                                        <td class="text-right">@String.Format("{0:n2}", LineListSummary.Sum(b => b.EarningTK - b.LineSalary))</td>
+                                        @*<td>&nbsp;</td>*@
+                                        @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+
+                                </tfoot>
+                            </table>
+
+                            <h6 class="text-center p-1" style="background:#ed8080">Sub-Contract Production</h6>
+                            @if (Model.SubContractGarmentsProductionList.Count > 0)
+                            {
+                                oldLine = "";
+                                oldBuildingName = "";
+                                oldFloorName = "";
+                                <table class="table table-striped table-sm  table-bordered mdReport borderColor">
+                                    <thead>
+                                        <tr class="table-thead">
+                                            <th style="width:30px;">SL</th>
+                                            <th width="80">Production <br /> Date</th>
+                                            <th width="80">Order NO</th>
+                                            <th width="120">Style</th>
+                                            <th>Color</th>
+                                            <th width="60">Line <br /> Name</th>
+                                            <th>Receive <br /> Quantity</th>
+                                            <th>Alter <br /> Quantity</th>
+                                            <th>Spot <br /> Quantity</th>
+                                            <th>Reject <br /> Quantity</th>
+                                            <th>Pass <br /> Quantity</th>
+                                            <th>CM/PC</th>
+                                            <th>Earning <br />(USD)</th>
+                                            <th>Earning <br />(BDT)</th>
+                                            <th style="display:none;">Working <br /> Duration</th>
+                                            <th>Line <br /> Salary</th>
+                                            <th>Sub. Rate<br>Per Pcs </th>
+                                            <th>Total Sub.<br>Charge</th>
+                                            <th>Total<br>Cost</th>
+                                            <th>Profit</th>
+                                            @*<th>Working <br /> Hours</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-body">
+
+                                        @{
+                                            totalRowData = Model.SubContractGarmentsProductionList.Count() - 1;
+                                            for (var aop = 0; aop < Model.SubContractGarmentsProductionList.Count; aop++)
+                                            {
+                                                var SublineAmountInfo = SubContractLineListSummary.Where(l => l.LineName == Model.SubContractGarmentsProductionList[aop].LineName).FirstOrDefault();
+
+                                                sl = sl + 1;
+                                                workingHour = Math.Abs(Model.SubContractGarmentsProductionList[aop].StartHour.Value - Model.SubContractGarmentsProductionList[aop].EndHour.Value);
+                                                TotalWorkingHour += workingHour;
+
+
+
+                                                @if (Model.SubContractGarmentsProductionList[aop].BuildingName != oldBuildingName)
+                                                {
+                                                    buildingTotal = 0;
+                                                    <tr>
+                                                        <td class="text-center" colspan="19" style="font-weight:bold;font-size:13px">@Model.SubContractGarmentsProductionList[aop].BuildingName</td>
+                                                    </tr>
+                                                }
+                                                <tr>
+
+
+                                                    <td>@sl</td>
+                                                    <td>@Model.SubContractGarmentsProductionList[aop].ProductionDate</td>
+                                                    <td>@Model.SubContractGarmentsProductionList[aop].OrderNo</td>
+                                                    <td>@Model.SubContractGarmentsProductionList[aop].StyleName</td>
+                                                    <td>@Model.SubContractGarmentsProductionList[aop].PantoneNo</td>
+                                                    <td>@Model.SubContractGarmentsProductionList[aop].FloorName</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].RcvQty</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].ALterQty</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].SpotQty</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].RejectQty</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].Ttl_Ok_Qty</td>
+                                                    <td class="text-right">@Model.SubContractGarmentsProductionList[aop].CM_PC</td>
+                                                    @{
+                                                        if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                        {
+
+                                                            <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@SublineAmountInfo.EarningUSD</td>
+                                                        }
+                                                    }
+                                                    @{
+                                                        if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                        {
+                                                            <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@SublineAmountInfo.EarningTK</td>
+                                                        }
+                                                    }
+                                                    <td style="display:none;" class="text-center">@Model.SubContractGarmentsProductionList[aop].StartHour - @Model.SubContractGarmentsProductionList[aop].EndHour</td>
+                                                    @{
+                                                        if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                        {
+                                                            <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Model.SubContractGarmentsProductionList[aop].LineSalary</td>
+                                                        }
+                                                    }
+
+
+                                                    @*<td class="text-right">@workingHour</td>*@
+                                                    <td class="text-right">@Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractRate, 2)</td>
+                                                    <td class="text-right">@Math.Round(Model.SubContractGarmentsProductionList[aop].StyleSubContractAmount, 2)</td>
+
+                                                    @if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                    {
+                                                        <td class="text-right" rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" style="vertical-align:middle">@Math.Round(SublineAmountInfo.TotalSubContractCharge, 2)</td>
+                                                    }
+
+                                                    @{
+                                                        if (Model.SubContractGarmentsProductionList[aop].FloorName != oldFloorName)
+                                                        {
+                                                            <td rowspan="@Model.SubContractGarmentsProductionList[aop].LineGroup" class="text-right" style="vertical-align:middle">@Math.Round(SublineAmountInfo.EarningTK - SublineAmountInfo.TotalSubContractCharge, 2)</td>
+                                                        }
+                                                    }
+                                                </tr>
+
+                                                //Building Total
+                                                @if (aop == totalRowData || Model.SubContractGarmentsProductionList[aop].BuildingName != Model.SubContractGarmentsProductionList[aop + 1].BuildingName)
+                                                {
+                                                    <tr class="table-thead" style="font-weight:bold;">
+                                                        <td class="text-right" colspan="6">@oldBuildingName Total</td>
+
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.RcvQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.ALterQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.SpotQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.RejectQty))</td>
+                                                        <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.Ttl_Ok_Qty))</td>
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">$ @String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMDol))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalCMTk))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineSalary))</td>
+                                                        <td>&nbsp;</td>
+                                                        @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                                        <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.StyleSubContractAmount))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.TotalSubContractCharge))</td>
+                                                        <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Where(b => b.BuildingName == Model.SubContractGarmentsProductionList[aop].BuildingName).Sum(b => b.LineProfit))</td>
+
+                                                    </tr>
+                                                    <tr class="invisible">
+                                                        <td colspan="19">&nbsp;</td>
+                                                    </tr>
+                                                }
+
+
+                                                oldLine = Model.SubContractGarmentsProductionList[aop].LineName;
+                                                oldBuildingName = Model.SubContractGarmentsProductionList[aop].BuildingName;
+                                                oldFloorName = Model.SubContractGarmentsProductionList[aop].FloorName;
+
+
+
+                                            }
+
+                                        }
+
+
+                                        <tr class="table-thead" style="font-weight:bold;">
+                                            <td class="text-right" colspan="6">Sub-Contract Total</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.RcvQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.ALterQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.SpotQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.RejectQty))</td>
+                                            <td class="text-right">@String.Format("{0:n0}", Model.SubContractGarmentsProductionList.Sum(b => b.Ttl_Ok_Qty))</td>
+                                            <td>&nbsp;</td>
+                                            <td class="text-right">$ @String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.TotalCMDol))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.TotalCMTk))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.LineSalary))</td>
+                                            <td>&nbsp;</td>
+                                            @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+                                            <td class="text-right">@String.Format("{0:n2}", Model.SubContractGarmentsProductionList.Sum(b => b.StyleSubContractAmount))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.TotalSubContractCharge))</td>
+                                            <td class="text-right">@String.Format("{0:n2}", SubContractLineListSummary.Sum(b => b.LineProfit))</td>
+                                            @*<td>&nbsp;</td>*@
+                                            @*<td class="text-right">@String.Format("{0:n0}", TotalWorkingHour)</td>*@
+
+
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+
+                                    </tfoot>
+                                </table>
+                            }
+                        </div>
+                    </div>
+
+
+                </div>
+            }
+            @*</main>*@
+        </div>
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print" onClick="window.print()">
+        </div>
+    </div>
+
+
+
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @*<script src="https:/ /cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>*@
+    <script src="~/lib/floatThead/floatThead.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(".sticky-header").floatThead({ scrollingTop: 50 });
+
+
+
+        });
+    </script>
+</body>
+</html>

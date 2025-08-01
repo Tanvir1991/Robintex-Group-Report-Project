@@ -1,0 +1,206 @@
+﻿@model List<RTEXERP.Contracts.BLModels.CMS.MonthlyCuttingProductionResponseModel>
+@{
+    ViewData["Title"] = "Monthly Cutting Production Report";
+    Layout = null;
+    int sl = 0;
+
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Monthly Cutting Production Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    @*<link rel="stylesheet" href="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https:/ /code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <div class="navbar-brand col-sm-12 col-md-12 mr-0">Monthly Cutting Production Report</div>
+    </nav>
+
+    <div class="container-fluid">
+        <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">
+            <div class="row">
+                
+                <div class="col-md-12 col-lg-12" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Robintex Group Bangladesh</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Monthly Cutting Production Summary</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">@Model[0].DateDuration </span>
+                </div>
+
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-12 col-lg-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0">
+                            <thead style="font-size:12px;">
+                                <tr class="table-thead">
+                                    <th rowspan="2" style="vertical-align:middle" width="3%">SL</th>
+                                    <th rowspan="2" style="vertical-align:middle">Date</th>
+                                    <th colspan="3" valign="middle" class="th-md th-lg">Cutting</th>
+                                    <th colspan="3" valign="middle" class="th-md th-lg">Inspection</th>
+                                    <th colspan="3" valign="middle" class="th-md th-lg">Pass</th>
+                                    <th colspan="3" valign="middle" class="th-md th-lg">Defect</th>
+                                    <th rowspan="2" style="vertical-align:middle" class="th-md th-lg" width="10%">Salary</th>
+                                    <th rowspan="2" style="vertical-align:middle" class="th-md th-lg" width="4%">Cost/Pc<br/>BDT</th>
+                     
+
+                                </tr>
+                                <tr class="table-thead">
+                                    @*Cutting*@
+                                    <th class="th-md th-lg">RBL</th>
+                                    <th class="th-md th-lg">CBL</th>
+                                    <th class="th-md th-lg">Total</th>
+                                    @*Inspection*@
+                                    <th class="th-md th-lg">RBL</th>
+                                    <th class="th-md th-lg">CBL</th>
+                                    <th class="th-md th-lg">Total</th>
+                                    @*Pass*@
+                                    <th class="th-md th-lg">RBL</th>
+                                    <th class="th-md th-lg">CBL</th>
+                                    <th class="th-md th-lg">Total</th>
+                                    @*Defect*@
+                                    <th class="th-md th-lg">RBL</th>
+                                    <th class="th-md th-lg">CBL</th>
+                                    <th class="th-md th-lg">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+
+                                @{
+
+                                    foreach (var aop in Model)
+                                    {
+                                        sl = sl + 1;
+
+                                                                <tr>
+                                                                    <td style="text-align:center">@sl</td>
+                                                                    <td style="text-align:center">@aop.CurrentDateSTR</td>
+
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.RBLCuttingQty)) </td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.CBLCuttingQty))</td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.TotalCutting))</td>
+                                                                                     
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.RBLInspectionQty)) </td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.CBLInspectionQty))</td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.TotalInspectionQty))</td>
+                                                                                     
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.RBLPassQty)) </td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.CBLPassQty))</td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.TotalPassQty))</td>
+                                                                                     
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.RBLDefectQty)) </td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.CBLDefectQty))</td>
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n0}", aop.TotalDefectQty))</td>
+
+                                                                    <td class="text-right text-bold">@(String.Format("{0:n2}", aop.DailySalary))</td>
+                                                                    <td class="text-center text-bold">@(String.Format("{0:n2}", aop.CostPerPcsCutting))</td>
+                                                                    
+                                                                </tr>
+
+                                    }
+                            <tr class="font-weight-bold">
+                                <td style="text-align:center" colspan="2">Monthly Summary</td>
+
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.RBLCuttingQty))) </td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.CBLCuttingQty)))</td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.TotalCutting)))</td>
+                                                                                       
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.RBLInspectionQty))) </td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.CBLInspectionQty)))</td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.TotalInspectionQty)))</td>
+                                                                                     
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.RBLPassQty))) </td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.CBLPassQty)))</td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.TotalPassQty)))</td>
+                                                                                     
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.RBLDefectQty))) </td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.CBLDefectQty)))</td>
+                                <td class="text-right text-bold">@(String.Format("{0:n0}", Model.Sum(b=>b.TotalDefectQty)))</td>
+
+                                <td class="text-right text-bold">@(String.Format("{0:n2}", Model.Sum(b => b.DailySalary)))</td>
+                                <td class="text-center text-bold">@(String.Format("{0:n2}", Model.Sum(b => b.DailySalary)/ Model.Sum(b => b.TotalCutting)))</td>
+
+
+                            </tr>
+
+                                }
+
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+        </div>
+    </div>
+
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @*<script src="https:/ /cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>*@
+
+</body>
+</html>

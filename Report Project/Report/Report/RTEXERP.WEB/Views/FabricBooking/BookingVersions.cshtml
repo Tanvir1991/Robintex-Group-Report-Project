@@ -1,0 +1,61 @@
+﻿@model List<RTEXERP.Contracts.BLModels.Maxco.ViewModel.FabricBookingVersionViewModel>
+
+@{
+    ViewData["Title"] = "Fabric Booking Versions";
+    ViewData["pageTitle"] = "Fabric Booking Versions";
+    ViewData["btnText"] = "Back to list";
+    ViewData["btnLink"] = "/FabricBooking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form method="post" asp-controller="FabricBooking" id="frmBookingCreate" asp-action="Create">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-sm table-bordered text-center" style="font-size:12px;" id="tblFabricBookingList">
+                <thead>
+                    <tr>
+                        <th>SL #</th>
+                        <th>Buyer</th>
+                        <th>Order No</th>
+                        <th>Fabric Booking No</th>
+                        <th>Version</th>
+                        <th>Reference</th>
+                        <th>Created Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var sl = 0;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@(++sl)</td>
+                                <td>@item.BuyerName</td>
+                                <td>@item.OrderNo</td>
+                                <td>@item.FabricBookingNo</td>
+                                <td>@item.Version</td>
+                                <td>@item.Reference</td>
+                                <td>@item.CreatedDateMsg</td>
+                                <td><input type="button" class="btn btn-xs btn-warning" value="Show" onclick="ViewReport(@item.FabricBookingID,@item.BookingMasterID)"/></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+@section scripts{ 
+    <script type="text/javascript">
+    function ViewReport(FabricBookingID, BookingMasterID) {
+        if (FabricBookingID > 0 && BookingMasterID > 0) {
+            let reportFormat = "@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()";
+            var url = `/FabricBooking/FabricBookingReport?FabricBookingID=${FabricBookingID}&BookingMasterID=${BookingMasterID}&ReportFormat=${reportFormat}`;
+            window.open(url, "Trail Balance", "status=1,toolbar=0");
+        }
+    }
+
+    </script>
+
+}

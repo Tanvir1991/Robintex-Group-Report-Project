@@ -1,0 +1,1274 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.MAC_OrderCostingInfoVM
+@{
+    ViewData["Title"] = "Order Costing";
+    ViewData["pageTitle"] = "Order Costing";
+    int IndirectSL = 1;
+    string _readonly = "";
+    decimal indirect_Rate = 0;
+    decimal totalAccessoriesCost = Model.MAC_AccessoriesCostingInfo.Where(b => b.CostingTypeID == 2 || b.CostingTypeID == 1).Sum(b => b.CostRate);
+    decimal Accessoriescommission = totalAccessoriesCost * Model.BackCalculationPercent / 100;
+    decimal totalAccessoriesCostWithCommission = totalAccessoriesCost + Accessoriescommission;
+}
+<div class="row pt-1">
+    <div class="col-md-12">
+        <form role="form" class="form-horizontal" id="frmMerchandising">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        @{ if (Model.ID > 0)
+                            {
+                                <input asp-for="ID" id="OrderCostingID" type="hidden" />
+                            }
+                        }
+
+
+                        <label asp-for="BuyerID" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <select asp-for="BuyerID" asp-items="Model.DDLBuyer" class="form-control form-control-sm"></select>
+                            <span asp-validation-for="BuyerID" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="OrderNo" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="OrderNo" class="form-control form-control-sm" autocomplete="off" />
+                            <span asp-validation-for="OrderNo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="StyleName" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="StyleName" class="form-control form-control-sm" />
+                            <span asp-validation-for="StyleName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row" style="margin-top:10px;">
+
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="OrderQuantity" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="OrderQuantity" class="form-control form-control-sm" />
+                            <span asp-validation-for="OrderQuantity" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="CBL" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="CBL" class="form-control form-control-sm" type="number" />
+                            <span asp-validation-for="CBL" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="BackCalculationPercent" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="BackCalculationPercent" class="form-control form-control-sm" onchange="return commisionAmount();" type="number" />
+                            <span asp-validation-for="BackCalculationPercent" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="FabricConsumptionPerDzn" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="FabricConsumptionPerDzn" type="number" class="form-control form-control-sm" onchange="return FabricpricePerDozencost();" />
+                            <span asp-validation-for="FabricConsumptionPerDzn" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="SMV" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="SMV" class="form-control form-control-sm" type="number" />
+                            <span asp-validation-for="SMV" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="CostingDate" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="CostingDateSTR" id="CostingDate" name="CostingDate" class="form-control form-control-sm dateField" type="text" readonly />
+                            <span asp-validation-for="SMV" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="CPM" class="col-sm-4 control-label label-ajt-sm required"></label>
+                        <div class="col-sm-8">
+                            <input asp-for="CPM" readonly value="0.035" class="form-control form-control-sm" type="number" />
+                            <span asp-validation-for="CPM" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group row">
+                        <label asp-for="Efficiency" class="col-sm-4 control-label label-ajt-sm required">Efficiency(%)</label>
+                        <div class="col-sm-8">
+                            <input asp-for="Efficiency" class="form-control form-control-sm" type="number" />
+                            <span asp-validation-for="Efficiency" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+                <div class="col-sm-12">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h4 class="box-title">Fabric Costing Info</h4>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label label-ajt-sm required">F. Composition</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="FabricCompisition" id="FabricCompisition" class="form-control form-control-sm " required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label asp-for="FabricTypeID" class="col-sm-3 control-label label-ajt-sm required"></label>
+                                        <div class="col-sm-9">
+                                            <select asp-for="FabricTypeID" asp-items="Model.DDLFabricType" class="form-control form-control-sm"></select>
+                                            <span asp-validation-for="FabricTypeID" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label asp-for="FabricQualityID" class="col-sm-3 control-label label-ajt-sm required"></label>
+                                        <div class="col-sm-9">
+                                            <select asp-for="FabricQualityID" asp-items="Model.DDLQuality" class="form-control form-control-sm"></select>
+                                            <span asp-validation-for="FabricQualityID" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="form-group row">
+                                        <label asp-for="GSM" class="col-sm-3 control-label label-ajt-sm required"></label>
+                                        <div class="col-sm-9">
+                                            <input asp-for="GSM" class="form-control form-control-sm" />
+                                            <span asp-validation-for="GSM" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label label-ajt-sm required">Color</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="FabricColor" name="FabricColor" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Count</label>
+                                        <div class="col-sm-9">
+                                            <select asp-for="YarnCounID" asp-items="@(new SelectList(Model.DDLYarnCount,"Text","Text"))" class="form-control form-control-sm"></select>
+                                            <span asp-validation-for="YarnCounID" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Lycra Percent</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="LycraPercent" name="LycraPercent" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Lycra Price</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="LycraPrice" name="LycraPrice" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row" style="margin-top:10px;">
+
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label label-ajt-sm required">Yarn Price</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="YarnPrice" name="YarnPrice" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Knitting Rate</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="KnittingRate" name="KnittingRate" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">K Wa. Per</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="KnittingWastagePer" name="KnittingWastagePer" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Deying Rate</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="DeyingRate" name="DeyingRate" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top:10px;">
+
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label label-ajt-sm required">D.W Percent</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="DeyingWastagePer" name="DeyingWastagePer" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label label-ajt-sm required">Leverage Percent</label>
+                                        <div class="col-sm-9">
+                                            <input type="number" id="LeveratePer" name="LeveratePer" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label class="col-sm-3 control-label label-ajt-sm required">&nbsp;</label>
+                                    <div class="col-sm-9">
+                                        <button type="button" id="btnAdd" class="btn btn-primary btn-sm">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row table-responsive" style="margin-top:10px;font-size:11px;">
+                                <table class="table table-bordered table-striped table-hover table-sm" id="tblFabric">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <td>Fabric Composition</td>
+                                            <td>Quality</td>
+                                            <td>GSM</td>
+                                            <td>Color</td>
+                                            <td>Count</td>
+                                            <td>Lycra Percent</td>
+                                            <td>Lycra Cost</td>
+                                            <td>Yarn Cost</td>
+                                            <td>Knitting <br />Cost</td>
+                                            <td>Knitting <br /> Wastage Per</td>
+                                            <td>Deying Charge</td>
+                                            <td>Deying Wastage Per</td>
+                                            <td>Total Price</td>
+                                            <td>Leverage Percent</td>
+                                            <td>Contribution</td>
+                                            <td class="text-danger" style="font-weight:bold;">X</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblFabricBody">
+                                        @foreach (var f in Model.MAC_FabricCostingInfo)
+                                        {
+                                            <tr>
+                                                <td class="tdFabricCompisition">@f.FabricCompisition</td>
+                                                <td class="tdFabricQuality">@f.FabricQuality</td>
+                                                <td class="tdGSM">@f.GSM</td>
+                                                <td class="tdFabricColor">@f.FabricColor</td>
+                                                <td class="tdYarnCount">@f.YarnCount</td>
+                                                <td class="tdLycraCostPercent">@f.LycraCostPercent</td>
+                                                <td class="tdLycraCost">@f.LycraCost</td>
+                                                <td class="tdYarnPrice">@f.YarnPrice</td>
+                                                <td class="tdKnittingCost">@f.KnittingCost</td>
+                                                <td class="tdKnittingWastagePer">@f.KnittingWastagePer</td>
+                                                <td class="tdDeyingCostSolid">@f.DeyingCostSolid</td>
+                                                <td class="tdDeyingWastagePer">@f.DeyingWastagePer</td>
+                                                <td class="tdfabricTotalPrice">@String.Format("{0:n5}", f.TotalPrice)</td>
+                                                <td class="tdFabricLeveragePercent">@String.Format("{0:n2}", f.LeveragePercent)</td>
+                                                <td class="tdTotalContribution">@String.Format("{0:n5}", f.TotalContribution)</td>
+                                                <td class="text-danger">
+                                                    <input type="button" class="btn btn-xs btn-danger" value="X" onclick="DeleteFabricRow(this)" />
+                                                    <input type="hidden" class="hdnFabricQualityID" value="@f.FabricQualityID">
+                                                    @{
+                                                        if (Model.ID > 0)
+                                                        {
+                                                            <input type="hidden" class="hdnDBFabricID" value="@f.ID">
+                                                        }
+                                                    }
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="12" class="text-right">Total</td>
+                                            <td class="tdFabricGrandTotal">@String.Format("{0:n5}", Model.MAC_FabricCostingInfo.Average(b => b.TotalPrice))</td>
+                                            <td class="tdFabricLeverageAVG">0</td>
+                                            <td class="tdFabricGrandContribution">@String.Format("{0:n5}", Model.MAC_FabricCostingInfo.Average(b => b.TotalContribution))</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h4 class="box-title">Accessories Costing (Direct Costing)</h4>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label  required">Trim</label>
+                                        <div class="col-sm-8">
+                                            <select asp-for="TrimID" asp-items="Model.DDLTrim" class="form-control form-control-sm"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label  required">Accessories Name</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="CostingFor" id="CostingFor" class="form-control form-control-sm " required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label label-ajt-sm required">Price</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="CostRate" id="CostRate" class="form-control form-control-sm " required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label class="col-sm-4 control-label label-ajt-sm required">&nbsp;</label>
+                                    <div class="col-sm-8">
+                                        <button type="button" id="btnAccessoriesAdd" class="btn btn-primary btn-sm">Add</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+
+                            <div class="row" style="margin-top:10px">
+                                <table class="table table-bordered table-striped table-hover table-sm" style="font-size:11px;" id="tblAccessories">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblTrimBody">
+                                        @foreach (var trim in Model.MAC_AccessoriesCostingInfo.Where(b => b.CostingTypeID == 1).ToList())
+                                        {
+                                            <tr class="trimCost">
+                                                <td class="tdCostingFor">@trim.CostingFor</td>
+                                                <td class="tdTrimRate">@trim.CostRate</td>
+                                                <td class="txtAlignCenter tdAction">
+                                                    <input type="button" class="btn btn-xs btn-danger" value="Delete" onclick="DeleteTableRow(this)">
+                                                    <input type="hidden" class="tdTrimID" value="@trim.TrimID">
+                                                    @{
+                                                        if (Model.ID > 0)
+                                                        {
+                                                            <input type="hidden" class="hdnDBAccessoriesID" value="@trim.ID">
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td style="font-weight:bold;">Total Accessories</td>
+                                            <td>
+                                                <input type="text" class="control-label  text-center tdtotalAccessoriesCost" id="tdtotalAccessoriesCost" readonly
+                                                       value="@Model.MAC_AccessoriesCostingInfo.Where(b => b.CostingTypeID == 1).Sum(b=>b.CostRate)" />
+                                            </td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        @foreach (var item in Model.InderectCostingItemList.Where(b => b.CostingTypeID == 2).OrderBy(b => b.ShowSerial).ToList())
+                                        {
+                                            _readonly = "";
+                                            _readonly = item.CssClass == "FabricpricePerDozon" ? "readonly" : "";
+                                            var dbitemInfo = Model.MAC_AccessoriesCostingInfo.Where(b => b.CostingItemID == item.CostingItemID).FirstOrDefault();
+                                            if (dbitemInfo != null)
+                                            {
+                                                indirect_Rate = dbitemInfo.CostRate;
+                                            }
+                                            else
+                                            {
+                                                indirect_Rate = 0;
+                                            }
+                                            <tr class="trIndirectItem">
+                                                <td class="tdCostingFor">@item.CostingItem</td>
+                                                <td class="tdCostingRate">
+                                                    <input type="number" value="@indirect_Rate" class="form-control form-control-sm inpInderictItemRate indirect_@IndirectSL @item.CssClass" @_readonly onChange="return tblaccessoriesTotalCost();" />
+                                                </td>
+                                                <td class="tdAction">
+                                                    <input type="hidden" class="CostingItemID" value="@item.CostingItemID" />
+                                                    @{
+                                                        if (Model.ID > 0)
+                                                        {
+                                                            <input type="hidden" class="hdnDBAccessoriesID" value="@dbitemInfo.ID">
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                            IndirectSL += 1;
+                                        }
+                                        @{
+                                            IndirectSL = 1;
+                                        }
+                                        <tr class="trAccessoriesWithIndirectCost" style="font-weight:bold">
+                                            <td>Grand Total</td>
+                                            <td class="tdGrandTotal">@totalAccessoriesCost</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr class="trBackToBackCommision" style="font-weight:bold">
+                                            <td>Commision Amount</td>
+                                            <td class="tdCommisionAmt">@Accessoriescommission</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        @foreach (var item in Model.InderectCostingItemList.Where(b => b.CostingTypeID == 3).OrderBy(b => b.ShowSerial).ToList())
+                                        {
+                                            string isRequired = item.CssClass == "FOBPriceOffer" ? "" : "required";
+                                            _readonly = item.CssClass == "FOBPriceOffer" ? "" : "readonly";
+                                            var _dbitemInfo = Model.MAC_AccessoriesCostingInfo.Where(b => b.CostingItemID == item.CostingItemID).FirstOrDefault();
+                                            if (_dbitemInfo != null)
+                                            {
+                                                indirect_Rate = _dbitemInfo.CostRate;
+                                            }
+                                            else
+                                            {
+                                                indirect_Rate = 0;
+                                            }
+                                            <tr class="trpriceItem">
+                                                <td class="tdCostingFor">@item.CostingItem</td>
+                                                <td class="tdCostingRate">
+                                                    <input type="number" @_readonly @isRequired value="@indirect_Rate" class="form-control inpPriceRate form-control-sm price_@IndirectSL @item.CssClass" />
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" class="CostingItemID" value="@item.CostingItemID" />
+                                                    @{
+                                                        if (Model.ID > 0)
+                                                        {
+                                                            <input type="hidden" class="hdnDBAccessoriesID" value="@_dbitemInfo.ID">
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                            IndirectSL = IndirectSL + 1;
+                                        }
+                                        <tr>
+                                            <td colspan="1" class="text-right">Total</td>
+                                            <td class="totalAccessoriesPrice">0</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        @{
+                            if (Model.ID > 0)
+                            {
+                                <button type="button" id="btnUpdate" class="btn btn-sm btn-primary">Update Cost</button>
+                            }
+                            else
+                            {
+                                <button type="button" id="btnSave" class="btn btn-sm btn-primary">Save Cost</button>
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+<style>
+    .ui-autocomplete-loading {
+        background: white url("/siteImage/ui-anim_basic_16x16.gif") right center no-repeat;
+    }
+</style>
+
+@section scripts{
+    <script type="text/javascript">
+        var DirectItem = [];
+        var hasError = 0;
+
+        function loadDirectItem() {
+
+            var trimid = $("#TrimID").val();
+            var trimName = $("#TrimID option:selected").text();
+            if (!trimid && trimid.length < 1) {
+                trimid = "";
+                trimName = "";
+                $("#CostingFor").val("");
+            }
+
+            $.ajax({
+                type: "Post",
+                data: { TrimID: trimid, Search: "" },
+                url: '/CommonDropDown/GetDirectAccessoriesItem',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    // console.log(rResult);
+                    if (rResult.length > 0) {
+                        $("#CostingFor").val("");
+                        DirectItem = rResult;
+                    } else {
+                        $("#CostingFor").val(trimName);
+                    }
+
+                },
+                failure: function (errMsg) {
+                    $.alert.open("error", errMsg);
+                }
+            });
+
+
+        }
+        function AddFabricDataInTable(dataObj) {
+            var tr = "";
+            var tblLength = $("#tblFabricBody tr").length;
+            $.each(dataObj, function (index, data) {
+                tblLength += 1;
+                //  tr += `<td>${tblLength}</td>`;
+
+                tr = "<tr>";
+                tr += `<td class="tdFabricCompisition">${data.FabricCompisition}</td>`;
+                tr += `<td class="tdFabricQuality">${data.FabricQuality}</td>`;
+                tr += `<td class="tdGSM">${data.GSM}</td>`;
+                tr += `<td class="tdFabricColor">${data.FabricColor}</td>`;
+                tr += `<td class="tdYarnCount">${data.YarnCount}</td>`;
+                tr += `<td class="tdLycraCostPercent">${data.LycraCostPercent}</td>`;
+                tr += `<td class="tdLycraCost">${data.LycraCost}</td>`;
+                tr += `<td class="tdYarnPrice">${data.YarnPrice}</td>`;
+                tr += `<td class="tdKnittingCost">${data.KnittingCost}</td>`;
+                tr += `<td class="tdKnittingWastagePer">${data.KnittingWastagePer}</td>`;
+                tr += `<td class="tdDeyingCostSolid">${data.DeyingCostSolid}</td>`;
+                tr += `<td class="tdDeyingWastagePer">${data.DeyingWastagePer}</td>`;
+                tr += `<td class="tdfabricTotalPrice">${data.TotalPrice}</td>`;
+                tr += `<td class="tdFabricLeveragePercent">${data.LeveragePercent}</td>`;
+                tr += `<td class="tdTotalContribution">${data.TotalContribution}</td>`;
+                tr += `<td class="text-danger">
+                            <input type="button" class="btn btn-xs btn-danger" value="X" onclick="DeleteFabricRow(this)" />
+                            <input type="hidden" class="hdnFabricQualityID" value="${data.FabricQualityID}">
+                        </td>`;
+                tr += "</tr>";
+            });
+            return tr;
+        }
+        function fabricTableTotal() {
+            let totalFabricPrice = 0;
+            let AverageLeveragePercent = 0;
+            let totalContribution = 0;
+            let countTotalFabric = 0;
+            $("#tblFabricBody tr").each(function (i, d) {
+                var that = $(this);
+                countTotalFabric += 1;
+                totalFabricPrice += parseFloat(that.find(".tdfabricTotalPrice").text());
+                totalContribution += parseFloat(that.find(".tdTotalContribution").text());
+                AverageLeveragePercent += parseFloat(that.find(".tdFabricLeveragePercent").text());
+            })
+
+            $(".tdFabricGrandTotal").text((totalFabricPrice / countTotalFabric).toFixed(3));
+            $(".tdFabricGrandContribution").text((totalContribution / countTotalFabric).toFixed(3));
+            $(".tdFabricLeverageAVG").text((AverageLeveragePercent / countTotalFabric).toFixed(2));
+            FabricpricePerDozencost();
+        }
+        function FabricpricePerDozencost() {
+            debugger;
+            const FabricGrandContribution = parseFloat($(".tdFabricGrandContribution").text());
+            const FabricConsumptionPerDzn = parseFloat($("#FabricConsumptionPerDzn").val());
+            const cons = (FabricGrandContribution * FabricConsumptionPerDzn).toFixed(3);
+            $(".FabricpricePerDozon").val(cons);
+            tblaccessoriesTotalCost();
+            commisionAmount();
+        }
+
+        function totalDirectAccessoriesCost() {
+            var totalCost = 0;
+            $("#tblTrimBody tr").each(function (i, d) {
+                var that = $(this);
+                var costRate = parseFloat(that.find(".tdTrimRate").text());
+                totalCost += costRate;
+            });
+            $(".tdtotalAccessoriesCost").val(totalCost);
+            tblaccessoriesTotalCost();
+        }
+
+        function commisionAmount() {
+            const totalCost = parseFloat($(".tdGrandTotal").text());
+            const commisionPer = parseFloat($("#BackCalculationPercent").val());
+            var res = totalCost * commisionPer / 100;
+            $(".tdCommisionAmt").text(res.toFixed(3))
+            const totalWithCommission = totalCost + res;
+            $(".backtobackCommission").val(totalWithCommission.toFixed(3))
+
+            const pricePerPices = totalWithCommission / 12;
+
+            $(".PriceOfferPerPcs").val(pricePerPices.toFixed(3));
+
+        }
+
+        function tblaccessoriesTotalCost() {
+            debugger;
+            let indirectCost = 0;
+            $("#tblAccessories tfoot tr.trIndirectItem").each(function (s, v) {
+                var that = $(this);
+                var dd = that.find(".inpInderictItemRate").val();
+
+                const indirectRate = parseFloat(dd);
+                if (indirectRate>0) {
+                    indirectCost += indirectRate;
+                }
+            });
+            const directCost = parseFloat($(".tdtotalAccessoriesCost").val());
+            const totalCost = indirectCost + directCost;
+            $(".tdGrandTotal").text(totalCost.toFixed(3));
+            commisionAmount();
+        }
+
+        function getDLLFabricQuality() {
+            const FabricTypeID = $("#FabricTypeID").val();
+            if (FabricTypeID) {
+                var data = GenerateDropDownOptions("CommonDropDown", "GetFabricQuality", { FabricTypeID: FabricTypeID }, "", "");
+                $("#FabricQualityID").html(data);
+
+            }
+
+        }
+
+
+        function fabricValidation() {
+            var errorCount = 0;
+            if (FabricCompisition.length < 1) {
+                $.alert.open("warning", "Enter fabric Compisition");
+                $("#FabricCompisition").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            if (YarnCounID.length < 1) {
+                $.alert.open("warning", "Enter yarn count");
+                $("#YarnCounID").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            if (YarnPrice.length < 1) {
+                $.alert.open("warning", "Enter yarn price");
+                $("#YarnPrice").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            if (KnittingRate.length < 1) {
+                $.alert.open("warning", "Enter knitting rate");
+                $("#KnittingRate").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            if (DeyingRate.length < 1) {
+                $.alert.open("warning", "Enter dyeing rate");
+                $("#DeyingRate").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            if (LeveratePer.length < 1) {
+                $.alert.open("warning", "Enter Leverate Percent");
+                $("#FabricCompisition").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            return errorCount;
+        }
+
+        function trimValidation() {
+            const CostingFor = $("#CostingFor").val();
+            let trimID = $("#TrimID").val();
+            const CostRate = $("#CostRate").val();
+            let errorCount = 0;
+
+            if (CostingFor == null || CostingFor=="" || CostingFor.length < 1) {
+                $.alert.open("warning", "Enter accessories name");
+                $("#CostingFor").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            else if (CostRate == null || CostRate=="" || CostRate.length < 1) {
+                $.alert.open("warning", "Enter accessories rate");
+                $("#CostRate").focus();
+                errorCount += 1
+                return errorCount;
+            }
+            return errorCount;
+        }
+        function DeleteTableRow(that) {
+            let trThat = $(that);
+            trThat.parent().parent().remove();
+            //$("#tBodyExpDetail tr").each(function (i, v) {
+            //    $(this).find('td').eq(0).text((++i));
+            //});
+            totalDirectAccessoriesCost();
+        }
+        function DeleteFabricRow(that) {
+            let trThat = $(that);
+            trThat.parent().parent().remove();
+            fabricTableTotal();
+        }
+
+        function SetAllCalculation() {
+
+        }
+
+        function getFabricObjectList() {
+            var fabricList = [];
+            const CostingID = $("#OrderCostingID").val();
+
+            $("#tblFabricBody tr").each(function (i, s) {
+                const that = $(this);
+                let FabricCompisition = that.find(".tdFabricCompisition").text();
+                let FabricQualityID = that.find(".hdnFabricQualityID").val().trim();
+                let GSM = that.find(".tdGSM").text().trim();
+                let FabricColor = that.find(".tdFabricColor").text().trim();
+                let YarnCount = that.find(".tdYarnCount").text().trim();
+                let LycraCostPercent = that.find(".tdLycraCostPercent").text().trim();
+                let LycraCost = that.find(".tdLycraCost").text().trim();
+                let YarnPrice = that.find(".tdYarnPrice").text().trim();
+                let KnittingCost = that.find(".tdKnittingCost").text().trim();
+                let KnittingWastagePer = that.find(".tdKnittingWastagePer").text().trim();
+                let DeyingCostSolid = that.find(".tdDeyingCostSolid").text().trim();
+                let DeyingWastagePer = that.find(".tdDeyingWastagePer").text().trim();
+                let LeveragePercent = that.find(".tdFabricLeveragePercent").text().trim();
+                let ID = 0;
+                if (CostingID > 0) {
+                    ID = that.find(".hdnDBFabricID").val();
+                    if (ID == undefined || ID == "") {
+                        ID = 0
+                    }
+                }
+                let fabricObj = {
+                    ID:ID,
+                    FabricCompisition: FabricCompisition,
+                    FabricQualityID: FabricQualityID,
+                    GSM:GSM,
+                    FabricColor: FabricColor,
+                    YarnCount: YarnCount,
+                    LycraCostPercent: LycraCostPercent,
+                    LycraCost: LycraCost,
+                    YarnPrice: YarnPrice,
+                    KnittingCost: KnittingCost,
+                    KnittingWastagePer: KnittingWastagePer,
+                    DeyingCostSolid: DeyingCostSolid,
+                    DeyingWastagePer: DeyingWastagePer,
+                    LeveragePercent: LeveragePercent
+                }
+                fabricList.push(fabricObj);
+            });
+            return fabricList;
+        }
+
+        function getAccessoriesCostList() {
+            var accessoriesList = [];
+            //CostingItemID
+            //direct item
+            const CostingID = $("#OrderCostingID").val();
+            let ID = 0;
+            $("#tblTrimBody tr.trimCost").each(function (i, s) {
+                const that = $(this);
+                const CostingTypeID = 1;
+                const CostingFor = that.find(".tdCostingFor").text().trim();
+                const CostRate = that.find(".tdTrimRate").text().trim();
+                let TrimID = that.find(".tdTrimID").val().trim();
+              
+                if (CostingID > 0) {
+                    
+                    ID = that.find(".hdnDBAccessoriesID").val();
+                    if (ID == undefined || ID == "") {
+                        ID = 0
+                    }
+                }
+                if (TrimID == undefined || TrimID == null || TrimID == "") {
+                    TrimID = null;
+                }
+                var trimobj = {
+                    ID:ID,
+                    TrimID: TrimID,
+                    CostingTypeID: CostingTypeID,
+                    CostingFor: CostingFor,
+                    CostRate: CostRate
+                };
+                accessoriesList.push(trimobj);
+            });
+
+            //indirect item
+            $("#tblAccessories tfoot tr.trIndirectItem").each(function (i, d) {
+                const CostingTypeID = 2;
+                var that = $(this);
+
+                let CostingFor = that.find(".tdCostingFor").text().trim();
+                let CostRate = that.find(".inpInderictItemRate").val().trim();
+                let CostingItemID = that.find(".CostingItemID").val();
+                if (CostingID > 0) {
+                   
+                    ID = that.find(".hdnDBAccessoriesID").val();
+                    if (ID == undefined || ID == "") {
+                        ID = 0
+                    }
+                }
+
+                if (!CostRate) {
+                    CostRate = 0;
+                }
+
+                var trimobj = {
+                    ID:ID,
+                    CostingItemID: CostingItemID,
+                    CostingTypeID: CostingTypeID,
+                    CostingFor: CostingFor,
+                    CostRate: CostRate
+                };
+                accessoriesList.push(trimobj);
+
+            })
+
+            //price item
+            $("#tblAccessories tfoot tr.trpriceItem").each(function (i, d) {
+                const CostingTypeID = 3;
+                var that = $(this);
+
+                let CostingFor = that.find(".tdCostingFor").text().trim();
+                let CostRate = that.find(".inpPriceRate").val().trim();
+                let CostingItemID = that.find(".CostingItemID").val();
+                if (CostingID > 0) {
+                    debugger;
+                    ID = that.find(".hdnDBAccessoriesID").val();
+                    if (ID == undefined || ID == "") {
+                        ID = 0
+                    }
+                }
+
+                if (!CostRate) {
+                    CostRate = 0;
+                }
+                var trimobj = {
+                    ID: ID,
+                    CostingItemID: CostingItemID,
+                    CostingTypeID: CostingTypeID,
+                    CostingFor: CostingFor,
+                    CostRate: CostRate
+                };
+                accessoriesList.push(trimobj);
+
+            })
+            return accessoriesList;
+        }
+
+
+        $(document).ready(function () {
+            loadDirectItem();
+            $("#BuyerID").chosen();
+            $("#FabricTypeID").chosen();
+            $("#YarnCounID").chosen();
+
+            $("#FabricTypeID").change(function () {
+
+                getDLLFabricQuality();
+            })
+            $("#FabricCompisition").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: "GET",
+                        data: { Composition: request.term },
+                        url: '/CommonDropDown/GetFabciComposition',
+                        dataType: "json",
+                        async: true,
+                        success: function (data) {
+                            response(data);
+                        },
+                        failure: function (errMsg) {
+                            $.alert.open("error", errMsg);
+                            return false;
+                        }
+                    });
+
+                },
+                focus: function (event, ui) {
+
+                    return false;
+                },
+                select: function (event, ui) {
+
+                    $("#FabricCompisition").val(ui.item.Description);
+
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<div><b>' + item.Description + '</b></div>')
+                    .appendTo(ul);
+            };
+            $("#FabricColor").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: "GET",
+                        data: { colorName: request.term },
+                        url: '/CommonDropDown/GetPantoneColor',
+                        dataType: "json",
+                        async: true,
+                        success: function (data) {
+                            response(data);
+                        },
+                        failure: function (errMsg) {
+                            $.alert.open("error", errMsg);
+                            return false;
+                        }
+                    });
+
+                },
+                focus: function (event, ui) {
+
+                    return false;
+                },
+                select: function (event, ui) {
+
+                    $("#FabricColor").val(ui.item.Description);
+
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<div><b>' + item.Description + '</b></div>')
+                    .appendTo(ul);
+                };
+
+            $("#TrimID").change(function () {
+
+                loadDirectItem();
+            })
+            $("#CostingFor").autocomplete({
+                source: function (request, response) {
+
+                    var filterItem = request.term;
+                    var returnData = DirectItem.filter(b => b.Description.toLowerCase().indexOf(filterItem.toLowerCase()) > -1);
+                    response(returnData);
+
+                    },
+                focus: function (event, ui) {
+
+                    return false;
+                },
+                select: function (event, ui) {
+
+                    $("#CostingFor").val(ui.item.Description);
+
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<div><b>' + item.Description + '</b></div>')
+                    .appendTo(ul);
+            };
+
+            $("#btnAdd").click(function () {
+
+                var FabricCompisition = $("#FabricCompisition").val();
+                var FabricQualityID = $("#FabricQualityID").val();
+                var FabricQuality = $("#FabricQualityID option:selected").text();
+                var GSM = $("#GSM").val();
+                var YarnCount = $("#YarnCounID option:selected").text();
+                var FabricColor = $("#FabricColor").val();
+                var LycraCostPercent = $("#LycraPercent").val();
+                var LycraCost = parseFloat($("#LycraPrice").val());
+
+                var YarnPrice = parseFloat($("#YarnPrice").val());
+                var KnittingCost = parseFloat($("#KnittingRate").val());
+                var KnittingWastagePer = parseFloat($("#KnittingWastagePer").val());
+                var DeyingCostSolid = parseFloat($("#DeyingRate").val());
+                var DeyingWastagePer = parseFloat($("#DeyingWastagePer").val());
+                var LeveragePercent = parseFloat($("#LeveratePer").val());
+
+                var hasError = fabricValidation();
+                if (KnittingWastagePer == 0) {
+                    KnittingWastagePer = 1;
+                }
+                if (DeyingWastagePer == 0) {
+                    DeyingWastagePer = 1;
+                }
+                if (hasError == 0) {
+                    var totalPrice = (((YarnPrice + KnittingCost + LycraCost) * KnittingWastagePer) + DeyingCostSolid) * DeyingWastagePer;
+                    var obj = [{
+                        FabricCompisition: FabricCompisition,
+                        FabricQualityID: FabricQualityID,
+                        FabricQuality: FabricQuality,
+                        GSM: GSM,
+                        LycraCostPercent: LycraCostPercent,
+                        LycraCost: LycraCost,
+                        YarnCount: YarnCount,
+                        FabricColor: FabricColor,
+                        YarnPrice: YarnPrice,
+                        KnittingCost: KnittingCost,
+                        KnittingWastagePer: KnittingWastagePer,
+                        DeyingCostSolid: DeyingCostSolid,
+                        DeyingWastagePer: DeyingWastagePer,
+                        TotalPrice: totalPrice.toFixed(3),
+                        LeveragePercent: LeveragePercent,
+                        TotalContribution: (totalPrice * LeveragePercent/100).toFixed(3)
+
+                    }]
+                    var tr = AddFabricDataInTable(obj);
+                    $("#tblFabricBody").append(tr);
+
+
+                    fabricTableTotal();
+                }
+
+
+
+            });
+
+            $("#btnAccessoriesAdd").click(function () {
+                const CostingFor = $("#CostingFor").val();
+                let trimID = $("#TrimID").val();
+                const CostRate = $("#CostRate").val();
+
+                var trimValidationResult = trimValidation();
+                if (trimValidationResult < 1) {
+                    var tr = "<tr class='trimCost'>";
+
+                    tr += `<td class="tdCostingFor">${CostingFor}</td>`;
+                    tr += `<td class="tdTrimRate">${CostRate}</td>`;
+                    tr += `<td class="txtAlignCenter tdAction"><input type="button" class="btn btn-xs btn-danger" value="Delete" onclick="DeleteTableRow(this)" />
+                                <input type="hidden" class="tdTrimID" value="${trimID}" />
+                           </td>`;
+                    tr += `</tr>`;
+
+                    var tblTrimBody = $("#tblTrimBody");
+                    tblTrimBody.append(tr);
+                    $("#CostingFor").val("");
+                    $("#CostRate").val("");
+                }
+                totalDirectAccessoriesCost();
+            });
+
+
+
+            $("#btnSave").click(function () {
+                hasError = 0;
+
+                const BuyerID = $("#BuyerID").val();
+
+                const OrderNo = $("#OrderNo").val();
+                const StyleName = $("#StyleName").val();
+                const GSM = $("#GSM").val();
+
+                const FabricQuality = $("#FabricQualityID option:selected").text();
+                const FabricQualityID = $("#FabricQualityID").val();
+                const OrderQuantity = $("#OrderQuantity").val();
+                const CBL = $("#CBL").val();
+                const BackCalculationPercent = $("#BackCalculationPercent").val();
+                const FabricConsumptionPerDzn = $("#FabricConsumptionPerDzn").val();
+                const SMV = $("#SMV").val();
+                const CPM = $("#CPM").val();
+                const Efficiency = $("#Efficiency").val();
+
+                var fabricCostList = getFabricObjectList();
+                if (fabricCostList.length < 1) {
+                    $.alert.open("warning", "Add Fabric");
+                    return false;
+                }
+
+                var AccessoriesCostList = getAccessoriesCostList();
+                if (AccessoriesCostList.length < 1) {
+                    $.alert.open("warning", "Add Accessories");
+                    return false;
+                }
+                if (OrderNo.length < 1) {
+                    $.alert.open("warning", "Enter Order No.");
+                    return false;
+                }
+                var finalObj = {};
+                $(".loading-Image").show();
+                finalObj = {
+                    BuyerID: BuyerID,
+                    OrderNo: OrderNo,
+                    StyleName: StyleName,
+                    GSM: GSM,
+                    FabricQuality: FabricQuality,
+                    FabricQualityID: FabricQualityID,
+                    OrderQuantity: OrderQuantity,
+                    SMV: SMV,
+                    CBL: CBL,
+                    CPM: CPM,
+                    Efficiency: Efficiency,
+                    BackCalculationPercent: BackCalculationPercent,
+                    FabricConsumptionPerDzn: FabricConsumptionPerDzn,
+                    MAC_FabricCostingInfo: fabricCostList,
+                    MAC_AccessoriesCostingInfo: AccessoriesCostList
+                }
+
+                $.ajax({
+                    type: "POST",
+                    data: { model: finalObj },
+                    url: '/MerchandisingOrderCosting/OrderCostingSave',
+                    dataType: "json",
+                    async: false,
+                    success: function (rResult) {
+                        // console.log(rResult);
+                        if (rResult.result > 0) {
+                            $.alert.open("success", rResult.message);
+                            setTimeout(function () { window.location.href ="/MerchandisingOrderCosting"; }, 1500);
+                        } else {
+                            $.alert.open("error", rResult.message);
+                        }
+                        $(".loading-Image").hide();
+                    },
+                    failure: function (errMsg) {
+                        $.alert.open("error", errMsg);
+                    }
+                });
+
+            })
+
+            if (@Model.ID> 0) {
+                $("#btnUpdate").click(function () {
+                    hasError = 0;
+                    const ID = $("#OrderCostingID").val();
+
+                    const BuyerID = $("#BuyerID").val();
+
+                    const OrderNo = $("#OrderNo").val();
+                    const StyleName = $("#StyleName").val();
+                    const GSM = $("#GSM").val();
+
+                    const FabricQuality = $("#FabricQualityID option:selected").text();
+                    const FabricQualityID = $("#FabricQualityID").val();
+                    const OrderQuantity = $("#OrderQuantity").val();
+                    const CBL = $("#CBL").val();
+                    const BackCalculationPercent = $("#BackCalculationPercent").val();
+                    const FabricConsumptionPerDzn = $("#FabricConsumptionPerDzn").val();
+                    const SMV = $("#SMV").val();
+                    const CPM = $("#CPM").val();
+                    const Efficiency = $("#Efficiency").val();
+
+                    var fabricCostList = getFabricObjectList();
+                    if (fabricCostList.length < 1) {
+                        $.alert.open("warning", "Add Fabric");
+                        return false;
+                    }
+
+                    var AccessoriesCostList = getAccessoriesCostList();
+                    if (AccessoriesCostList.length < 1) {
+                        $.alert.open("warning", "Add Accessories");
+                        return false;
+                    }
+                    if (OrderNo.length < 1) {
+                        $.alert.open("warning", "Enter Order No.");
+                        return false;
+                    }
+                    var finalObj = {};
+                    $(".loading-Image").show();
+                    finalObj = {
+                        ID:ID,
+                        BuyerID: BuyerID,
+                        OrderNo: OrderNo,
+                        StyleName: StyleName,
+                        GSM: GSM,
+                        FabricQuality: FabricQuality,
+                        FabricQualityID: FabricQualityID,
+                        OrderQuantity: OrderQuantity,
+                        SMV: SMV,
+                        CBL: CBL,
+                        CPM: CPM,
+                        Efficiency: Efficiency,
+                        BackCalculationPercent: BackCalculationPercent,
+                        FabricConsumptionPerDzn: FabricConsumptionPerDzn,
+                        MAC_FabricCostingInfo: fabricCostList,
+                        MAC_AccessoriesCostingInfo: AccessoriesCostList
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        data: { model: finalObj },
+                        url: '/MerchandisingOrderCosting/OrderCostingUpdate',
+                        dataType: "json",
+                        async: false,
+                        success: function (rResult) {
+                            // console.log(rResult);
+                            if (rResult.result > 0) {
+                                $.alert.open("success", rResult.message);
+                                setTimeout(function () { window.location.href = "/MerchandisingOrderCosting"; }, 1500);
+                            } else {
+                                $.alert.open("error", rResult.message);
+                            }
+                            $(".loading-Image").hide();
+                        },
+                        failure: function (errMsg) {
+                            $.alert.open("error", errMsg);
+                        }
+                    });
+
+                })
+            }
+        });
+
+    </script>
+
+}
+
+

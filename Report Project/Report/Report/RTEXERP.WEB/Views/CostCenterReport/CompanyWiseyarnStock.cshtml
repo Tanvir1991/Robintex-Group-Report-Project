@@ -1,0 +1,116 @@
+﻿@model RTEXERP.Contracts.BLModels.Materials.YarnLotNo
+@{
+    ViewData["Title"] = "Company Wise Yarn Stock";
+    ViewData["pageTitle"] = "Company Wise Yarn Stock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="LotNo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="LotNo"  class="form-control form-control-sm" /> 
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="label-ajt-sm form-check-label" style="color:#Fff;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</label>
+                <input type="checkbox" class="form-check-input" name="IsShowBalanceItem" id="IsShowBalanceItem" /> Only Balance
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSt" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateToST" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-1 text-left">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+            </div>
+        </div>
+    </div>
+   
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                @*<button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>*@
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+
+
+
+</form>
+
+@section scripts{
+    <script type="text/javascript">
+ 
+        function GetOrderTrimHistory(reportFormat) {
+             debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var companyID = $("#CompanyID").val();
+            var LotNo = $("#LotNo").val();
+            
+            let IsShowBalanceItem = 0;
+
+            if (!companyID) {
+                companyID = 0;
+            }
+           
+            if($('input[name="IsShowBalanceItem"]').is(':checked'))
+            {
+                IsShowBalanceItem = 1;
+            }
+            window.open("/CostCenterReport/CompanyWiseyarnStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&LotNo=" + LotNo  + "&IsShowBalanceItem=" + IsShowBalanceItem+"&ReportFormat=" + reportFormat, "Company Wise yarn Transaction", "status=1,toolbar=0");
+
+        return false;
+        }
+    $(function () {
+        $("#clearDate").click(function () {
+            const dateFrom = $("#DateFrom").val();
+
+            if (!dateFrom) {
+                $("#DateFrom").val('@Model.DateFromSt')
+                $("#DateTo").val('@Model.DateToST')
+            } else {
+                $("#DateFrom").val("")
+                $("#DateTo").val("")
+            }
+        })
+        $("#BuyerID").change(function () {
+            GetBuyerWiseOrder();
+        });
+
+        $("#btnPdf").click(function () {
+                GetOrderTrimHistory("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+        $("#btnExcel").click(function () {
+            GetOrderTrimHistory("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+        });
+    });
+    </script>
+}

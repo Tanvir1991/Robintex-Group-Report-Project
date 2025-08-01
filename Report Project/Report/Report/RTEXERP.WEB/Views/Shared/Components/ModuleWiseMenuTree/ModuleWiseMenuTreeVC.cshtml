@@ -1,0 +1,75 @@
+﻿<style type="text/css">
+    .mb-0 .headerDiv > a {
+        display: block;
+        position: relative;
+    }
+
+        .mb-0 .headerDiv > a:after {
+            content: "\f078"; /* fa-chevron-down */
+            font-family: 'FontAwesome';
+            position: absolute;
+            right: 0;
+        }
+
+        .mb-0 .headerDiv > a[aria-expanded="true"]:after {
+            content: "\f077"; /* fa-chevron-up */
+        }
+</style>
+
+@Html.Raw(ViewBag.HtmlData)
+
+
+<script>
+    function checkHeaderCheckBox(parentModuleId) {
+        debugger;
+        let chkBoxClass = `.chkParent-${parentModuleId}`;
+        var totalCheckBox = $(chkBoxClass).length;
+
+        var totalCheckedCheckBox = $(`.chkParent-${parentModuleId}:checked`).length;
+
+        let parentChkBoxClass = `.chk-${parentModuleId}`;
+        if (totalCheckedCheckBox === totalCheckBox){
+            $(parentChkBoxClass).prop("checked", true);
+        } else {
+            $(parentChkBoxClass).prop("checked", false);
+        }
+    }
+
+    function checkCheckBox(ischecked, chkBoxClass, parentModuleId) {
+        debugger;
+        if (ischecked) {
+            $(chkBoxClass).prop("checked", true);
+            checkHeaderCheckBox(parentModuleId);
+            $(chkBoxClass).each(function () {
+                let dataId = $(this).data("id");
+               // let parentModuleId = $(this).parent().find(".hdnParentModuleId").val();
+                
+                let chkBoxClass = `.chkParent-${dataId}`;
+                checkCheckBox(this.checked, chkBoxClass);
+                //checkHeaderCheckBox(parentModuleId);
+            });
+        } else {
+            $(chkBoxClass).prop("checked", false);
+            checkHeaderCheckBox(parentModuleId);
+            $(chkBoxClass).each(function () {
+                let dataId = $(this).data("id");
+                //let parentModuleId = $(this).parent().find(".hdnParentModuleId").val();
+               
+                let chkBoxClass = `.chkParent-${dataId}`;
+                checkCheckBox(this.checked, chkBoxClass);
+                //checkHeaderCheckBox(parentModuleId)
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        $("input[type='checkbox']").change(function () {
+           
+            let dataId = $(this).data("id");
+            let chkBoxClass = `.chkParent-${dataId}`;
+            let parentModuleId = $(this).parent().find(".hdnParentModuleId").val();
+            checkCheckBox(this.checked, chkBoxClass, parentModuleId);           
+        });
+    });
+</script>
+

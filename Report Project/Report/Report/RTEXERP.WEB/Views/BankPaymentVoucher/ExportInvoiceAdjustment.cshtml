@@ -1,0 +1,508 @@
+﻿
+@model RTEXERP.Contracts.BLModels.EMBRO.ExportInvoiceAdjustMasterVMMapping
+@{
+    ViewData["Title"] = "Export Invoice Voucher Mapping";
+    ViewData["pageTitle"] = "Export Invoice Voucher Mapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section scripts{
+    <script>
+        let hasError = 0;
+        function excelDataTableGenerate(excelObj) {
+            debugger;
+            $("#tblInvoice tbody").html("");
+            let tr = "";
+            if (excelObj == null) {
+                tr = "<tr><td colspan='4'>NO data found<td></tr>";
+                return tr;
+            }
+            var tableBody = $("#tblInvoice tbody");
+            var runningAmount = 0;
+            var rowAmount = 0;
+            let sl = 1;
+ 
+            $.each(excelObj, function (s, d) {
+                rowAmount = parseFloat(d.InvoiceAmount);
+                runningAmount += rowAmount;
+                let trColor = "";
+                if (d.Status != "Valid") {
+                    trColor = 'danger';
+                } else {
+                    d.Status = "";
+                }
+                tr += `<tr class="${trColor}">`;
+                tr += `<td class="serialTd">${sl++}</td>`;
+                tr += `<td class="invoiceTd">${d.InvoiceNo}</td>`;
+                tr += `<td class="invoiceTd">${d.OrderNo}</td>`;
+                tr += `<td class="amountTd">${d.InvoiceAmount}</td>`;
+                tr += `<td class="runningTotalTd">${runningAmount}</td>`;
+                tr += `<td class="buttonTd"> ${d.Status}
+                                <button type="button" class="btn btn-xs btn-danger btnDeleteTableRow">x</button>
+                                <input type="hidden" class="ExportInvoiceID" value="${d.InvoiceID}"/>
+                                <input type="hidden" class="ExportOrderID" value="${d.OrderID}"/>
+                                <input type="hidden" class="ExportStyleID" value="${d.StyleID}"/>
+                            </td>`;
+                tr += "</tr>";
+            });
+            tableBody.append(tr);
+            $("#tblInvoice tfoot tr").find(".tableTotal").html(runningAmount);
+            isButtonDisiable();
+
+        }
+
+        function isButtonDisiable() {
+            const VoucherAmount = parseFloat($("#VoucherAmount").val());
+            let tableTotal = 0;
+            $("#tblInvoice tbody tr").each(function () {
+                var $this = $(this);
+                const tramount = $this.find(".amountTd").html();
+                if (tramount) {
+                    tableTotal += parseFloat(tramount);
+                }
+            })
+            if (hasError==1 || tableTotal != VoucherAmount) {
+
+                $("#btnSave").attr("disabled", true);
+            } else {
+                $("#btnSave").removeAttr("disabled");
+            }
+        }
+        function showExcelTextArea() {
+            $("#tblInvoice tbody").html("");
+            $("#tblInvoice tfoot tr").find(".tableTotal").html(0);
+            let isShowTextbox = false;
+            if ($('#isShowExcel').is(":checked")) {
+                isShowTextbox = true;
+            }
+            if (isShowTextbox) {
+                $("#divGeneral").hide();
+                $("#divExcelData").show();
+            } else {
+                $("#divGeneral").show();
+                $("#divExcelData").hide();
+
+            }
+            isButtonDisiable();
+        }
+
+        function getDDLVoucher() {
+            let CompanyID = $("#CompanyID").val();
+            let ExportServiceTypeID = $("#ExportServiceTypeID").val();
+            $("#VoucherID").chosen('destroy');
+            $("#VoucherID").html("");
+            var optionValue = GenerateDropDownOptions("BankPaymentVoucher", "GSPExportInvoiceVoucher", { "CompanyID": CompanyID, ExportTypeID: ExportServiceTypeID}, "");
+
+            $("#VoucherID").html(optionValue);
+            $("#VoucherID").chosen();
+            //  $("#VoucherID").trigger("chosen:updated");
+        }
+        function getDDLInvoice() {
+            let CompanyID = $("#CompanyID").val();
+            //  let CreditCostCenterID = $("#CreditCostCenterID").val();
+            var optionValue = GenerateDropDownOptions("BankPaymentVoucher", "GSPExportInvoice", { "CompanyID": CompanyID }, "");
+            $("#InvoiceID").chosen('destroy');
+            $("#InvoiceID").html(optionValue);
+            $("#InvoiceID").chosen();
+            //$("#InvoiceID").trigger("chosen:updated");
+        }
+        $(document).on('click', '.btnDeleteTableRow', function () {
+            var currentTR = $(this);
+            currentTR.closest('tr').remove();
+            let runningAmount = 0;
+            let tbodySerial = 1;
+            let tableTotal = 0;
+            const VoucherAmount = parseFloat($("#VoucherAmount").val());
+
+            debugger;
+            if ($("#tblInvoice tbody tr").length > 0) {
+                $("#tblInvoice tbody tr").each(function () {
+                    let $this = $(this);
+                    $this.find(".serialTd").html(tbodySerial);
+                    const trAmount = parseFloat($this.find(".amountTd").html());
+                    runningAmount += parseFloat(trAmount);
+                    $this.find(".runningTotalTd").html(runningAmount);
+                    tableTotal += trAmount;
+                    tbodySerial = tbodySerial + 1;
+                });
+            } else {
+                $("#btnSave").attr("disabled", true)
+            }
+            $("#tblInvoice tfoot tr").find(".tableTotal").html(tableTotal);
+            if (VoucherAmount == tableTotal) {
+                $("#btnSave").removeAttr("disabled");
+            } else {
+                $("#btnSave").attr("disabled", true)
+            }
+        })
+        function isExistInvoiceOnTheTable() {
+            var rResult = false;
+            const InvoiceNo = $("#InvoiceID option:selected").text();
+            $("#tblInvoice tbody tr").each(function () {
+                let $this = $(this);
+                const tableInvoiceNo = $this.find(".invoiceTd").html();
+                if (InvoiceNo == tableInvoiceNo) {
+                    rResult = true;
+                    return rResult;
+                }
+            });
+            return rResult;
+        }
+
+        $(document).ready(function () {
+            showExcelTextArea();
+            $("#isShowExcel").change(function () {
+                showExcelTextArea();
+            })
+            $("#InvoiceID").chosen();
+            $("#VoucherID").chosen();
+            $("#CompanyID").change(function () {
+                location.href = "/BankPaymentVoucher/ExportInvoiceAdjustment?CompanyID=" + $("#CompanyID").val();
+            });
+            $("#VoucherID").change(function () {
+                var VoucherID = $("#VoucherID").val();
+                if (VoucherID) {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/BankPaymentVoucher/GetVoucherAmount',
+                        data: { VoucherID: VoucherID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            $("#VoucherAmount").val(data);
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $("#VoucherAmount").val(0);
+                }
+                isButtonDisiable();
+            });
+
+            $("#ExportServiceTypeID").change(function () {
+                getDDLVoucher();
+            })
+
+            $("#btnAdd").click(function () {
+
+                const VoucherAmount = parseFloat($("#VoucherAmount").val());
+
+                const InvoiceNo = $("#InvoiceID option:selected").text();
+                var InvoiceID = $("#InvoiceID").val();
+                var Amount = $("#Amount").val();
+                if (!Amount || Amount <= 0 || isNaN(Amount)) {
+                    $.alert.open("error", "Select Amount");
+                    return false;
+                }
+                const IsExist = isExistInvoiceOnTheTable();
+                if (IsExist == true) {
+                    $.alert.open("error", `\"${InvoiceNo}\" already exist in this list.`);
+                    return false;
+                }
+
+                var runningAmount = parseFloat(Amount);
+                var sl = 1;
+                var tableLength = $("#tblInvoice tbody tr").length;
+                let tableTotal = parseFloat(Amount);
+                if (tableLength > 0) {
+
+
+                    $("#tblInvoice tbody tr").each(function () {
+                        var $this = $(this);
+                        const tramount = $this.find(".amountTd").html();
+                        if (tramount) {
+                            runningAmount += parseFloat(tramount);
+                            tableTotal += parseFloat(tramount);
+                        }
+                        sl += 1;
+                    })
+                }
+                var tableBody = $("#tblInvoice tbody");
+
+                var tr = `<tr>`;
+                tr += `<td class="serialTd">${sl}</td>`;
+                tr += `<td class="invoiceTd">${InvoiceNo}</td>`;
+                tr += `<td class="amountTd">${Amount}</td>`;
+                tr += `<td class="runningTotalTd">${runningAmount}</td>`;
+                tr += `<td class="buttonTd"> 
+                                <button type="button" class="btn btn-xs btn-danger btnDeleteTableRow">x</button>
+                                <input type="hidden" class="ExportInvoiceID" value="${InvoiceID}">
+                            </td>`;
+
+                tableBody.append(tr);
+                $("#tblInvoice tfoot tr").find(".tableTotal").html(tableTotal);
+
+         
+
+                if (hasError==1 || ( tableTotal != VoucherAmount)) {
+                    $("#btnSave").attr("disabled", true);
+
+                    return false;
+                } else {
+                    $("#btnSave").removeAttr("disabled");
+                    return false;
+                }
+                
+            });
+
+            $("#btnDataValidate").click(function () {
+                var CompanyID = $("#CompanyID").val();
+                let ExcelData = $("#ExcelData").val();
+                let ExportServiceTypeID = $("#ExportServiceTypeID").val();
+                if (ExcelData.length > 0) {
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/BankPaymentVoucher/InvoiceDataValidation',
+                        data: { ExcelData: ExcelData, CompanyID: CompanyID, ExportServiceTypeID: ExportServiceTypeID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.result == 1) {
+                                $("#ExcelData").val("");
+                                if (data.statusCode != 1) {
+                                    hasError = 1;
+                                } else {
+                                    hasError = 0;
+                                }
+                                excelDataTableGenerate(data.modelObjectList);
+                                if (data.statusCode != 1) {
+                                    $.alert.open("error", `Please Check Data.`);
+                                   
+                                    $("#btnSave").attr("disabled");
+                                }
+                            }
+                            else {
+                                $.alert.open("error", data.message);
+                            } 
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $.alert.open("error", `past data from excel copy.`);
+                    return false;
+                }
+
+            });
+
+            $("#btnSave").click(function () {
+                var validator = $("#exportINV").valid();
+                if (validator == false) {
+
+                    $.alert.open("error", "Please enter required information.");
+                    return false;
+                }
+                const VoucherAmount = parseFloat($("#VoucherAmount").val());
+                const CompanyID = $("#CompanyID").val();
+                const VoucherID = $("#VoucherID").val();
+                const ExportServiceTypeID = $("#ExportServiceTypeID").val();
+                const ExportInvoiceAdjustMaster = {
+                    VoucherID: VoucherID,
+                    CompanyID: CompanyID,
+                    ExportServiceTypeID: ExportServiceTypeID
+                };
+                let ExportInvoiceAdjustDetails = new Array();
+                let tableTotalAmount = 0;
+                $("#tblInvoice tbody tr").each(function () {
+                    debugger;
+                    var $this = $(this);
+                    const tramount = parseFloat($this.find(".amountTd").html());
+                    const invoiceID = $this.find(".ExportInvoiceID").val();
+                    const orderID = $this.find(".ExportOrderID").val();
+                    let StyleID = $this.find(".ExportStyleID").val();
+                    if (StyleID == "null") {
+                        StyleID = 0;
+                    }
+                    tableTotalAmount += tramount;
+                    let invoiceDetail = {
+                        PackingInvoiceID: invoiceID,
+                        OrderID: orderID,
+                        Amount: tramount,
+                        StyleID: StyleID
+                    }
+                    ExportInvoiceAdjustDetails.push(invoiceDetail);
+                });
+                if (ExportInvoiceAdjustDetails.length > 0) {
+                    ExportInvoiceAdjustMaster.ExportInvoiceAdjustDetails = ExportInvoiceAdjustDetails;
+                } else {
+                    $.alert.open("error", `Add Invoice information.`);
+                    return false;
+                }
+                $("#AjaxLoader").show();
+                if (VoucherAmount == tableTotalAmount) {
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/BankPaymentVoucher/SaveExportInfoiceAdjustment',
+                        data: { exportInvoiceAdjust: ExportInvoiceAdjustMaster },
+                        dataType: 'json',
+                        async: false,
+                        beforeSend: function () {
+                            $("#AjaxLoader").show();
+                        },
+                        complete: function () {
+                            $("#AjaxLoader").hide();
+                        },
+                        success: function (data) {
+                            $("#AjaxLoader").hide();
+                            if (data.result == 1) {
+                                getDDLInvoice();
+                                getDDLVoucher();
+                                $.alert.open("success", data.message);
+                                $("#tblInvoice tbody").html("");
+                                $("#tblInvoice tfoot tr").find(".tableTotal").html(0);
+                                $("#btnSave").attr("disabled", true);
+                                $("#VoucherAmount").val(0)
+                            } else if (data.result == 2) {
+                                let response = JSON.parse(data.data);
+                                let errMsg = "<ul>";
+                                for (var i = 0; i < response.length; i++) {
+                                    var error = response[i];
+                                    let key = error.Key;
+                                    let msg = error.Message;
+                                    errMsg += `<li><b>${key}</b> : ${msg}</li>`;
+                                }
+                                errMsg += "</ul>";
+                                $.alert.open("error", errMsg);
+                            } else {
+                                $.alert.open("error", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $("#AjaxLoader").hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    })
+                }
+
+            });
+
+        })
+
+    </script>
+
+
+
+
+}
+
+
+<form id="exportINV">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="ExportServiceTypeID" class="label-ajt-sm required"></label>
+                <select asp-for="ExportServiceTypeID" asp-items="Model.DDLExportService" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="VoucherID" class="label-ajt-sm required"></label>
+                <select asp-for="VoucherID" asp-items="Model.DDLVoucher" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label asp-for="VoucherAmount" class="label-ajt-sm required"></label>
+                <input asp-for="VoucherAmount" class="form-control form-control-sm" readonly />
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <input type="checkbox" class="custom-checkbox" id="isShowExcel" checked />
+            <label class=""> From Excel Data</label>
+        </div>
+    </div>
+    <div class="row" id="divGeneral">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label asp-for="InvoiceID" class="label-ajt-sm required"></label>
+                <select asp-for="InvoiceID" asp-items="Model.DDLInvoice" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="form-group">
+                <label asp-for="Amount" class="label-ajt-sm required"></label>
+                <input asp-for="Amount" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   </label>
+            <button type="button" class="btn btn-sm btn-primary" id="btnAdd">Add</button>
+
+        </div>
+    </div>
+    <div class="row" id="divExcelData">
+        <div class="col-sm-10">
+            <div class="form-group">
+                <label asp-for="ExcelData" class="label-ajt-sm required"></label>
+                <textarea asp-for="ExcelData" class="form-control form-control-sm"></textarea>
+                <span class="text-sm-center text-danger">Excel Format=> Invoice No | Order No | Amount</span>
+            </div>
+         
+        </div>
+
+        <div class="col-sm-2" style="text-align:center;">
+            <div class="form-group">
+                <label class="label-ajt-sm" style="color:#fff;">&nbsp;button bellow</label>
+                <button type="button" class="btn btn-sm btn-danger" id="btnDataValidate">Validate Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-sm" style="font-size:11px;" id="tblInvoice">
+                <thead>
+                    <tr>
+                        <th>SL#</th>
+                        <th>Invoice NO</th>
+                        <th>Order NO</th>
+                        <th>Amount</th>
+                        <th>Running Total</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" style="text-align:right">Total</th>
+                        <th class="tableTotal">0</th>
+                        <th colspan="2">&nbsp;</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="text-align:center;">
+            <button type="button" class="btn btn-sm btn-success" id="btnSave" disabled>Save</button>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+

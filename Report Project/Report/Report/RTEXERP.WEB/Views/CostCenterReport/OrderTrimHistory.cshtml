@@ -1,0 +1,216 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.PurchaseOrderReport
+@{
+    ViewData["Title"] = "Order Trim History";
+    ViewData["pageTitle"] = "Order Trim History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BusinessID" class="label-ajt-sm required"></label>
+                <select asp-for="BusinessID" asp-items="Model.DDLBusiness" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="BuyerID" class="label-ajt-sm required"></label>
+                <select asp-for="BuyerID" asp-items="Model.DDLBuyer" class="form-control form-control-sm select2Filter"></select>
+
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.DDLOrder" class="form-control form-control-sm select2Filter"></select>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="MRPItemCode" class="label-ajt-sm required"></label>
+                <select asp-for="MRPItemCode" asp-items="Model.DDLMRPItem" class="form-control form-control-sm select2Filter"></select>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSTR" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateToSTR" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-1 text-left">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+            </div>
+        </div>
+    </div>
+    @*<div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="label-ajt-sm form-check-label" style="color:#Fff;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</label>
+                <input type="checkbox" class="form-check-input" name="WithAllTransaction" id="WithAllTransaction" /> All Transaction
+            </div>
+        </div>
+    </div>*@
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                @*<button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>*@
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive" id="divOrderWiseItemStock" style="max-height:500px;">
+            @*<table class="table table-bordered">
+                    <thead style="font-size: 11px;">
+                        <tr>
+                            <th rowspan="2" class="txtAlignCenter">Buyer<br />Name</th>
+                            <th rowspan="2" class="txtAlignCenter">Order<br />Number</th>
+                            <th rowspan="2" class="txtAlignCenter">Purchase<br />Order No</th>
+                            <th rowspan="2" class="txtAlignCenter">Item</th>
+                            <th rowspan="2" class="txtAlignCenter">Unit</th>
+                            <th rowspan="2" class="txtAlignCenter">Color /<br/>Measurement</th>
+                            <th colspan="2" class="txtAlignCenter">Opening</th>
+                            <th colspan="2" class="txtAlignCenter">Receive</th>
+                            <th colspan="2" class="txtAlignCenter">Issue</th>
+                            <th colspan="2" class="txtAlignCenter">Closing</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBodyOrderWiseItemStock" style="font-size: 11px;">
+                    </tbody>
+                </table>*@
+        </div>
+    </div>
+
+
+
+    @*<div class="row">
+            <div class="table-responsive" id="divIndividualItemStock" style="display:none; max-height:500px;">
+                <table class="table table-bordered tableFixHead">
+                    <thead style="font-size: 11px;">
+                        <tr>
+                            <th colspan="2"></th>
+                            <th rowspan="2" class="txtAlignCenter">Purchse<br />Order</th>
+                            <th rowspan="2" class="txtAlignCenter">MRP<br />Item</th>
+                            <th colspan="2"></th>
+                            <th colspan="2" class="txtAlignCenter">Opening</th>
+                            <th colspan="2" class="txtAlignCenter">Receive</th>
+                            <th colspan="2" class="txtAlignCenter">Issue</th>
+                            <th colspan="2" class="txtAlignCenter">Closing</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th class="txtAlignCenter">SL</th>
+                            <th class="txtAlignCenter">Buyer</th>
+                            <th class="txtAlignCenter">Measurement</th>
+                            <th class="txtAlignCenter">Unit</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBodyIndividualItemStock" style="font-size: 11px;">
+                    </tbody>
+                </table>
+            </div>
+        </div>*@
+</form>
+
+@section scripts{
+    <script type="text/javascript">
+        function GetBuyerWiseOrder() {
+            var BuyerID = $("#BuyerID").val();
+            var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID, "DateFrom": '@DateTime.Now.AddYears(-5)' }, "");
+            $("#OrderID").html(dropDownOption);
+        }
+        function GetOrderTrimHistory(reportFormat) {
+             debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var companyID = $("#CompanyID").val();
+            var businessID = $("#BusinessID").val();
+            var MRPItemCode = $("#MRPItemCode").val();
+            var OrderID = $("#OrderID").val();
+            if (!companyID) {
+                companyID = 0;
+            }
+            if (!businessID) {
+                businessID = 0;
+            }
+            if (!MRPItemCode) {
+                MRPItemCode = 0;
+            }            
+            if (!OrderID) {
+                OrderID = 0;
+            }            
+            window.open("/CostCenterReport/OrderTrimHistoryReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode + "&OrderID=" + OrderID + "&ReportFormat=" + reportFormat, "Order Trim History", "status=1,toolbar=0");
+            
+        return false;
+        }
+    $(function () {
+        $("#clearDate").click(function () {
+            const dateFrom = $("#DateFrom").val();
+
+            if (!dateFrom) {
+                $("#DateFrom").val('@Model.DateFromSTR')
+                $("#DateTo").val('@Model.DateToSTR')
+            } else {
+                $("#DateFrom").val("")
+                $("#DateTo").val("")
+            }
+        })
+        $("#BuyerID").change(function () {
+            GetBuyerWiseOrder();
+        });
+
+        $("#btnPdf").click(function () {
+                GetOrderTrimHistory("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+        $("#btnExcel").click(function () {
+            GetOrderTrimHistory("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+        });
+    });
+    </script>
+}

@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Order Version";
+    ViewData["pageTitle"] = "Order Version information";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+ <script type="text/javascript">
+
+     $(document).ready(function () {
+         $("#OrderNo").autocomplete({
+             source: function (request, response) {
+                 $.ajax({
+                     type: "GET",
+                     data: { prefix: request.term },
+                     url: '/CommonAutoComplete/GetOrderNumber',
+                     dataType: "json",
+                     async: true,
+                     success: function (data) {
+                         response(data);
+                     },
+                     failure: function (errMsg) {
+                         $.alert.open("error", errMsg);
+                         return false;
+                     }
+                 });
+
+             },
+             focus: function (event, ui) {
+
+                 return false;
+             },
+             select: function (event, ui) {
+
+                 $("#OrderNo").val(ui.item.Description);
+
+                 return false;
+             }
+         }).autocomplete("instance")._renderItem = function (ul, item) {
+             return $("<li>")
+                 .append('<div><b>' + item.Description + '</b></div>')
+                 .appendTo(ul);
+             };
+
+         $("#btnShow").click(function () {
+             debugger;
+             var orderNo = $("#OrderNo").val();
+             if (orderNo.length < 1 && orderNo==" ") {
+                 $.alert.open("warning", "Enter Order No.");
+                 return false;
+             }
+             $.ajax({
+                 url: "/MaxcoReport/GetOrderVersion",
+                 type: 'POST',
+                 data: { OrderNo: orderNo},// JSON.stringify(passData),
+                 dataType: 'json',
+                 success: function (data) {
+                     var tr = "";
+                     if (data.length > 0) {
+                         var sl = 1;
+                         $.each(data, function (s,v) { 
+                             tr += `<tr>`;
+                             tr += `<td>${sl}</td>`;
+                             tr += `<td>${v.SheetNo}</td>`;
+                             tr += `<td>${v.OrderNo}</td>`;
+                             tr += `<td>${v.VersionNo}</td>`;
+                             tr += `<td>${v.CreatedBy}</td>`;
+                             tr += `<td>${v.CreationDateSTR}</td>`;
+                             tr += `<td>${v.OSStatus}</td>`;
+                             tr += `<td><a target="_blank" href="/MaxcoReport/OrderSheetReport?CurrentVersionID=${v.VersionID}" class="btn btn-sm btn-danger">Show</a></td>`;
+
+                             tr += `</tr>`;
+                             sl++;
+                         });
+                     }
+
+                     $("#tblOrderVersion tbody").html(tr);
+
+                 }
+             });
+         })
+     });
+
+ </script>
+}
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label for="OrderNo" class="label-ajt-sm required">Order No</label>
+            <input type="text" id="OrderNo" class="form-control form-control-sm" autocomplete="off" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <button type="button" class="btn btn-sm btn-primary" id="btnShow">Show Order Version</button>
+    </div>
+</div>
+
+<div class="row pt-2">
+    <div class="col-sm-12">
+        <table class="table table-sm table-bordered table-striped" id="tblOrderVersion">
+            <thead>
+                <tr>
+                    <th>SL</th>
+                    <th>Sheet Number</th>
+                    <th>Order</th>
+                    <th>Version</th>
+                    <th>Created By</th>
+                    <th>Creation Date</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,45 @@
+﻿.hidden{
+    display:none;
+}
+.ajaxLoader {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    /*    background: rgba( 255, 255, 255, .8 ) url('../siteimage/ajax-loader.gif') 50% 50% no-repeat;*/
+    background: rgba( 255, 255, 255, .8 ) url('../siteimage/Loader.gif') 50% 50% no-repeat;
+}
+.loading-image{
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    /*    background: rgba( 255, 255, 255, .8 ) url('../siteimage/ajax-loader.gif') 50% 50% no-repeat;*/
+    background: rgba( 255, 255, 255, .8 ) url('../siteimage/Loader.gif') 50% 50% no-repeat;
+}
+.ui-autocomplete {
+    max-height: 250px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+}
+.txtAlignCenter {
+    text-align: center;
+}
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+/*body .ajaxLoader {
+    overflow: hidden;
+}*/
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+/*body .ajaxLoader {
+    display: block;
+}*/

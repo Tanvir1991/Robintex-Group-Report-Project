@@ -1,0 +1,120 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.YarnStockModel
+@{
+    ViewData["Title"] = "Yarn Stock Report";
+    ViewData["pageTitle"] = "Yarn Stock Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+
+        .tableFixHead thead {
+            position: sticky;
+            top: 0;
+            background: #eee;
+        }
+    /* Just common table stuff. Really. */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+</style>
+<form asp-action="Index" asp-controller="FabricStockReport" id="frmIndex" method="post">
+    <div class="row">
+        @*<div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+            </div>
+        </div>*@
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="YarnComposition" class="label-ajt-sm required"></label>
+                <select asp-for="YarnCompositionID" asp-items="Model.DDLYarnComposition" class="form-control form-control-sm" multiple></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="YarnCountID" class="label-ajt-sm required"></label>
+                <select asp-for="YarnCountID" asp-items="Model.DDLYarnCount" class="form-control form-control-sm" multiple ></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="TransactionDateST" class="label-ajt-sm required"></label>
+                <input asp-for="TransactionDateST" id="TransactionDate" name="TransactionDateST" class="form-control form-control-sm"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                @*<button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>*@
+                <button type="button" class="btn btn-sm btn-warning" id="btnPDF">PDF</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+ 
+</form>
+
+@section scripts{
+    <script>
+      
+        function YarnStockReport(reportFormat) {
+            debugger;
+            let StockDate = $("#TransactionDate").val();
+            let CompositionGroup = $("#YarnCompositionID").val();
+            let YarnCount = $("#YarnCountID").val();
+            let CompanyID = $("#CompanyID").val();
+            if (!CompanyID) {
+                CompanyID = 0;
+            }
+            if (!CompositionGroup) {
+                CompositionGroup = "";
+            }
+
+            if (!YarnCount) {
+                YarnCount = "";
+            }
+
+
+            if (StockDate != "" && StockDate != "") {
+
+                var url = `/CostCenterReport/YarnStockGroupReport?StockDate=${StockDate}&CompositionGroup=${CompositionGroup}&YarnCount=${YarnCount}&CompanyID=${CompanyID}&ReportFormat=${reportFormat}`;
+                window.open(url, "Stock Report", `status=1,toolbar=0,width=${screen.width}`);
+            } else {
+                alert("Please provide all data");
+            }
+
+        }
+
+
+        $(document).ready(function () {
+        
+            $("#YarnCompositionID").chosen();
+            $("#YarnCountID").chosen();
+            $("#btnPDF").click(function () {
+                YarnStockReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            $("#btnExcel").click(function () {
+                YarnStockReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+          
+        });
+
+    </script>
+}
+
+
+
+

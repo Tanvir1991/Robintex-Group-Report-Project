@@ -1,0 +1,142 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.VoucherModel.VoucherReportsViewModel
+@{
+    ViewData["Title"] = "Voucher Reports";
+    ViewData["pageTitle"] = "Voucher Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section scripts{
+    <script>       
+        function GETDDLVoucher() {
+            $("#VoucherID").chosen('destroy');
+            let companyID = $("#CompanyID").val();
+            let voucherTypeID = $("#VoucherTypeID").val();
+            let year = $("#Year").val();
+            let month = $("#Month").val();
+            $("#ChequePercentageSTR").val('');
+            var optionValue = GenerateDropDownOptions("CommonDropDown", "GETDDLVoucher", { "VoucherType": voucherTypeID, "CompanyId": companyID, "Month": month, "Year": year }, "");
+            $("#VoucherID").html(optionValue);
+            $("#VoucherID").chosen();
+            $("#VoucherID").trigger("chosen:updated");
+        }
+
+        function ReportBankPaymentVoucher(reportFormat) {
+            debugger;
+            const VoucherCategory = $("#VoucherCategory").val();
+            const VatPercent = $("#VatPercent").val();
+            const IncomeTaxPercent = $("#IncomeTaxPercent").val();
+            const VoucherID = $("#VoucherID").val();
+           
+            if (VoucherID.length <= 0) {
+                $.alert.open("warning", "Add Voucher Number");
+                return false;
+            }
+            //'<Vouchers><Voucher ID="1988546" PartyPercentage="100" IncomeTaxPercentage="0" VatPercentage="0" Category="Party"/></Vouchers>'
+            let parm = "<Vouchers>"; 
+            parm += `<Voucher ID="${VoucherID}" PartyPercentage="0" IncomeTaxPercentage="${IncomeTaxPercent}" VatPercentage="${VatPercent}" Category="${VoucherCategory}"/></Vouchers>`; 
+            //DateFrom, DateTo, int CompanyID,  BusinessID, ReportFormat
+            if (parm)
+                window.open("/BankPaymentVoucher/ReportVoucherReports?ConditionalXML=" + parm + "&ReportFormat=" + reportFormat, "Bank Payment Voucher", "status=1,toolbar=0");
+
+
+            return false;
+        }
+       
+        $(document).ready(function () {
+
+            $("#VoucherID").chosen();
+
+            $("#CompanyID").change(function () {
+                var companyID = $("#CompanyID").val();
+                window.location.href = `/BankPaymentVoucher/VoucherReports?CompanyID=${companyID}`;
+
+            })            
+            $("#Year,#Month").change(function () {
+                GETDDLVoucher();
+            });
+
+
+            $("#btnPdf").click(function () {
+                ReportBankPaymentVoucher("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                ReportBankPaymentVoucher("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+        })
+    </script>
+}
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="VoucherTypeID" class="label-ajt-sm required"></label>
+                <select asp-for="VoucherTypeID" asp-items="Model.VoucherTypeList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Year" class="label-ajt-sm required"></label>
+                <select asp-for="Year" asp-items="Model.YearList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Month" class="label-ajt-sm required"></label>
+                <select asp-for="Month" asp-items="Model.MonthList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="VoucherCategory" class="label-ajt-sm required"></label>
+                <select asp-for="VoucherCategory" asp-items="Model.DDLVoucherCategory" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="VatPercent" class="label-ajt-sm required"></label>
+                <input asp-for="VatPercent" class="form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="IncomeTaxPercent" class="label-ajt-sm required"></label>
+                <input asp-for="IncomeTaxPercent" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label asp-for="VoucherID" class="label-ajt-sm required"></label>
+                <select asp-for="VoucherID" asp-items="Model.VoucherList" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+

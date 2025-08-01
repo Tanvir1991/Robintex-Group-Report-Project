@@ -1,0 +1,135 @@
+﻿@model RTEXERP.Contracts.BLModels.CMS.SubcontractStyleChargeVM
+
+@{
+    ViewData["Title"] = "Sub Contract Rate";
+    ViewData["pageTitle"] = "Garments Production";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="frmAddSubcontractRate" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.DDLOrder" class="form-control form-control-sm"></select>
+                <span asp-validation-for="OrderID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="OrderRate" class="label-ajt-sm required"></label>
+                <input type="number" asp-for="OrderRate" class="form-control form-control-sm" autocomplete="off" />
+                <span asp-validation-for="OrderRate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label  class="label-ajt-sm">&nbsp;</label>
+              <button type="button" class="btn btn-sm btn-success" id="btnSave" style="margin-top:15px;">Save</button>
+              
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success hide"  id="btnShow">Show</button>
+
+            </div>
+        </div>
+    </div>
+    
+</form>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-sm table-bordered table-striped" id="tblSubContractRateList">
+            <thead>
+                <tr>
+                    <td>SL</td>
+                    <td>Order No</td>
+                    <td>Rate</td>
+                    <td>Date</td>
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table> 
+    </div>
+</div>
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+            SubContractRateList();
+
+            $("#OrderID").chosen();
+
+ 
+
+            $("#btnSave").click(function () {
+                const OrderNo = $("#OrderID option:selected").text();
+                const OrderID = $("#OrderID").val();
+                const OrderRate = $("#OrderRate").val();
+
+                if (OrderID && OrderRate>0)
+                {
+                    const datamodel = { OrderNo: OrderNo, OrderID: OrderID, OrderRate: OrderRate};
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/GarmentsProduction/SaveSubcontractPrice',
+                        data: datamodel,
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open("success", data.message);
+                                $("#frmAddSubcontractRate").resetForm();
+                                SubContractRateList();
+                            } else {
+                                $.alert.open("warning", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+            });
+        })
+
+
+        function SubContractRateList() {
+
+            var data = GetData("GarmentsProduction", "GetSubContractRateList", { DateFrom: "@DateTime.Now.AddMonths(-6).Date", DateTo: "@DateTime.Now.Date" }, "");
+            var tblObject = ""; 
+            if (data.data != null && data.data.length > 0) {
+                $.each(data.data, function (i, v) {
+                    tblObject += `<tr><td>${i + 1}</td><td>${v.OrderNo}</td><td>${v.OrderRate}</td><td>${v.CreateDateStr}</td></tr>`;
+                });
+                $("#tblSubContractRateList").append(tblObject);
+            } else {
+                $("#tblSubContractRateList").append("");
+            }
+        }
+
+
+
+    </script>
+
+}

@@ -1,0 +1,410 @@
+﻿@model RTEXERP.Contracts.BLModels.Materials.YarnLotNo
+
+@{
+    ViewData["Title"] = "Yarn Balance";
+    ViewData["pageTitle"] = "Yarn Balance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSt" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo"  value="@Model.DateToST" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="LotNo" class="label-ajt-sm required"></label>
+                <select asp-for="LotNo" asp-items="Model.DDlLotNo" class="form-control form-control-sm"></select>
+                <span asp-validation-for="LotNo" class="text-danger"></span>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="YarnCompositionId" class="label-ajt-sm required"></label>
+                <select asp-for="YarnCompositionId" asp-items="Model.DDLYarnCompositionList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="YarnCompositionId" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="YarnCountId" class="label-ajt-sm required"></label>
+                <select asp-for="YarnCountId" asp-items="Model.DDLYarnCountList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="YarnCountId" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4" style="display:none;">
+            <div class="form-group checkbox">
+                <label for="IsDetails" class="label-ajt-sm required"> &nbsp;</label>
+                <input type="checkbox" class=" form-control-sm" id="IsDetails" />Yarn Summary
+                <span asp-validation-for="YarnCountId" class="text-danger"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+                <button type="button" class="btn btn-sm btn-primary" style="display:none" id="btnSubmit">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" style="display:none" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table">
+            <thead>
+
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><b>Object Store</b></div>
+            <div class="panel-body">
+                <table class="table table-condensed table-border" id="tblYarnSummary" style="border-collapse:collapse;">
+
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>SL</th>
+                            <th>Composition</th>
+                            <th>Count</th>
+                            <th>Previous Received</th>
+                            <th>Current Received</th>
+                            <th>Total</th>
+                            <th>Previous Issue</th>
+                            <th>Current Issue</th>
+                            <th>Total</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                 <tr style="text-align:center"><td colspan="11">Click Show or No Record Found</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+ 
+
+
+
+@section scripts{
+    <script>
+           function GetLotNo() {
+               var DateFrom = $("#DateFrom").val();
+               var DateTo = $("#DateTo").val();
+                if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            GenerateDropDown("CostCenterReport", "getBlanceLotYarn", { "DateFrom": DateFrom,"DateTo": DateTo}, "LotNo", "");
+        }
+
+         function getYarnCount() {
+               var YarnCompositionId = $("#YarnCompositionId").val();
+             if (YarnCompositionId != null) {
+                 GenerateDropDown("CostCenterReport", "getDDLYarnCount", { "CompositionId": YarnCompositionId}, "YarnCountId", "");
+             }
+        }
+
+        function BlanceYrnLotReport(reportFormat) {
+            debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var lotNo = $("#LotNo").val();
+            var YarnCompositionId = $("#YarnCompositionId").val();
+            var YarnCountId = $("#YarnCountId").val();
+            var IsDetails = 0;
+
+            if (!lotNo) {
+                lotNo = "";
+            }
+             if (!YarnCompositionId) {
+                YarnCompositionId =0;
+            }
+             if (!YarnCountId) {
+                YarnCountId ="";
+            }
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            window.open("/CostCenterReport/YarnLotBalanceSummaryByCountCompositionReport?LotNo=" + lotNo + "&DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&YarnCountId=" + YarnCountId+"&YarnCompositionId="+YarnCompositionId+"&IsDetails="+IsDetails+"&ReportFormat=" + reportFormat, "Blance Yarn Lot", "status=1,toolbar=0");
+        return false;
+
+        }
+
+        $(document).ready(function () {
+ 
+          $("#btnSubmit").click(function () {
+                BlanceYrnLotReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                BlanceYrnLotReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+            $("#DateFrom").change(function () {
+                GetLotNo();
+            })
+           $("#DateTo").change(function () {
+                GetLotNo();
+           })
+
+            $("#YarnCompositionId").change(function () {
+                getYarnCount();
+            });
+
+
+            $("#btnShow").click(function () {
+                $("#AjaxLoader").show();
+              var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var lotNo = $("#LotNo").val();
+            var YarnCompositionId = $("#YarnCompositionId").val();
+            var YarnCountId = $("#YarnCountId").val();
+            var IsDetails = 0;
+
+            if (!lotNo) {
+                lotNo = "";
+            }
+             if (!YarnCompositionId) {
+                YarnCompositionId =0;
+            }
+             if (!YarnCountId) {
+                YarnCountId ="";
+            }
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+                }
+                var data = {
+                    LotNo: lotNo, DateFrom: DateFrom, DateTo: DateTo, YarnCountId: YarnCountId, YarnCompositionId: YarnCompositionId, IsDetails:IsDetails
+                }
+                 $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/CostCenterReport/YarnLotBalanceSummaryByCountComposition',
+                        data: data,
+                        dataType: 'json',
+                        beforeSend: function () {
+                               $("#AjaxLoader").show();
+                            },
+                        complete: function () {
+                         $("#AjaxLoader").hide();
+                            },
+                        async: true,
+                        success: function (data) {
+                            $("#AjaxLoader").hide();
+                            var tr = MainSummery(data.data, lotNo,DateFrom,DateTo);
+                            console.log(data.data);
+                            $("#tblYarnSummary tbody").html(tr);
+                        },
+                        error: function (request, status, error) {
+                            $("#AjaxLoader").hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                 });
+            });
+        })
+
+
+        function MainSummery(data,lotNo,DateFrom,DateTo) {
+            var tr = ""
+            var PreviousReceivedTotal = 0;
+            var CurrentReceivedTotal = 0;
+            var ReceivedTotal = 0;
+            var PreviousIssueTotal = 0;
+            var CurrentIssueTotal = 0;
+            var issueTotal=0;
+            var BalanceTotal = 0;
+            var sl = 0;
+            if (data.length > 0) {
+
+                $.each(data, function (i, item) {
+                    sl = sl + 1;
+                    PreviousReceivedTotal += item.PreReceivedQty;
+                    CurrentReceivedTotal += item.ReceivedQty;
+                      ReceivedTotal += item.TotalReceivedQty;
+                    PreviousIssueTotal += item.PreviousIssueQty;
+                    CurrentIssueTotal += item.IssuedQty;
+                    issueTotal += item.TotalIssueQty;
+                    BalanceTotal += item.Balance;
+                    tr += `<tr data-toggle="collapse" data-target="#show${sl}" class="accordion-toggle">`;
+                    tr += `<td><button class="btn btn-default btnDetails btn-xs" onClick="CompositionWiseYarn('${lotNo}','${DateFrom}','${DateTo}','${item.YarnCountName}',${item.YarnCompositionId},${sl})"><span class="glyphicon glyphicon-eye-open"></span></button></td>`;
+                    tr += `<td>${sl}</td>`;
+                    tr += `<td>${item.YarnCompositionName}</td>`;
+                    tr += `<td>${item.YarnCountName}</td>`;
+                    tr += `<td>${item.PreReceivedQty}</td>`;
+                    tr += `<td>${item.ReceivedQty}</td>`;
+                    tr += `<td>${item.TotalReceivedQty}</td>`;
+                    tr += `<td>${item.PreviousIssueQty}</td>`;
+                    tr += `<td>${item.IssuedQty}</td>`;
+                    tr += `<td>${item.TotalIssueQty}</td>`;
+                    tr += `<td>${item.Balance}</td>`;
+                    tr += `</tr>`;
+                    tr += `<tr>`;
+                    tr += `<td colspan="12" class="hiddenRow">`;
+                    tr += `<div class="accordian-body collapse" id="show${sl}">`;
+                    tr += `<table id="tblDetails${sl}" style="font-size:11px;" class="table table-striped">`
+                    tr += `<thead>`;
+                    tr += `<tr>
+                            <th>SL</th>
+                            <th>Lot</th>
+                            <th>Composition</th>
+                            <th>Count</th>
+                            <th>Recv Date</th>
+                            <th>Pre. Received</th>
+                            <th>Curr. Received</th>
+                            <th>Total</th>
+                            <th>Issue Date </th>
+                            <th>Pre Issue</th>
+                            <th>Curr Issue</th>
+                            <th>Total</th>
+                            <th>Balance</th>
+                        </tr>`;
+                    tr += `</tr>`;
+                    tr += `</thead > <tbody></tbody></table></div></td></tr>`;
+                });
+                
+                tr += "<tr style='font-size:10px;'>";
+                tr += `<td colspan="4" style="text-align:right"><b>Total</b></td>`;
+                tr += `<td>${PreviousReceivedTotal.toFixed(2)}</td>`;
+                    tr += `<td>${CurrentReceivedTotal.toFixed(2)}</td>`;
+                    tr += `<td>${ReceivedTotal.toFixed(2)}</td>`;
+                    tr += `<td>${PreviousIssueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${CurrentIssueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${issueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${BalanceTotal.toFixed(2)}</td>`;
+                    tr += `</tr>`;
+                    
+            } else {
+                tr = "<tr><td colspan='11'>No Record Found</td></tr>";
+            }
+            return tr;
+        }
+
+        function CompositionWiseYarn(lotNo, DateFrom, DateTo, YarnCountId, YarnCompositionId,tableId) {
+             var data = {
+                    LotNo: "", DateFrom: DateFrom, DateTo: DateTo, YarnCountId: YarnCountId, YarnCompositionId: YarnCompositionId, IsDetails:1
+            }
+          //  $("#AjaxLoader").show();
+            $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/CostCenterReport/YarnLotBalanceSummaryByCountComposition',
+                        data: data,
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                         //   $("#AjaxLoader").hide();
+                            var tr = DetailsSummery(data.data);
+                            console.log(data.data);
+                            $(`#tblDetails${tableId} tbody`).html(tr);
+                        },
+                        error: function (request, status, error) {
+                          //  $("#AjaxLoader").hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                 });
+        }
+
+          function DetailsSummery(data) {
+            var tr = ""
+            var PreviousReceivedTotal = 0;
+            var CurrentReceivedTotal = 0;
+            var ReceivedTotal = 0;
+            var PreviousIssueTotal = 0;
+            var CurrentIssueTotal = 0;
+            var issueTotal=0;
+            var BalanceTotal = 0;
+            var dsl = 0;
+            if (data.length > 0) {
+
+                $.each(data, function (i, item) {
+                    dsl = dsl + 1;
+                    PreviousReceivedTotal += item.PreReceivedQty;
+                    CurrentReceivedTotal += item.ReceivedQty;
+                      ReceivedTotal += item.TotalReceivedQty;
+                    PreviousIssueTotal += item.PreviousIssueQty;
+                    CurrentIssueTotal += item.IssuedQty;
+                    issueTotal += item.TotalIssueQty;
+                    BalanceTotal += item.Balance;
+                    tr += `<tr>`;
+                    tr += `<td>${dsl}</td>`;
+                    tr += `<td>${item.LotNo}</td>`;
+                    tr += `<td>${item.YarnCompositionName}</td>`;
+                    tr += `<td>${item.YarnCountName}</td>`;
+                    tr += `<td>${item.FirstReceivedDateStr}</td>`;
+                    tr += `<td>${item.PreReceivedQty}</td>`;
+                    tr += `<td>${item.ReceivedQty}</td>`;
+                    tr += `<td>${item.TotalReceivedQty}</td>`;
+                    tr += `<td>${item.FirstIssuedDateStr}</td>`;
+                    tr += `<td>${item.PreviousIssueQty}</td>`;
+                    tr += `<td>${item.IssuedQty}</td>`;
+                    tr += `<td>${item.TotalIssueQty}</td>`;
+                    tr += `<td>${item.Balance}</td>`;
+                    tr += `</tr>`;
+                    
+                });
+                
+                tr += "<tr style='font-size:10px;'>";
+                tr += `<td colspan="5" style="text-align:right"><b>Total Received</b></td>`;
+                tr += `<td>${PreviousReceivedTotal.toFixed(2)}</td>`;
+                    tr += `<td>${CurrentReceivedTotal.toFixed(2)}</td>`;
+                tr += `<td>${ReceivedTotal.toFixed(2)}</td>`;
+                 tr += `<td colspan="" style="text-align:right"><b>issue Total</b></td>`;
+                    tr += `<td>${PreviousIssueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${CurrentIssueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${issueTotal.toFixed(2)}</td>`;
+                    tr += `<td>${BalanceTotal.toFixed(2)}</td>`;
+                    tr += `</tr>`;
+                    
+            } else {
+                tr = "<tr><td colspan='11'>No Record Found</td></tr>";
+            }
+            return tr;
+        }
+    </script>
+
+}

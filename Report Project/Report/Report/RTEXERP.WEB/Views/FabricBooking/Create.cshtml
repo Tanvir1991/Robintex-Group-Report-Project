@@ -1,0 +1,407 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.FabricBookingMasterViewModel
+
+@{
+    ViewData["Title"] = "Fabric Booking";
+    ViewData["pageTitle"] = "Fabric Booking";
+    ViewData["btnText"] = "Back to list";
+    ViewData["btnLink"] = "/FabricBooking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-controller="FabricBooking" id="frmBookingCreate" asp-action="Create">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm" required asp-for="BuyerID" asp-items="Model.BuyerList"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DeliveryStartDateMsg" class="label-ajt-sm required"></label>
+                <input asp-for="DeliveryStartDateMsg" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DeliveryEndDateMsg" class="label-ajt-sm required"></label>
+                <input asp-for="DeliveryEndDateMsg" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="Reference" class="label-ajt-sm required"></label>
+                <input asp-for="Reference" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-11">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="StyleID"></label>
+                <select class="form-control form-control-sm selectpicker" required multiple asp-for="StyleID" asp-items="Model.StyleList"></select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-warning" id="btnSearch">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-sm table-bordered text-center" style="font-size:12px;" id="tblFabricBooking">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Machine Type</th>
+                        <th>Style</th>
+                        <th>Color</th>
+                        <th>Composition</th>
+                        <th>Dia</th>
+                        <th>GSM</th>
+                        <th>Type</th>
+                        <th>Quality</th>
+                        <th>Gmt Quantity</th>
+                        <th>Consumption</th>
+                        <th>Total</th>
+                        <th>Use In</th>
+                        <th>Wash Type</th>
+                        <th>Instruction</th>
+
+                    </tr>
+                </thead>
+                <tbody style="font-size:11px;">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm">Total Weight(Kg)</label>
+                <input id="totalWeight" class="form-control form-control-sm" autocomplete="off" readonly/>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm">Total Pieces</label>
+                <input id="totalPieces" class="form-control form-control-sm" autocomplete="off" readonly/>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="SpecialInstruction" class="label-ajt-sm"></label>
+                <textarea asp-for="SpecialInstruction" class="form-control form-control-sm"></textarea>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="RevisionReason" class="label-ajt-sm"></label>
+                <textarea asp-for="RevisionReason" class="form-control form-control-sm"></textarea>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    function SelectFabric(that) {
+        debugger;
+        let totalWeight = parseFloat($("#totalWeight").val());
+        let totalPieces = parseFloat($("#totalPieces").val());
+
+        let thatTr = $(that).parent().parent();
+        let unitID = parseInt(thatTr.find(".hdnProcurementUnitID").val());
+        let totalKg = parseFloat(thatTr.find(".hdnTotalKG").val());
+
+        if (that.checked) {
+            if (unitID===6) {
+                totalWeight += totalKg;
+            } else {
+                totalPieces += totalKg;
+            }
+        } else {
+            if (unitID === 6) {
+                totalWeight -= totalKg;
+            } else {
+                totalPieces -= totalKg;
+            }
+        }
+        $("#totalWeight").val(totalWeight);
+        $("#totalPieces").val(totalPieces);
+    }
+    $(function () {
+        $("#BuyerID").chosen();
+        $("#OrderID").chosen();
+        $("#StyleID").chosen();
+         $("#BuyerID").change(function () {
+            var BuyerID = $("#BuyerID").val();
+            var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID, 'DateFrom': '@DateTime.Now.AddMonths(-6)' }, "");
+            $("#OrderID").html(dropDownOption);
+            $('#OrderID').trigger("chosen:updated");
+        });
+        $("#OrderID").change(function () {
+            var OrderID = $("#OrderID").val();
+            var dropDownOption = GenerateDropDownOptions("FabricBooking", "DDLOrderWiseStyleForFabricBooking", { "OrderID": OrderID, "FabricBookingID": '@Model.FabricBookingID'}, "");
+            $("#StyleID").html(dropDownOption);
+            $('#StyleID').trigger("chosen:updated");
+        });
+        $("#btnSearch").click(function () {
+            debugger;
+            var styles = $("#StyleID").val();
+            if (styles.length > 0) {
+                //var data = GetData("FabricBooking", "GetSearchedData", { StyleIDList: styles }, '');
+                $.ajax({
+                    type: 'POST',
+                    url: '/FabricBooking/GetSearchedData',
+                    data: { StyleIDList: styles },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data != null) {
+                            let tr = ``;
+                            let totalKg = 0;
+                            let totalPcs = 0;
+
+                            $.each(data.FabricBookingDetail, function (i, v) {
+                                tr += `<tr class='trFabBookDetail' data-id=${(i + 1)}><td><input type='checkbox' checked class='chkSelectedFabric' onchange='SelectFabric(this)'> ${(i + 1)}</td>
+                                            <td>${v.FSType}
+                                                <input type='hidden' class='hdnStyleID' value=${v.StyleID}>
+                                                <input type='hidden' class='hdnPantoneNo' value='${v.PantoneNo}'>
+                                                <input type='hidden' class='hdnFabricComposition' value=${v.FabricComposition}>
+                                                <input type='hidden' class='hdnDia' value=${v.Dia}>
+                                                <input type='hidden' class='hdnGSM' value=${v.GSM}>
+                                                <input type='hidden' class='hdnFabricTypeID' value=${v.FabricTypeID}>
+                                                <input type='hidden' class='hdnFabricQualityID' value=${v.FabricQualityID}>
+                                                <input type='hidden' class='hdnNumberOfGarments' value=${v.NumberOfGarments}>
+                                                <input type='hidden' class='hdnConsumption' value=${v.Consumption}>
+                                                <input type='hidden' class='hdnUseIn' value=${v.UseIn}>
+                                                <input type='hidden' class='hdnFSTypeID' value=${v.FSTypeID}>
+                                                <input type='hidden' class='hdnRequirementSheetID' value=${v.RequirementSheetID}>
+                                                <input type='hidden' class='hdnKRS_MID' value=${v.KRS_MID}>
+                                                <input type='hidden' class='hdnProcurementUnitID' value=${v.ProcurementUnitID}>
+                                                <input type='hidden' class='hdnAttributeInstanceID' value=${v.AttributeInstanceID}>
+<input type='hidden' class='hdnTotalKG' value=${v.TotalKG}>
+                                            </td><td>${v.StyleName}</td><td>${v.PantoneNo}</td>
+                                            <td>${v.FabricComposition}</td><td>${v.Dia}</td>
+                                            <td>${v.GSM}</td><td>${v.FabricType}</td>
+                                            <td>${v.FabricQuality}</td><td>${v.NumberOfGarments}</td>
+                                            <td>${v.Consumption}</td><td>${v.TotalKG} ${v.ProcurementUnit}</td>
+                                            <td>${v.UseIn}</td><td><input type='text' class='txtWashType' /></td>
+                                            <td><input type='text' class='txtInstruction'/></td>
+                                        </tr>`;
+                                if (v.ProcurementUnitID === 6) {
+                                    totalKg += parseFloat( v.TotalKG);
+                                }
+                                if (v.ProcurementUnitID === 7) {
+                                    totalPcs += parseFloat(v.TotalKG);
+                                    var trSize = "";
+                                    if (v.FabricBookingSizeDetail.length > 0) {
+                                        $.each(v.FabricBookingSizeDetail, function (j, k) {                                          
+                                            totalKg += parseFloat((k.Quantity * k.WeightConsumption).toFixed(2));
+
+                                            trSize += `<tr class='trFabBookSizes${(i + 1)}'>
+                                                            <td>${k.FabricTrimName}
+                                                                <input type='hidden' class='hdnFabricTrimID' value=${k.FabricTrimID}>
+                                                                <input type='hidden' class='hdnKRSDID' value=${k.KRSDID}>
+                                                                <input type='hidden' class='hdnSizeID' value=${k.SizeID}>
+                                                                <input type='hidden' class='hdnSizeName' value=${k.SizeName}>
+                                                                <input type='hidden' class='hdnLen' value=${k.Len}>
+                                                                <input type='hidden' class='hdnWid' value=${k.Wid}>
+                                                                <input type='hidden' class='hdnPantoneNo' value='${k.PantoneNo}'>
+                                                                <input type='hidden' class='hdnQuantity' value=${k.Quantity}>
+                                                                <input type='hidden' class='hdnWeightConsumption' value=${k.WeightConsumption}>
+                                                            </td><td>${k.SizeName}</td><td>${k.Wid}</td>
+                                                            <td>${k.Len}</td><td>${k.PantoneNo}</td>
+                                                            <td>${k.Quantity}</td><td>${k.WeightConsumption}</td><td>${(k.Quantity * k.WeightConsumption).toFixed(2)}</td>
+                                                        </tr>`;
+                                        });
+                                    }
+
+                                    tr += `<tr class='trFabBookSizeDetail${(i + 1)}'><td></td><td colspan="14">
+                                                <table class="table table-sm table-bordered text-center">
+                                                    <thead>
+                                                        <tr>
+                                                        <th>Fabric Trim</th><th>Size</th><th>Width</th><th>Height</th><th>Pantone No</th><th>Quantity (Pcs)</th><th>Consumption</th><th>Weight (KG)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${trSize}
+                                                    </tbody>
+                                                </table>
+                                            </td></tr>`;
+                                }
+                            });
+                            $("#tblFabricBooking tbody").html(tr);
+                            $("#totalWeight").val(totalKg.toFixed(2));
+                            $("#totalPieces").val(totalPcs);
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+        });
+        if ('@Model.FabricBookingID' > 0) {
+            $("#BuyerID").trigger("change"); 
+            $("#BuyerID").prop('disabled', true).trigger("chosen:updated");
+            $('#OrderID').chosen('destroy');
+            $('#OrderID').val('@Model.OrderID');
+            $('#OrderID').chosen();
+            $("#OrderID").trigger("change");
+            $("#OrderID").prop('disabled', true).trigger("chosen:updated");
+            
+            $("#btnSearch").trigger('click');
+        }
+
+
+       
+        $("#btnSave").click(function () {
+            debugger;
+            let buyerID = $("#BuyerID").val();
+
+            let orderID = $("#OrderID").val();
+            let orderNo=$("#OrderID option:selected").text();
+            let deliveryStartDate = $("#DeliveryStartDateMsg").val();
+            let deliveryEndDate = $("#DeliveryEndDateMsg").val();
+            let reference = $("#Reference").val();
+            let specialInstruction = $("#SpecialInstruction").val();
+            let revisionReason = $("#RevisionReason").val();
+            var styles = $("#StyleID").val();
+            if (buyerID > 0 && orderID > 0 && deliveryStartDate != "" && deliveryEndDate != "" && styles.length > 0) {
+                let fabricBookingDetailList = new Array();
+
+                $('.chkSelectedFabric:checkbox:checked').each(function () {
+                    let that = $(this).parent().parent();
+                    let dataID = that.data('id');
+                    let sizeDetailClass = `.trFabBookSizes${dataID}`;
+                    let sizeDetailcount = $(sizeDetailClass).length;
+                    let sizeDetailList = new Array();
+                    if (sizeDetailcount > 0) {
+                        $(sizeDetailClass).each(function () {
+                            let tahtSize = $(this);
+                            let fabricTrimID = tahtSize.find('.hdnFabricTrimID').val();
+                            let kRSDID = tahtSize.find('.hdnKRSDID').val();
+                            let sizeID = tahtSize.find('.hdnSizeID').val();
+                            let sizeName = tahtSize.find('.hdnSizeName').val();
+                            let len = tahtSize.find('.hdnLen').val();
+                            let wid = tahtSize.find('.hdnWid').val();
+                            let pantoneNo = tahtSize.find('.hdnPantoneNo').val();
+                            let quantity = tahtSize.find('.hdnQuantity').val();
+                            let weightConsumption = tahtSize.find('.hdnWeightConsumption').val();
+                            let sizeDetail = {
+                                FabricTrimID: fabricTrimID,
+                                KRSDID: kRSDID,
+                                SizeID: sizeID,
+                                SizeName: sizeName,
+                                Len:len,
+                                Wid: wid,
+                                PantoneNo: pantoneNo,
+                                Quantity: quantity,
+                                WeightConsumption: weightConsumption
+                            };
+                            sizeDetailList.push(sizeDetail);
+                        });
+                    }
+
+                    let StyleID = that.find('.hdnStyleID').val();
+                    let pantoneNo = that.find('.hdnPantoneNo').val();
+                    let fabricComposition = that.find('.hdnFabricComposition').val();
+                    let dia = that.find('.hdnDia').val();
+                    let gSM = that.find('.hdnGSM').val();
+                    let fabricTypeID = that.find('.hdnFabricTypeID').val();
+                    let fabricQualityID = that.find('.hdnFabricQualityID').val();
+                    let gmtQuantity = that.find('.hdnNumberOfGarments').val();
+                    let consumption = that.find('.hdnConsumption').val();
+                    let useIn = that.find('.hdnUseIn').val();
+                    let washType = that.find('.txtWashType').val();
+                    let instructions = that.find('.txtInstruction').val();
+                    let fSTypeID = that.find('.hdnFSTypeID').val();
+                    let requirementSheetID = that.find('.hdnRequirementSheetID').val();
+                    let kRS_MID = that.find('.hdnKRS_MID').val();
+                    let procurementUnitID = that.find('.hdnProcurementUnitID').val();
+                    let attributeInstanceID = that.find('.hdnAttributeInstanceID').val();
+                    let fabricBookingDetail = {
+                        StyleID: StyleID,
+                        PantoneNo: pantoneNo,
+                        FabricComposition: fabricComposition,
+                        Dia: dia,
+                        GSM: gSM,
+                        FabricTypeID: fabricTypeID,
+                        FabricQualityID: fabricQualityID,
+                        GmtQuantity: gmtQuantity,
+                        Consumption: consumption,
+                        UseIn: useIn,
+                        WashType: washType,
+                        Instructions: instructions,
+                        FSTypeID: fSTypeID,
+                        RequirementSheetID: requirementSheetID,
+                        AttributeInstanceID: attributeInstanceID,
+                        KRS_MID: kRS_MID,
+                        ProcurementUnitID: procurementUnitID,
+                        FabricBookingSizeDetail:sizeDetailList
+                    }
+                    fabricBookingDetailList.push(fabricBookingDetail);
+                });
+                let fabricBookingMasterList = new Array();
+                let fabricBookingMaster = {
+                    BuyerID: buyerID,
+                    OrderID: orderID,
+                    DeliveryStartDate: deliveryStartDate,
+                    DeliveryEndDate: deliveryEndDate,
+                    SpecialInstruction: specialInstruction,
+                    Reference: reference,
+                    RevisionReason: revisionReason,
+                    FabricBookingDetail: fabricBookingDetailList
+                }
+                fabricBookingMasterList.push(fabricBookingMaster);
+                let fabricBooking = {
+                    OrderID: orderID,
+                    OrderNo: orderNo,
+                    FabricBookingID:'@Model.FabricBookingID',
+                    FabricBookingMaster: fabricBookingMasterList
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/FabricBooking/FabricBookingSave',
+                    data: { fabricBooking: fabricBooking },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open('success', data.message);
+                            window.location.href = "/FabricBooking/Index";
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+
+            }
+        });
+    })
+</script>

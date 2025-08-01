@@ -1,0 +1,205 @@
+﻿@model RTEXERP.Contracts.BLModels.CMS.MonthlyProductionCostAnalysisMasterVM
+@{
+    ViewData["Title"] = "Monthly Production Cost Analysis";
+    ViewData["pageTitle"] = "Monthly Production Cost Analysis";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var sl = 1;
+}
+<form id="frmProductionCostAnalysis">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+               
+                <label asp-for="MonthID" class="label-ajt-sm required"></label>
+                <select asp-for="MonthID" asp-items="Model.DDLMonthList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="MonthID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="YearID" class="label-ajt-sm required"></label>
+                <select asp-for="YearID" asp-items="Model.DDLYearList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="YearID" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-xl-12">
+        <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0">
+            <thead>
+                <tr class="table-head-fixed text-center bg-dark">
+                    <td colspan="5">Monthly Production Cost</td>
+                </tr>
+                <tr class="table-head-fixed text-center">
+                    <th style="vertical-align:middle;font-size:15px">SL</th>
+                    <th style="vertical-align:middle;font-size:15px">Report</th>
+                    <th style="vertical-align:middle;font-size:15px">Earning</th>
+                    <th style="vertical-align:middle;font-size:15px">Total Cost</th>
+                    <th style="vertical-align:middle;font-size:15px">Profit/Loss</th>
+                </tr>
+            </thead>
+            <tbody class="productionCostDetails">
+              
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" style="text-align:center;"> <input type="button" class="btn btn-sm btn-success" value="Save" id="btnSave"/></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</form>
+@*<input type="number" />*@
+<script type="text/javascript">
+    function GetProductionCostAnalysisData() {
+        var month = $("#MonthID").val();
+        let year = $("#YearID").val();
+        $.ajax({
+            type: 'GET',
+            url: '/CMS/MonthlyProductionCostAnalysis/GetMonthlyProductionCostAnalysList',
+            data: { monthID: month, yearID: year },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                let tr = ``;
+                let sl = 1;
+                let totalEarning = 0;
+                let totalSalaryCost = 0;
+                let totalProfitLoss = 0;
+                $.each(data, function (i, v) {
+                    if (v.MasterID > 0) {
+                        totalEarning = RtnFloatUpToPrecision( totalEarning+ v.Earning,3);
+                        totalSalaryCost = RtnFloatUpToPrecision( totalSalaryCost+ v.SalaryCost,3);
+                        var profitLoss = RtnFloatUpToPrecision( v.Earning - v.SalaryCost,3);
+                        totalProfitLoss = RtnFloatUpToPrecision(totalProfitLoss+ profitLoss,3);
+                        tr += `<tr class="font-weight-bold mDReportItem">
+                        <td style="text-align:center;font-size:12px">${i + 1}
+                         <input type="hidden" class="ID" value="${v.ID}"/> <input class="MasterID" type="hidden" value="${v.MasterID}"/>
+                              </td>
+                        <td style="text-align:center;font-size:12px" class="ReportName">${v.ReportName}</td>
+                        <td style="text-align:center;font-size:12px"><input onkeyup="CalculateProfitLoss(this)" type="number" value="${v.Earning}" class="form-control form-control-sm Earning" autocomplete="off" /></td>
+                        <td style="text-align:center;font-size:12px"><input onkeyup="CalculateProfitLoss(this)" type="number" value="${v.SalaryCost}" class="form-control form-control-sm SalaryCost" autocomplete="off" /> </td>
+                        <td style="text-align:center;font-size:12px"><input readonly type="text" value="${profitLoss}" class="form-control form-control-sm ProfitLoss"  autocomplete="off" /> </td>
+                       </tr>`
+
+                    } else {
+                        if (v.ReportKey != "Cutting") {
+                            tr += `<tr class="font-weight-bold mDReportItem">
+                        <td style="text-align:center;font-size:12px">${i + 1}  <input type="hidden" class="ID" value="0"/><input class="MasterID" type="hidden" value="0"/></td>
+                        <td style="text-align:center;font-size:12px" class="ReportName">${v.ReportKey}</td>
+                        <td style="text-align:center;font-size:12px"><input onkeyup="CalculateProfitLoss(this)" type="number" class="form-control form-control-sm Earning" autocomplete="off" /></td>
+                        <td style="text-align:center;font-size:12px"><input onkeyup="CalculateProfitLoss(this)" type="number" class="form-control form-control-sm SalaryCost" autocomplete="off" /> </td>
+                        <td style="text-align:center;font-size:12px"><input readonly type="text" class="form-control form-control-sm ProfitLoss" autocomplete="off" /> </td>
+                    </tr>`;
+                        }
+                    }
+                 
+
+                })
+                tr += `<tr class="font-weight-bold"><td colspan="2" style="text-align:center;font-size:12px">Total </td>
+                     <td style="text-align:center;font-size:12px"><input type="text" value="${totalEarning}" readonly class="form-control form-control-sm totalEarning"/></td>
+                     <td style="text-align:center;font-size:12px"><input type="text" value="${totalSalaryCost}" readonly class="form-control form-control-sm totalSalaryCost"/></td>
+                     <td style="text-align:center;font-size:12px"><input type="text" value="${totalProfitLoss}" readonly class="form-control form-control-sm totalProfitLoss"/></td></tr>`
+                $('.productionCostDetails').html(tr);
+            },
+            //error: function (request, status, error) {
+            //    alert(request.statusText + "/" + request.statusText + "/" + error);
+            //}
+        });
+    }
+
+    $(function () {
+        $("#MonthID").change(function () {
+            GetProductionCostAnalysisData();
+
+        })
+        $("#YearID").change(function () {
+            GetProductionCostAnalysisData();
+           
+        })
+        $("#MonthID").trigger('change');
+        $("#YearID").trigger('change');
+
+        $("#btnSave").click(function () {
+            $.alert.open('confirm', 'Are you sure to Save this record?', function (button) {
+                if (button == 'yes') {
+                    var monthID = $("#MonthID").val();
+                    let yearID = $("#YearID").val();
+                    var listOfProductionCost = new Array();
+                    let masterID = 0;
+                    $(".mDReportItem").each(function () {
+                        debugger
+                        var thatTr = $(this);
+                        var id = RtnNumber(thatTr.find('.ID').val());
+                        masterID = RtnNumber(thatTr.find('.MasterID').val());
+                        var reportName = thatTr.find('.ReportName').text();
+                        let earning = RtnFloatUpToPrecision(thatTr.find('.Earning').val(), 2);
+                        let salaryCost = RtnFloatUpToPrecision(thatTr.find('.SalaryCost').val(), 2);
+                        var obj = {
+                            ID: id,
+                            MasterID: masterID,
+                            ReportName: reportName,
+                            Earning: earning,
+                            SalaryCost: salaryCost
+                        }
+                        listOfProductionCost.push(obj);
+                    })
+
+                    var masterObj = {
+                        ID: masterID,
+                        MonthID: monthID,
+                        YearID: yearID,
+                        MonthlyProductionCostAnalysisDetails: listOfProductionCost
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/CMS/MonthlyProductionCostAnalysis/CreateMonthlyProductionCostAnalysis',
+                        data: { productionCost: masterObj },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open('success', data.message);
+                                // window.location.href = "/FabricBooking/Index";
+                            } else {
+                                $.alert.open('error', data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    return false;
+                }
+            });
+
+
+        })
+    })
+
+    function CalculateProfitLoss(that) {
+       
+        let thatVal = $(that);
+        let earning = RtnFloatUpToPrecision(thatVal.parent().parent().find('.Earning').val(), 2)
+        let salaryCost = RtnFloatUpToPrecision(thatVal.parent().parent().find('.SalaryCost').val(), 2)
+        var ProfitLoss = RtnFloatUpToPrecision(earning - salaryCost, 2)
+        thatVal.parent().parent().find('.ProfitLoss').val(ProfitLoss);
+        let totalEarning = 0;
+        let totalSalaryCost = 0;
+        $(".mDReportItem").each(function () {
+            var thatTr = $(this);
+            let earning = RtnFloatUpToPrecision(thatTr.find('.Earning').val(), 2);
+            let salaryCost = RtnFloatUpToPrecision(thatTr.find('.SalaryCost').val(), 2);
+            totalEarning = RtnFloatUpToPrecision(totalEarning+ earning,3);
+            totalSalaryCost = RtnFloatUpToPrecision(totalSalaryCost+ salaryCost,3);
+            
+        })
+        $('.totalEarning').val(totalEarning);
+        $('.totalSalaryCost').val(totalSalaryCost);
+        let totalProfitLoss = RtnFloatUpToPrecision(totalEarning - totalSalaryCost, 3);
+        $('.totalProfitLoss').val(totalProfitLoss);
+
+
+    }
+
+</script>

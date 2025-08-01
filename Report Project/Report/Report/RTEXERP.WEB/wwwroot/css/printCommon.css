@@ -1,0 +1,136 @@
+﻿ 
+@media print {
+    .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+        float: left !important;
+    }
+    @page {
+        size: auto; /* auto is the initial value */
+        margin:0.25in .25in 0.22in .20in; /* this affects the margin in the printer settings */
+    }
+    .table> tr > td.bg-danger {
+        background-color: #ff0000 !important;
+    } 
+
+    html {
+      /*  background-color: #FFFFFF;*/
+        margin: 0px; /* this affects the margin on the HTML before sending to printer */
+    }
+
+    body {
+      /*  border: solid 1px blue;*/
+       /* margin: 10mm 15mm 10mm 15mm;*/ /* margin you want for the content */
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+    }
+    
+    .col-sm-12 {
+        width: 100%;
+    }
+
+    .col-sm-11 {
+        width: 91.66666667%;
+    }
+
+    .col-sm-10 {
+        width: 83.33333333%;
+    }
+
+    .col-sm-9 {
+        width: 75%;
+    }
+
+    .col-sm-8 {
+        width: 66.66666667%;
+    }
+
+    .col-sm-7 {
+        width: 58.33333333%;
+    }
+
+    .col-sm-6 {
+        width: 50%;
+    }
+
+    .col-sm-5 {
+        width: 41.66666667%;
+    }
+
+    .col-sm-4 {
+        width: 33.33333333%;
+    }
+
+    .col-sm-3 {
+        width: 25%;
+    }
+
+    .col-sm-2 {
+        width: 16.66666667%;
+    }
+
+    .col-sm-1 {
+        width: 8.33333333%;
+    }
+
+    table.table-bordered {
+        border: 1px solid #000;
+    }
+    table.table-bordered2 {
+        border: 2px solid #000;
+    }
+
+
+    table.table-bordered > thead > tr > th {
+        border: 1px solid #000 !important;
+        vertical-align: middle;
+        /*        -webkit-print-color-adjust: exact;*/
+        /*  print-color-adjust: exact;*/
+    }
+    table.table-bordered > thead > tr > td {
+        border: 1px solid #000 !important;
+        vertical-align: middle;
+        /*        -webkit-print-color-adjust: exact !important;*/
+        /* print-color-adjust: exact;*/
+    }
+
+    table.table-bordered > tbody > tr > td {
+        border: 1px solid #000 !important;
+/*        -webkit-print-color-adjust: exact !important;*/
+        /* print-color-adjust: exact;*/
+    }
+    table.table-bordered > tbody > tr > td.no-border {
+        border: 0px solid #000 !important;
+        /*        -webkit-print-color-adjust: exact !important;*/
+        /* print-color-adjust: exact;*/
+    }
+    table.table-bordered > tbody > tr > th {
+        border: 1px solid #000 !important;
+/*        -webkit-print-color-adjust: exact !important;*/
+        /* print-color-adjust: exact;*/
+    }
+
+
+    table.table-bordered > tfoot > tr > th {
+        border: 1px solid #000 !important;
+  /*      -webkit-print-color-adjust: exact !important;*/
+        /* print-color-adjust: exact;*/
+    }
+    table.table-bordered > tfoot > tr > td {
+        border: 1px solid #000 !important;
+     /*   -webkit-print-color-adjust: exact;*/
+        /*  print-color-adjust: exact;*/
+    }
+    td.bg-danger {
+        background-color: #dc3545 !important;
+        -webkit-print-color-adjust: exact;
+    }
+    td.bg-success {
+        background-color: #28a745 !important;
+        -webkit-print-color-adjust: exact;
+    }
+    td.shade-color {
+        background-color: #d1d0d0 !important;
+        -webkit-print-color-adjust: exact;
+    }
+ }

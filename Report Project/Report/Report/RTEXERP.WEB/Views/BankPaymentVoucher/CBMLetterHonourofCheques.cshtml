@@ -1,0 +1,224 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.BankChequeViewModel
+@{
+    ViewData["Title"] = "Letter - Honour of Cheques";
+    ViewData["pageTitle"] = "Letter - Honour of Cheques";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section scripts{
+    <script>
+
+        function GetDDLBank() {
+            const CompanyId = $("#CompanyID").val();
+
+            GenerateDropDown("CommonDropDown", "DDLBank", { "CompanyId": CompanyId }, "BankID", "");
+        }
+        function GetDDLBranch() {
+            const CompanyId = $("#CompanyID").val();
+            const BankID = $("#BankID").val();
+            GenerateDropDown("CommonDropDown", "DDLBankBranch", { "CompanyID": CompanyId, BankID: BankID }, "BranchID", "");
+        }
+        function GetDDLAccountsOptions() {
+            const CompanyId = $("#CompanyID").val();
+            const BranchID = $("#BranchID").val();
+            const options = GenerateDropDownOptions("CommonDropDown", "DDLAccounts", { "CompanyID": CompanyId, BranchID: BranchID }, "");
+            return options;
+        }
+        function GetDDLAccounts() {
+            var options = GetDDLAccountsOptions();
+            $("#AccountID").html(options);
+        }
+        function GetDDLAlter_Accounts() {
+            var options =GetDDLAccountsOptions();
+
+            $("#AltAccounts").html(options);
+        }
+        function GETDDLCheque() {
+            let AccountID = $("#AccountID").val();
+            var optionValue = GenerateDropDownOptions("CommonDropDown", "DDLBankCheque", { "BankAccountID": AccountID }, "");
+            $("#ChequeID").html(optionValue);
+            $("#ChequeID").trigger("chosen:updated");
+        }
+
+
+        function GetPurchaseOrderWiseStock(reportFormat) {
+            debugger;
+            const BankID = $("#BankID").val();
+            const BranchID = $("#BranchID").val();
+            const AccountID = $("#AccountID").val();
+            const AltAccounts = $("#AltAccounts").val();
+            const ChequeID = $("#ChequeID").val();
+            const ChequePercentageSTR = $("#ChequePercentageSTR").val();
+
+            if (ChequeID.length <= 0) {
+                $.alert.open("warning", "Add Cheque Number");
+                return false;
+            }
+            
+            let percentList = ChequePercentageSTR.split('|');
+            let ChequeNode = [];
+            for (var i = 0; i<=ChequeID.length - 1; i++) {
+                let ITax = 0;
+                let Category = "";
+                let Vat = 0;
+                let _PercentageList = percentList[i];
+                if (_PercentageList != null) {
+                    let percentClasification = _PercentageList.split(',');
+                    if (percentClasification[0]) {
+                        let _Category = percentClasification[0];
+                        if (_Category == "P") {
+                            Category="Party"
+                        }
+                        if (_Category == "V")
+                        {
+                            Category = "Vat";
+                        }
+                        if (_Category == "I") {
+                            Category = "ITax";
+                        }
+                    }
+                    if (percentClasification[1]) {
+                        ITax = percentClasification[1];
+                    }
+                    if (percentClasification[2]) {
+                        Vat = percentClasification[2];
+                    }
+
+                }
+
+
+                
+                //<Cheque ID="59604" Category="" Vat="" ITax="3" />
+                let chequeString = `<Cheque ID="${ChequeID[i]}" Category="${Category}" Vat="${Vat}" ITax="${ITax}"  />`;
+                ChequeNode.push(chequeString);
+            }
+
+            let parm = `<Letter BankID="${BankID}" BranchID="${BranchID}"><Account ID="${AccountID}"/>${ChequeNode.toString().replace(",","")}`;
+            if (AltAccounts) {
+                parm += `<AlternateAccount ID="${AltAccounts}" /></Letter>`;
+            }
+                         
+            
+            //DateFrom, DateTo, int CompanyID,  BusinessID, ReportFormat
+            if (parm)
+                window.open("/BankPaymentVoucher/CBMLetterHonourofChequesReport?LetterXML=" + parm + "&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+  
+            
+        return false;
+        }
+        $(document).ready(function () {
+
+            $("#ChequeID").chosen();
+
+            $("#CompanyID").change(function () {
+                var companyID = $("#CompanyID").val();
+                window.location.href = `/BankPaymentVoucher/CBMLetterHonourofCheques?CompanyID=${companyID}`;
+
+            })
+            $("#BankID").change(function () {
+                GetDDLBranch();
+                GetDDLAccounts();
+                GetDDLAlter_Accounts();
+                GETDDLCheque();
+            });
+            $("#BranchID").change(function () {
+                GetDDLAccounts();
+                GetDDLAlter_Accounts();
+                GETDDLCheque();
+            })
+            $("#AccountID").change(function () {
+                GETDDLCheque();
+            });
+
+
+            $("#btnPdf").click(function () {
+                GetPurchaseOrderWiseStock("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                GetPurchaseOrderWiseStock("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+
+        })
+
+
+
+
+    </script>
+
+
+
+
+}
+
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="BankID" class="label-ajt-sm required"></label>
+                <select asp-for="BankID" asp-items="Model.DDLBank" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-6" style="display:none;">
+            <div class="form-group">
+                <label asp-for="BranchID" class="label-ajt-sm required"></label>
+                <select asp-for="BranchID" asp-items="Model.DDLBranch" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="AccountID" class="label-ajt-sm required"></label>
+                <select asp-for="AccountID" asp-items="Model.DDLBankChartOfAccounts" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-6" style="display:none;">
+            <div class="form-group">
+                <label asp-for="AltAccounts" class="label-ajt-sm required"></label>
+                <select asp-for="AltAccounts" asp-items="Model.DDLBankALTChartOfAccounts" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="ChequeID" class="label-ajt-sm required"></label>
+                <select asp-for="ChequeID" multiple  asp-items="Model.DDLCheque" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="ChequePercentageSTR" class="label-ajt-sm required"></label> 
+                <input asp-for="ChequePercentageSTR" placeholder="P, ITax, Vat | I, ITax, Vat| V, Itax, Vat" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+

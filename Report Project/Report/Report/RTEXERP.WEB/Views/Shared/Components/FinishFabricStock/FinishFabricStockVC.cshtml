@@ -1,0 +1,64 @@
+﻿@model List<RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.FabricStockReportSPModel>
+@{
+}
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+
+        .tableFixHead thead {
+            position: sticky;
+            top: 0;
+            background: #eee;
+        }
+</style>
+
+<table class="table tableFixHead table-sm table-bordered table-striped" style="font-size:11px;">
+    <thead>
+        <tr>
+            <th class="txtAlignCenter">SL.</th>
+            <th class="txtAlignCenter">Buyer Name</th>
+            <th class="txtAlignCenter">Order No</th>
+            <th class="txtAlignCenter">Color</th>
+            <th class="txtAlignCenter">Fabric Type</th>
+            <th class="txtAlignCenter">GSM</th>
+            <th class="txtAlignCenter">Dia</th>
+            <th class="txtAlignCenter">Unit</th>
+            <th class="txtAlignCenter">Batch No</th>
+            <th class="txtAlignCenter">Batch Qty</th>
+            <th class="txtAlignCenter">Finish Qty</th>
+            <th class="txtAlignCenter">Issue Qty</th>
+            <th class="txtAlignCenter">Closing Qty</th>
+            <th class="txtAlignCenter">Value</th>
+            <th class="txtAlignCenter">Rate</th>
+        </tr>
+
+    </thead>
+    <tbody id="tBodyOrderWiseItemStock" style="font-size: 11px;">
+        @foreach (var item in Model)
+        {
+            @*<a target="_blank" href="/CostCenterReport/OrderNoWiseStockDetails?BuyerID="+ @groupItem.BuyerID +"&DateFrom=' + DateFrom + ' &DateTo=' + DateTo + '&MrpItemCode=' + MRPItemCode + '&CompanyID=' + companyID + '&BusinessID=' + businessID + '&WithAllTransaction=' + WithAllTransaction+'&AttributeInstanceID=' + v.AttributeInstanceID + '&WithAllTransaction=' + WithAllTransaction + '" title="Details">*@
+            <tr>
+                <td class="txtAlignCenter">@item.Sl</td>
+                <td class="txtAlignCenter">@item.Buyer</td>
+                <td class="txtAlignCenter">@item.OrderNo</td>
+                <td class="txtAlignCenter">@item.PantoneNo</td>
+                <td class="txtAlignCenter">@item.FabricType</td>
+                <td class="txtAlignCenter">@item.GSM</td>
+                <td class="txtAlignCenter">@item.Dia</td>
+                <td class="txtAlignCenter">@item.Unit</td>
+                <td class="txtAlignCenter"><a target="_blank" href="/FabricStockReport/FabricLotStockDetails?LotID=@item.LotID&AttributeInstanceID=@item.AttributeInstanceID&DateTo=@item.DateTo.ToString("dd-MMM-yyyy")" title="Details">@item.LotNo</a></td>
+                <td class="txtAlignCenter">@item.LotQuantity</td>
+                <td class="txtAlignCenter">@item.FinishFabricQuantity</td>
+                <td class="txtAlignCenter">@item.IssueQuantity</td>
+                <td class="txtAlignCenter">@item.ClosingQuantity</td>
+                <td class="txtAlignCenter">@item.Value</td>
+                <td class="txtAlignCenter">@item.Rate</td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+

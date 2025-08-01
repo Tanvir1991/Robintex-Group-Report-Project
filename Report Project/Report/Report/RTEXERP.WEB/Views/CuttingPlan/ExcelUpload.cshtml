@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Excel Upload";
+    ViewData["pageTitle"] = "Excel Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form method="post" enctype="multipart/form-data" asp-controller="CuttingPlan" name="frmExcelUpload" id="frmExcelUpload" asp-action="ExcelUpload">
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <h4 class="text-danger">Upload Excel file here :</h4>
+                <input type="file" name="files" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="submit" class="btn btn-sm btn-success" value="Upload" />
+            </div>
+        </div>
+    </div>
+    <label class="text-danger" id="lblMessage"></label>
+
+</form>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var result ='@ViewBag.result';
+        if (result == "Success") {
+             $("#lblMessage").html("Uploaded Successfully")
+            setTimeout(function () {
+               window.location.replace('/ExcelUpload/Index');
+            }, 1000);             
+            
+        } else {           
+            $("#lblMessage").html(result);
+        }
+    });
+</script>
+

@@ -1,0 +1,766 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.StampVoucherViewModel
+@{
+    ViewData["Title"] = "Stamp Payment Voucher";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+    /* IE 6 doesn't support max-height
+        * we use height instead, but this forces the menu to always be this tall
+        */
+    * html .ui-autocomplete {
+        height: 100px;
+    }
+
+    .chosen-drop {
+        width: 250px;
+    }
+</style>
+@section scripts{
+    <script type="text/javascript">
+        var Acclocation = [];
+        var ChartOfAccounts = [];
+        var SupplierAccounts = [];
+        var CostCenter = [];
+        var Activity = [];
+
+        function filterByAccname(filterData, objectArray) {
+            var query = filterData.toLowerCase();
+            return objectArray.filter(function (item) {
+                return item.AccName.toLowerCase().indexOf(query) >= 0;
+            })
+        }
+
+        function DefaultLoad() {
+            var CompanyId = $("#CompanyId").val();
+
+            $.ajax({
+                type: "Post",
+                data: { CompanyId: CompanyId, CategoryID: 0 },
+                url: '/ChartOfAccounts/ChartOfAccountsGroup',
+                dataType: "json",
+                async: true,
+                success: function (rResult) {
+                    ChartOfAccounts = rResult;
+                   // console.log(rResult);
+                },
+                failure: function (errMsg) {
+                    $.alert.open("error", errMsg);
+                }
+            });
+            $.ajax({
+                type: "Post",
+                data: { CompanyId: CompanyId, CategoryID: 0 },
+                url: '/ChartOfAccounts/ChartOfAccountsSupplierGroup',
+                dataType: "json",
+                async: true,
+                success: function (rResult) {
+                   // console.log(rResult);
+                    SupplierAccounts = rResult;
+
+                },
+                failure: function (errMsg) {
+                    $.alert.open("error", errMsg);
+                }
+            });
+
+            //$.ajax({
+            //    type: "Post",
+            //    data: { parentId: 0, levelId: 12 },
+            //    url: '/ChartOfAccounts/ChartOfAccounts',
+            //    dataType: "json",
+            //    async: true,
+            //    success: function (rResult) {
+            //        Activity = rResult;
+
+            //    },
+            //    failure: function (errMsg) {
+            //        $.alert.open("error", errMsg);
+            //    }
+            //});
+
+        }
+
+        function getDiscountPercent(controlIndex) {
+            var GrossAmount = 0, DiscountAmount = 0, DiscountPercent = 0;
+
+            if ($("#GrossAmount" + controlIndex).val() != "")
+                GrossAmount = parseFloat($("#GrossAmount" + controlIndex).val());
+
+            if ($("#Discount" + controlIndex).val() != "")
+                DiscountAmount = parseFloat($("#Discount" + controlIndex).val());
+            
+            if (GrossAmount != 0)
+                DiscountPercent = DiscountAmount * 100 / GrossAmount;
+
+            return DiscountPercent.toFixed(4);
+        }
+
+        function getCompanyWiseBusiness() {
+            var CompanyId = $("#CompanyId").val();
+            $.ajax({
+                type: "Post",
+                data: { CompanyId: CompanyId },
+                url: '/ChartOfAccounts/GetBusinessCompanyWise',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    if (rResult != null) {
+                        var optionValue = "";
+                        $.each(rResult, function (k, v) {
+                            optionValue += '<option value="' + v.Value + '">' + v.Text + '</option>';
+                        });
+                    } else {
+                        optionValue = "";
+                    }
+                    $("#BusinessId").html(optionValue);
+
+                },
+                failure: function (errMsg) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", errMsg);
+                }
+            });
+        }
+        function getCompanyWiseLocation() {
+            var CompanyId = $("#CompanyId").val();
+            $.ajax({
+                type: "Post",
+                data: { CompanyId: CompanyId },
+                url: '/ChartOfAccounts/GetLocationBusinessWise',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    if (rResult != null) {
+                        var optionValue = "";
+                        $.each(rResult, function (k, v) {
+                            optionValue += '<option value="' + v.Value + '">' + v.Text + '</option>';
+                        });
+                    } else {
+                        optionValue = "";
+                    }
+                    $("#LocationId").html(optionValue);
+                },
+                failure: function (errMsg) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", errMsg);
+                }
+            });
+        }
+        function GetBusinessWiseCostCenter() {
+            var BusinessId = $("#BusinessId").val();
+            $.ajax({
+                type: "Post",
+                data: { BusinessId: BusinessId },
+                url: '/ChartOfAccounts/GetCostCenterLocationWise',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    if (rResult != null) {
+                        var optionValue = "";
+                        $.each(rResult, function (k, v) {
+                            optionValue += '<option value="' + v.Value + '">' + v.Text + '</option>';
+                        });
+                    } else {
+                        optionValue = "";
+                    }
+                    CostCenter = optionValue;
+                    $("#VoucherCreditInformation_CostCenterId").html(optionValue);
+
+                },
+                failure: function (errMsg) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", errMsg);
+                }
+            });
+        }
+        function GetCostCenterWiseActivity() {
+            var CostCenterId = $("#VoucherCreditInformation_CostCenterId").val();
+            $.ajax({
+                type: "Post",
+                data: { CostCenterID: CostCenterId },
+                url: '/ChartOfAccounts/GetActivityCostCenterWise',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    if (rResult != null) {
+                        var optionValue = "";
+                        $.each(rResult, function (k, v) {
+                            optionValue += '<option value="' + v.Value + '">' + v.Text + '</option>';
+                        });
+                    } else {
+                        optionValue = "";
+                    }
+
+                    $("#VoucherCreditInformation_ActivityId").html(optionValue);
+                    $("#VoucherCreditInformation_ActivityId").trigger("chosen:updated");
+                },
+                failure: function (errMsg) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", errMsg);
+                }
+            });
+        }
+        function GetDebitCostCenterWiseActivity(CostCenterValue, ActivityId) {
+            var CostCenterId = CostCenterValue;
+            $.ajax({
+                type: "Post",
+                data: { CostCenterID: CostCenterId },
+                url: '/ChartOfAccounts/GetActivityCostCenterWise',
+                dataType: "json",
+                async: false,
+                success: function (rResult) {
+                    if (rResult != null) {
+                        var optionValue = "";
+                        $.each(rResult, function (k, v) {
+                            optionValue += '<option title="' + v.Text + '" value="' + v.Value + '">' + v.Text + '</option>';
+                        });
+                    } else {
+                        optionValue = "";
+                    }
+
+                    $("#" + ActivityId).html(optionValue);
+                    $("#" + ActivityId).trigger("chosen:updated");
+                },
+                failure: function (errMsg) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", errMsg);
+                }
+            });
+        }
+        function CalculationRowAmount(rowId) {
+            debugger;
+            var Quantity = parseFloat(getValue(("#Quantity" + rowId)));
+            var Rate = parseFloat(getValue("#Rate" + rowId));
+            var Discount = parseFloat(getValue(("#Discount" + rowId)));
+            GrossAmount = (Quantity) * (Rate);
+            $("#GrossAmount" + rowId).val(GrossAmount);
+            var NetAmount = GrossAmount - Discount;
+            $("#NetAmount" + rowId).val(NetAmount);
+            voucherTotal();
+        }
+
+        function voucherTotal() {
+            let totalAmount = 0;
+            let totalDiscount = 0;
+            let totalGross = 0;
+            $("#DebitInfo tbody tr").each(function (sl, tr) {
+                let _netAmount = 0;
+                let _discount = 0;
+                let _gross = 0;
+                const discount = $(tr).find('.Discount').val();
+                const gross = $(tr).find('.GrossAmount').val();
+                const netAmount = $(tr).find('.NetAmount').val();
+
+                if (discount.length > 0) {
+                    _discount = discount;
+                }
+                if (gross.length > 0) {
+                    _gross = gross;
+                }
+                if (netAmount.length > 0) {
+                    _netAmount = netAmount;
+                }
+                totalDiscount += parseFloat(_discount);
+                totalGross += parseFloat(_gross);
+                totalAmount += parseFloat(_netAmount);
+                  
+            })
+            $("#vDiscount").text(totalDiscount);
+            $("#vGross").text(totalGross);
+            $("#vtotal").text(totalAmount);
+        }
+        function getvoucherNumber() {
+            var CompanyId = $("#CompanyId").val();
+            let CompanyCode = getCompanyCode(CompanyId);
+            let voucherNumberPrefix = `SIV\\${CompanyCode}\\Stamp\\`;
+
+        }
+
+        $(document).ready(function () {
+
+            $("#VoucherCreditInformation_ActivityId").chosen();
+
+            $("#CurrencyId").change(function () {
+                const CurrencyId = $("#CurrencyId").val();
+                const VoucherDate = $("#Vdate").val();
+
+                $.ajax({
+                    type: "Post",
+                    data: { CurrencyDate: VoucherDate, CurrencyID: CurrencyId },
+                    url: '/CommonDropDown/getCurrencyExchange',
+                    dataType: "json",
+                    async: false,
+                    success: function (rResult) {
+                        if (rResult != null) {
+                            $("#ExchangeRate").val(rResult.RateInPakRs)
+                        } else {
+                            $("#ExchangeRate").val(1)
+                        }
+                    },
+                    failure: function (errMsg) {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("error", errMsg);
+                    }
+                });
+            });
+            $("#CurrencyId").trigger("change");
+
+            $("#CompanyId").change(function () {
+                getCompanyWiseBusiness();
+                getCompanyWiseLocation();
+                GetBusinessWiseCostCenter();
+                GetCostCenterWiseActivity();
+                DefaultLoad();
+                $("#DebitInfo tbody").html("");
+            });
+            $("#CompanyId").trigger("change");
+
+            $("#BusinessId").change(function () {
+                GetBusinessWiseCostCenter();
+                GetCostCenterWiseActivity();
+            });
+
+            $("#VoucherCreditInformation_CostCenterId").change(function () {
+                GetCostCenterWiseActivity();
+            });
+
+
+
+            $("#VoucherCreditInformation_CreditAccount").autocomplete({
+
+                source: function (request, response) {
+                    var data = filterByAccname(request.term.replace(".", ""), SupplierAccounts)
+                    response(data);
+                },
+                focus: function (event, ui) {
+
+                //    $("#VoucherCreditInformation_CreditAccount").val(ui.item.AccName);
+                    $("#VoucherCreditInformation_CreditAccountID").val("");
+                    $("#CreditorAccountName").val("");
+                    return false;
+                },
+
+                select: function (event, ui) {
+
+                    $("#VoucherCreditInformation_CreditAccount").val(ui.item.AccName);
+
+                    $("#VoucherCreditInformation_CreditAccountID").val(ui.item.Id);
+                    $("#CreditorAccountName").val(ui.item.AccName);
+
+                    //  $("#ChequeNarration").val(ui.item.AccountName);
+                    //  GetLedgerBalence(ui.item.Id)
+
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<div><b>' + item.AccName + '</b><br/><small>' + item.AllParentAccName + '</small></div>')
+                    .appendTo(ul);
+            };
+
+            $(document).on("click", "#DebitInfo tbody tr .debitAcc", function (e) {
+                let debitAcc = this.id;
+                var serial = $("#"+debitAcc).attr("data-id");
+                $("#" + debitAcc).autocomplete({
+
+                    source: function (request, response) {
+                        var data = ChartOfAccounts.filter(name => name.AccName.toLowerCase().startsWith(request.term.replace(".", "").toLowerCase())); //filterByAccname(request.term.replace(".", ""), ChartOfAccounts)
+                        response(data);
+                    },
+                    focus: function (event, ui) {
+
+                     //   $("#" + debitAcc).val();
+                        $("#debitAccountID" + serial).val("");
+                        $("#debitAccountName" + serial).val("");
+                        return false;
+                    },
+
+                    select: function (event, ui) {
+                       // debugger;
+                        $("#" + debitAcc).val(ui.item.AccName);
+                        $("#" + debitAcc).prop('title', ui.item.AccName);
+
+                        $("#debitAccountID" + serial).val(ui.item.Id);
+                        $("#debitAccountName" + serial).val(ui.item.AccName);
+                        return false;
+                    }
+                }).autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append('<div><b>' + item.AccName + '</b><br/><small>' + item.AllParentAccName + '</small></div>')
+                        .appendTo(ul);
+                };
+            });
+            $(document).on("change", "#DebitInfo tbody tr .debitCostcenter", function (e) {
+                let debitCostcenter = this.id;
+                var serial = $("#" + debitCostcenter).attr("data-id");
+                let costCenter = $("#" + debitCostcenter).val();
+                GetDebitCostCenterWiseActivity(costCenter, "debitActivity" + serial);
+            });
+
+            $("#btnSave").click(function () {
+                const CompanyId = $("#CompanyId").val();
+                const BusinessId = $("#BusinessId").val();
+                const LocationId = $("#LocationId").val();
+                const CurrencyId = $("#CurrencyId").val();
+                const CurrencyRate = $("#ExchangeRate").val();
+                const VoucherDescription = $("#VoucherDescription").val();
+                const BillNo = $("#VoucherCreditInformation_BillNo").val();
+                const BillDate = $("#VoucherCreditInformation_BillDate").val();
+
+                const CreditCostCenterId = $("#VoucherCreditInformation_CostCenterId").val();
+                const CreditActivityId = $("#VoucherCreditInformation_ActivityId").val();
+                const CreditAccount = $("#VoucherCreditInformation_CreditAccount").val();
+                const CreditAccountID = $("#VoucherCreditInformation_CreditAccountID").val();
+                const CreditorAccountName = $("#CreditorAccountName").val();
+                const CreditAmount = parseFloat($("#vtotal").html());
+                let VoucherDetail = [];
+                let voucherGeneral = [];
+
+
+                const VoucherType = 27;
+                const Vdate = $("#Vdate").val();
+                var debitVIndex = 0;
+                let Voucher = {
+                    "VoucherNumber": "",
+                     VoucherType: 27,
+                     VDate: Vdate,
+                    CompanyId: CompanyId,
+                    BusinessId: BusinessId,
+                    VoucherDescription: VoucherDescription,
+                    LocationId: LocationId,
+                    ExchangeRate: CurrencyRate,
+                    CurrencyId: CurrencyId
+                }; 
+              
+                let isDebitOk = true;
+
+                $("#DebitInfo tbody tr").each(function (sl, tr) {
+                    let quantity = 0, rate = 0, gross = 0, discper = 0, discamt = 0, net = 0;
+                    let debitAccountID = 0, debitAccountName = "", debitAcc="", CostCenterId = 0, ActivityId = 0, Narration = "", PoRef = "";
+                    debugger;
+                    debitAcc = $(tr).find('.debitAcc').val();
+                    debitAccountName = $(tr).find('.debitAccountName').val();
+                    Narration = $(tr).find('.debitNarration').val();
+
+                    if (debitAcc != debitAccountName) {
+                        $(tr).find('.debitAcc').focus();
+                        isDebitOk = false;
+                        return false;
+                    }
+                    debitAccountID = $(tr).find('.debitAccountID').val();
+                    debitAccountID = $(tr).find('.debitAccountID').val();
+                    CostCenterId = $(tr).find('.debitCostcenter').val();
+                    ActivityId = $(tr).find('.debitActivity').val();
+                    PoRef = $(tr).find('.debitPoReference').val();
+                    quantity = parseFloat($(tr).find('.Quantity').val());
+                    rate = parseFloat($(tr).find('.Rate').val());
+                    PoRef = $(tr).find('.debitPoReference').val();
+                    discamt = parseFloat($(tr).find('.Discount').val());
+                    discper = getDiscountPercent(sl + 1);
+                    gross = parseFloat($(tr).find('.GrossAmount').val());
+                    net = parseFloat($(tr).find('.NetAmount').val());
+
+                    let debitInfo = {
+                        EntryType: 1,
+                        AccountId: debitAccountID,
+                        Amount: (gross - discamt),
+                        LocationId: LocationId,
+                        Costcenter: CostCenterId,
+                        Activity: ActivityId,
+                        Vindex: ++debitVIndex
+
+                    }
+                    let DebitVoucherGeneral = {
+                        AccountId: debitAccountID,
+                        Description: Narration,
+                        Billno: BillNo,
+                        Billdate: BillDate,
+                        RefNo: PoRef,
+                        discount: discper,
+                        Gross: gross,
+                        Net: net,
+                        Comments: 'Stamp',
+                        Vindex: debitVIndex,
+                        Currency: CurrencyId,
+                        ConversionRate: CurrencyRate,
+                        InvoiceEffect: 0,
+                        Quantity: quantity,
+                        Rate: rate
+
+                    }
+                    VoucherDetail.push(debitInfo);
+                    voucherGeneral.push(DebitVoucherGeneral)
+                });
+
+                let Credit = {
+                    EntryType: 2,
+                    AccountId: CreditAccountID,
+                    Amount: CreditAmount*(-1),
+                    LocationId: LocationId,
+                    Costcenter: CreditCostCenterId,
+                    Activity: CreditActivityId,
+                    Vindex: 101
+                }
+                VoucherDetail.push(Credit);
+                let CreditVoucherGeneral = {
+                    AccountId: CreditAccountID,
+                    Description: VoucherDescription,
+                    Billno: "",
+                    Billdate: BillDate,
+                    RefNo: "",
+                    discount: 0,
+                    Gross: CreditAmount,
+                    Net: CreditAmount,
+                    Comments: 'Stamp',
+                    Vindex: 101,
+                    Currency: CurrencyId,
+                    ConversionRate: CurrencyRate,
+                    InvoiceEffect: 0,
+                    Quantity: 0,
+                    Rate: 0
+
+                }
+                voucherGeneral.push(CreditVoucherGeneral);
+
+                Voucher.voucherDetail = VoucherDetail;
+                Voucher.VoucherGeneralInfo = voucherGeneral;
+                
+                $.ajax({
+                    type: "Post",
+                    data: { model: Voucher },
+                    url: '/SuplierInvoiceVoucher/SaveStampVoucher',
+                    dataType: "json",
+                    async: false,
+                    success: function (rResult) {
+                        if (rResult.result==1) {
+                            $.alert.open("success", rResult.message);
+                            DefaultLoad();
+                            $("#DebitInfo tbody").html("");
+                        } else {
+                            $.alert.open("success", rResult.message);
+                        }
+                    },
+                    failure: function (errMsg) {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("error", errMsg);
+                    }
+                });
+            });
+
+        });
+
+        function AddDebitRow() {
+
+            var NumberOfRows = $("#DebitInfo tbody tr").length;
+            if (!NumberOfRows) {
+                NumberOfRows = 0;
+            }
+            var description = $("#VoucherDescription").val();
+            $(".debitActivity").chosen('destroy');
+            var newRow = NumberOfRows + 1;
+            var row = "<tr>";
+            row += `<td>${newRow}</td>`;
+            row += `<td>
+                         <input  style="width:184px;"  type="text" id="debitAcc${newRow}" name="debitAcc${newRow}" data-id="${newRow}" class="debitAcc"/>
+                        <input type="hidden" id="debitAccountID${newRow}" name="debitAccountID${newRow}" class="debitAccountID" value="" />
+                        <input type="hidden" id="debitAccountName${newRow}" name="debitAccountName${newRow}" class="debitAccountName" value="" />
+                       </td>`
+            row += `<td><select  style="width:70px;" id="debitCostCenter${newRow}"  data-id="${newRow}" name="debitCostCenter${newRow}" class="debitCostcenter">${CostCenter}</select> </td>`
+            row += `<td><select  style="width:180px;" id="debitActivity${newRow}"  data-id="${newRow}" name="debitActivity${newRow}" class="debitActivity"><option value="">Please Select</option></select> </td>`
+            row += `<td><input  style="width:106px;" id="debitNarration${newRow}"  data-id="${newRow}" name="debitNarration${newRow}" class="debitNarration" value="${description}"/></td>`
+            row += `<td><input  style="width:80px;" id="debitPoReference${newRow}"  data-id="${newRow}" name="debitPoReference${newRow}" class="debitPoReference"/></td>`
+            row += `<td><input  style="width:50px;" id="Quantity${newRow}" onkeyDown='numericsOnly()' onKeyUp="CalculationRowAmount(${newRow})" data-id="${newRow}" name="Quantity${newRow}" class="Quantity"/></td>`
+            row += `<td><input  style="width:50px;"id="Rate${newRow}" onkeyDown='numericsOnly()' onKeyUp="CalculationRowAmount(${newRow})" data-id="${newRow}" name="Rate${newRow}" class="Rate"/></td>`
+            row += `<td><input  style="width:50px;" id="Discount${newRow}"  onkeyDown='numericsOnly()' onKeyUp="CalculationRowAmount(${newRow})" data-id="${newRow}" name="Discount${newRow}" class="Discount" value="0"/></td>`
+            row += `<td><input  style="width:50px;" id="GrossAmount${newRow}" readonly  data-id="${newRow}" name="GrossAmount${newRow}" class="GrossAmount"/></td>`
+            row += `<td><input style="width:50px;" id="NetAmount${newRow}" readonly  data-id="${newRow}" name="NetAmount${newRow}" class="NetAmount"/></td>`
+            row += `</tr>`;
+            $("#DebitInfo tbody").append(row);
+
+            let costCenterValue = $("#debitCostCenter" + newRow).val();
+            GetDebitCostCenterWiseActivity(costCenterValue, "debitActivity" + newRow);
+            $(".debitActivity").chosen();
+        }
+        function RemoveDebit() {
+            $("#DebitInfo tbody tr:last").remove();
+            voucherTotal();
+        }
+    </script>
+
+}
+
+<form name="StampVoucher">
+    <div class="row" style="margin-bottom:15px;">
+        <div class="col-md-2">
+            <div class="form-group-sm">
+                <label asp-for="Vdate" class="label-ajt-sm required col-sm-2"></label>
+                <div class="col-sm-10">
+                    <input type="text" asp-for="Vdate" value="@Model.VdateStr" readonly class="form-control dateField form-control-sm " />
+                    <span asp-validation-for="Vdate" class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label asp-for="CompanyId" class="col-sm-3 control-label label-ajt-sm required"></label>
+                <div class="col-sm-9">
+                    <select asp-for="CompanyId" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group-sm">
+                <label asp-for="BusinessId" class="col-sm-3 control-label label-ajt-sm required"></label>
+                <div class="col-sm-9">
+                    <select asp-for="BusinessId" asp-items="Model.DDLBusiness" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group-sm">
+                <label asp-for="LocationId" class="col-sm-3 control-label control-label label-ajt-sm  required"></label>
+                <div class="col-sm-9">
+                    <select asp-for="LocationId" asp-items="Model.DDLLocation" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="CurrencyId" class="label-ajt-sm required"></label>
+                <select asp-for="CurrencyId" asp-items="Model.DDLCurrencyList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CurrencyId" class="text-danger"></span>
+
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-group">
+                <label asp-for="ExchangeRate" class="label-ajt-sm required"></label>
+                <input type="number" asp-for="ExchangeRate" class="form-control form-control-sm" readonly />
+                <span asp-validation-for="ExchangeRate" class="text-danger"></span>
+
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="form-group">
+                <label asp-for="VoucherDescription" class="label-ajt-sm required"></label>
+                <textarea asp-for="VoucherDescription" class="form-control form-control-sm" rows="1"></textarea>
+                <span asp-validation-for="VoucherDescription" class="text-danger"></span>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="page-header">
+        <h5>Credit Information </h5>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label asp-for="VoucherCreditInformation.CreditAccount" class="label-ajt-sm required"></label>
+                    <input asp-for="VoucherCreditInformation.CreditAccount" class="form-control form-control-sm" />
+                    <span asp-validation-for="VoucherCreditInformation.CreditAccount" class="text-danger"></span>
+                    <input type="hidden" asp-for="VoucherCreditInformation.CreditAccountID" />
+                    <input type="hidden" id="CreditorAccountName" name="CreditorAccountName" />
+
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label asp-for="VoucherCreditInformation.BillNo" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="VoucherCreditInformation.BillNo" class="form-control form-control-sm" />
+                    <span asp-validation-for="VoucherCreditInformation.BillNo" class="text-danger"></span>
+
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label asp-for="VoucherCreditInformation.BillDate" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="VoucherCreditInformation.BillDate" value="@DateTime.Now.ToString("dd-MMM-yyyy")" class="form-control dateField form-control-sm" />
+                    <span asp-validation-for="VoucherCreditInformation.BillDate" class="text-danger"></span>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="VoucherCreditInformation.CostCenterId" class="label-ajt-sm required"></label>
+                    <select asp-for="VoucherCreditInformation.CostCenterId" asp-items="Model.DDLCostCenter" class="form-control form-control-sm"></select>
+                    <span asp-validation-for="VoucherCreditInformation.CostCenterId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="VoucherCreditInformation.ActivityId" class="label-ajt-sm required"></label>
+                    <select asp-for="VoucherCreditInformation.ActivityId" asp-items="Model.DDLActivity" class="form-control form-control-sm"></select>
+                    <span asp-validation-for="VoucherCreditInformation.ActivityId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-header" style="font-size:13px;">
+        <div class="row">
+            <div class="col-md-6">  <h5>Debit Information </h5></div>
+            <div class="col-md-3"> <input type="button" class="btn btn-xs btn-primary" value="Add Debit Account" onclick="AddDebitRow()" />  </div>
+            <div class="col-md-3"> <input type="button" class="btn btn-xs btn-danger" value="Remove Debit Account" onclick="RemoveDebit()" />  </div>
+        </div>
+
+        <div class="row">
+            <div class="com-md-12" style="font-size:12px;">
+                <div class="table-responsive" style="min-height:350px;">
+                    <table class="table table-sm" id="DebitInfo">
+                        <thead class="bg-primary">
+                            <tr>
+                                <td style="width:1%">S.no</td>
+                                <td style="width:10%">Account</td>
+                                <td style="width:5%">Cost Center</td>
+                                <td style="width:10%">Activity</td>
+                                <td style="width:8%">Narration</td>
+                                <td style="width:5%">P.O. Ref.</td>
+                                <td style="width:5%">Quantity</td>
+                                <td style="width:5%">Rate</td>
+                                <td style="width:5%">Discount</td>
+                                <td style="width:5%">Gross Amount</td>
+                                <td style="width:5%">Net Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="8" class="text-right">Total</th>
+                                <th><span id="vDiscount">0</span></th>
+                                <th><span id="vGross">0</span></th>
+                                <th><span id="vtotal">0</span></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSave">Save Voucher</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnPreview">Preview Voucher</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+

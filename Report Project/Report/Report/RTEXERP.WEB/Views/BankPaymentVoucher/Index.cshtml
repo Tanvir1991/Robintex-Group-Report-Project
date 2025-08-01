@@ -1,0 +1,794 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.VoucherConfiguration.BankPaymentVoucherViewModel
+@{
+    ViewData["Title"] = "Bank Payment Voucher";
+    ViewData["pageTitle"] = "Bank Payment Voucher";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<style>
+    .input-size50 {
+        width: 50px;
+    }
+ 
+    .input-size75 {
+        width: 75px;
+    }
+    .input-Size100Percent{
+        width:100%;
+    }
+
+    .input-size100 {
+        width: 100px;
+    }
+
+    .input-size150 {
+        width: 150px;
+    }
+
+    .input-size200 {
+        width: 200px;
+    }
+</style>
+<form   id="frmBPV" method="post">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive" style="max-height:600px;">
+                <table class="table table-sm table-bordered font-sz-12" id="mainTable">
+                    
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="txtAlignCenter">
+                                <table class="table table-sm table-bordered font-sz-12" style="margin-bottom:0px;">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <th colspan="8">Voucher Information </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Company</td>
+                                            <td colspan="3"><select asp-for="CompanyID" required asp-items="Model.CompanyList" class="form-control form-control-sm"></select></td>
+                                            <td>Business</td>
+                                            <td colspan="3"><select asp-for="BusinessID" required asp-items="Model.BusinessList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Location</td>
+                                            <td><select asp-for="LocationID" required asp-items="Model.LocationList" class="form-control form-control-sm"></select></td>
+                                            <td>Date</td>
+                                            <td><input type="text" asp-for="Date" required value="@DateTime.Now.ToString("dd-MMM-yyyy")" class="form-control dateField form-control-sm" /></td>
+                                            <td>Currency</td>
+                                            <td><select asp-for="CurrencyID" asp-items="Model.CurrencyList" class="form-control form-control-sm"></select></td>
+                                            <td  style="padding-right:0px;padding-left:0px;">Exchange Rate</td>
+                                            <td><input asp-for="ExchangeRate" type="text" class="form-control form-control-sm" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Description</td>
+                                            <td colspan="5"><input asp-for="Description" type="text" class="form-control form-control-sm" /></td>
+                                            <td colspan="1" style="padding-right:0px;padding-left:0px;">Payment Type</td>
+                                            <td colspan="1"><select asp-for="PaymentTypeID" asp-items="Model.PaymentTypeList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="txtAlignCenter">
+                                <table class="table table-sm table-bordered font-sz-12" style="margin-bottom:0px;">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <th colspan="8">Debit Information</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Paid To</td>
+                                            <td colspan="5">
+                                                <input asp-for="PaidTo" type="text" class="form-control form-control-sm" />
+                                                <input type="hidden" asp-for="DebitAccountID" />
+                                            </td>
+                                            <td  style="width:150px;">Ledger Balance </td>
+                                            <td style="width:150px;" colspan="1"><input asp-for="LedgerBalance" type="text" class="form-control form-control-sm" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Cost Center</td>
+                                            <td colspan="3"><select asp-for="DebitCostCenterID" required asp-items="Model.CostCenterList" class="form-control form-control-sm"></select></td>
+                                            <td>Activity</td>
+                                            <td colspan="3"><select asp-for="DebitActivityID" required asp-items="Model.ActivityList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="txtAlignCenter">
+                                <table class="table table-sm table-bordered font-sz-12" style="margin-bottom:0px;">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <th colspan="8">Credit Information</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Bank Account</td>
+                                            <td colspan="7">
+                                                <input asp-for="BankAccount" type="text" class="form-control form-control-sm" />
+                                                <input type="hidden" asp-for="CreditAccountID" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Cost Center</td>
+                                            <td colspan="2"><select asp-for="CreditCostCenterID" required asp-items="Model.CostCenterList" class="form-control form-control-sm"></select></td>
+                                            <td>Activity</td>
+                                            <td colspan="2"><select asp-for="CreaditActivityID" required asp-items="Model.ActivityList" class="form-control form-control-sm"></select></td>
+                                            <td>Disc. Account</td>
+                                            <td><select asp-for="DiscountAccID" asp-items="Model.DiscountAccList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Instrument Type</td>
+                                            <td colspan="3"><select asp-for="InstrumentTypeID" asp-items="Model.InstrumentTypeList" class="form-control form-control-sm"></select></td>
+                                            <td class="clsInstrumentNo">Instrument No</td>
+                                            <td class="clsInstrumentNo"><input asp-for="InstrumentNo" type="text" class="form-control form-control-sm" /></td>
+                                            <td>Export Invoice Type</td>
+                                            <td><select asp-for="ExportInvoiceTypeID" asp-items="Model.ExportInvoiceTypeList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr class="isBankCheque">
+                            <td>Cheque Narration</td>
+                            <td colspan="3"><input asp-for="ChequeNarration" type="text" class="form-control form-control-sm" /></td>
+                            <td>Cheque Date</td>
+                            <td><input type="text" asp-for="ChequeDate" value="@DateTime.Now.ToString("dd-MMM-yyyy")" class="form-control dateField form-control-sm" /></td>
+                            <td>Signatory</td>
+                            <td><select asp-for="SignatoryID" asp-items="Model.SignatoryList" class="form-control form-control-sm"></select></td>
+                        </tr>
+
+                        <tr class="txtAlignCenter">
+                            <td colspan="4" class="txtAlignCenter" style="text-align:center;"> <input class="btn btn-sm btn-primary" type="button" value="Add Detail" id="btnAddDetail" /></td>
+                            <td colspan="4" class="txtAlignCenter" style="text-align:center;"><input class="btn btn-sm btn-danger" type="button" value="Remove Detail" id="btnRemoveDetail" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="txtAlignCenter">
+                                <table class="table table-sm table-bordered font-sz-11" style="margin-bottom:0px;font-size:12px !important;">
+                                    <thead class="thead-dark">
+                                        <tr class="txtAlignCenter">
+                                            <td class="col-sm-1 txtAlignCenter">S.No.</td>
+                                            <td class="col-sm-4 txtAlignCenter">Narration</td>
+                                            <td class="col-sm-1 txtAlignCenter">Bill No.</td>
+                                            <td class="col-sm-1 txtAlignCenter">Bill Date</td>
+                                            <td class="col-sm-1 txtAlignCenter">Ref. No.</td>
+                                            <td class="col-sm-1 txtAlignCenter">Gross Amount</td>
+                                            <td class="col-sm-1 txtAlignCenter">Disc. %</td>
+                                            <td class="col-sm-1 txtAlignCenter">Disc. Amount</td>
+                                            <td class="col-sm-1 txtAlignCenter">Net Amount</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblDetailBody">
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8">
+                                <table class="table table-sm table-bordered font-sz-12">
+                                    <tbody>
+                                        <tr>
+                                            <td>V.A.T%</td>
+                                            <td><input asp-for="VATPercentage" type="text" class="form-control form-control-sm input-size100" /></td>
+                                            <td>V.A.T Amount</td>
+                                            <td><input asp-for="VATAmount" type="text" class="form-control form-control-sm input-size100" /></td>
+                                            <td>V.A.T Account</td>
+                                            <td><select asp-for="VATAccountID" asp-items="Model.VATAccountList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <td>I.Tax %</td>
+                                            <td><input asp-for="ITaxPercentage" type="text" class="form-control form-control-sm input-size100" /></td>
+                                            <td>I.Tax Amount</td>
+                                            <td><input asp-for="ITaxAmount" type="text" class="form-control form-control-sm input-size100" /></td>
+                                            <td>I.Tax Account</td>
+                                            <td><select asp-for="ITaxAccountID" asp-items="Model.ITaxAccountList" class="form-control form-control-sm"></select></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" style="text-align:right">Net Payable</td>
+                            <td class="netPaybale" id="netPaybale" style="text-align:right;font-weight:bold">0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="txtAlignCenter">
+                                <input class="btn btn-sm" type="button" value="Preview Voucher" class="" />
+                                <input class="btn btn-sm" type="button" value="Add To LC" />
+                                <input class="btn btn-sm btn-success" type="button" value="Save Voucher" id="btnSaveVoucher" />
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts
+{
+    <script>
+        function DebitActivity() {
+            let DebitCostCenterID = $("#DebitCostCenterID").val();
+          //  let CreditCostCenterID = $("#CreditCostCenterID").val();
+            var optionValue = GenerateDropDownOptions("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": DebitCostCenterID },"");
+
+            $("#DebitActivityID").html(optionValue);
+            $("#DebitActivityID").trigger("chosen:updated");
+        }
+        function CreditActivity() {
+            let CreditCostCenterID = $("#CreditCostCenterID").val();
+            var optionValue = GenerateDropDownOptions("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": CreditCostCenterID },"");
+
+            $("#CreaditActivityID").html(optionValue);
+            $("#CreaditActivityID").trigger("chosen:updated");
+        }
+
+        function showBankChequeInformation() {
+            let InstrumentTypeID = $("#InstrumentTypeID").val();
+            if (InstrumentTypeID < 3) {
+                $(".isBankCheque").show();
+            } else {
+                $(".isBankCheque").hide();
+            }
+        }
+        function calculateAmountWRTcurrency(Amount, EXRate, Type) {
+            var FinalAmount = 0;
+            if (Type == 0) //for display
+            {
+                if (EXRate != 0)
+
+                    FinalAmount = eval(Amount) / eval(EXRate)
+                else
+                    FinalAmount = eval(Amount)
+            }
+            else  // for save xml
+            {
+                if (EXRate != 0)
+                    FinalAmount = eval(Amount) * eval(EXRate)
+                else
+                    FinalAmount = eval(Amount)
+            }
+            return FinalAmount;
+        }
+        function GetLedgerBalence(accountId) {
+            $.ajax({
+                url: "/BankPaymentVoucher/GetLedgerBalance",
+                type: 'POST',
+                data: { AccountId: accountId },
+                dataType: 'json',
+                success: function (data) {
+                    $("#LedgerBalance").val(data);
+                }
+            });
+        }
+
+        function calculateDiscount(that) {
+            debugger;
+            var discPercent = parseFloat($(that).parent().parent().find(".txtDiscountPercent").val());
+            if (!discPercent) {
+                discPercent = 0;
+            }
+            let gross = parseFloat($(that).parent().parent().find(".txtGross").val());
+            if (!gross) {
+                gross = 0;
+            }
+            if (discPercent > 0 && gross > 0) {
+                let discAmt = gross * (discPercent / 100);
+                let netAmt = gross - discAmt;
+                $(that).parent().parent().find(".txtDiscountAmt").val(discAmt.toFixed(2));
+                $(that).parent().parent().find(".txtNetAmt").val(netAmt.toFixed(2));
+            } else {
+                $(that).parent().parent().find(".txtDiscountAmt").val(0);
+                $(that).parent().parent().find(".txtNetAmt").val(gross);
+            }
+            netPaybale();
+        }
+       function calculateDiscountPercentage(that) {
+            var discAmt = parseFloat(that.value);
+            let gross = parseFloat($(that).parent().parent().find(".txtGross").val());
+            if (discAmt > 0 && gross > 0) {
+                let discPercent = (discAmt * 100) / gross;
+                let netAmt = gross - discAmt;
+                $(that).parent().parent().find(".txtDiscountPercent").val(discPercent);
+                $(that).parent().parent().find(".txtNetAmt").val(netAmt.toFixed(2));
+            } else {
+                $(that).parent().parent().find(".txtDiscountPercent").val(0);
+                $(that).parent().parent().find(".txtNetAmt").val(gross);
+           }
+           netPaybale();
+        }
+
+        function GenerateVoucherMaster() {
+            const PaidTo = $("#PaidTo").val();
+            let companyId = $("#CompanyID").val();
+            let businessId = $("#BusinessID").val();
+            let voucherDescription = $("#Description").val();
+            let date = $("#Date").val();
+            let currencyId = $("#CurrencyID").val();
+            let exchangeRate = $("#ExchangeRate").val();
+            let locationId = $("#LocationID").val();
+            let paymentTypeId = $("#PaymentTypeID").val();
+            let taxPercent = $("#ITaxPercentage").val();
+            let vatPercent = $("#VATPercentage").val();
+            let taxAccId = $("#ITaxAccountID").val();
+            let vatAccId = $("#VATAccountID").val();
+            let discountAccId = $("#DiscountAccID").val();
+            let instrumentTypeId = $("#InstrumentTypeID").val();
+            let instrumentNo = $("#InstrumentNo").val();
+            let chequeDate = $("#ChequeDate").val();
+            let chequeNarration = $("#ChequeNarration").val();
+            let signatoryId = $("#SignatoryID").val();
+            let debitAccId = $("#DebitAccountID").val();
+            let debitCostCenterId = $("#DebitCostCenterID").val();
+            let debitActivityId = $("#DebitActivityID").val();
+            let creditAccId = $("#CreditAccountID").val();
+            let creditCostCenterId = $("#CreditCostCenterID").val();
+            let creditActivityId = $("#DebitActivityID").val();
+            let vatAmount = parseFloat( $("#VATAmount").val());
+            let iTaxAmount = parseFloat($("#ITaxAmount").val());
+            let creditDiscountAccount = new Array();
+
+            let totalGrossAmount = 0, totalDiscountAmount = 0;
+            let creditAmount = 0;
+           let vIndex = 0;
+           if (!taxPercent) {
+               taxPercent = 0;
+           }
+
+            let voucherDetail = new Array();
+            let voucherGeneral = new Array();
+            let bankVoucher = new Array();
+
+            $("#tblDetailBody tr").each(function () {
+                let that = $(this);
+                let poRef = that.find(".txtRefNo").val();
+                let grossAmt = 0, netAmt = 0, billNo = "", billDate = "";
+                if (paymentTypeId == 1 || paymentTypeId == 2) {
+
+                }
+                else if (paymentTypeId == 0 || paymentTypeId == 3) {
+                    grossAmt = parseFloat(that.find(".txtGross").val());
+                    netAmt = parseFloat(that.find(".txtNetAmt ").val());
+                }
+                netAmt -= parseFloat((netAmt * taxPercent / 100));
+                //whtAmount = grossAmt - ((grossAmt * 100.0) / (100 + parseFloat(vatPercent)));
+                //let whtExcludedAmount = grossAmt - whtAmount;
+                //let aitAmount = whtExcludedAmount * (taxPercent / 100);
+                //netAmt = grossAmt - (whtAmount + aitAmount);
+                if (netAmt > 0) {
+                    let debitDetail = {
+                        EntryType: 1,
+                        AccountID: debitAccId,
+                        Amount: calculateAmountWRTcurrency(netAmt, exchangeRate, 1),
+                        LocationID: locationId,
+                        CostCenter: debitCostCenterId,
+                        Activity: debitActivityId,
+                        Vindex: (++vIndex)
+                    };
+                    voucherDetail.push(debitDetail);
+
+                    if (paymentTypeId != 1) {
+                        billNo = that.find(".txtBillNo").val();
+                        billDate = that.find(".txtBillDate").val();
+                    }
+                    let discPercentage = that.find(".txtDiscountPercent").val();
+                    let discAmount = that.find(".txtDiscountAmt").val();
+                    let narration = that.find(".txtNarration").val();
+                    let debitGeneral = {
+                        Description: narration,
+                        AccountId: debitAccId,
+                        Billno: billNo,
+                        Billdate: billDate,
+                        Refno: poRef,
+                        discount: discPercentage,
+                        InTax: taxPercent,
+                        Gross: calculateAmountWRTcurrency(grossAmt, exchangeRate, 1),
+                        Net: calculateAmountWRTcurrency(netAmt, exchangeRate, 1),
+                        Comments:"APP",
+                        VIndex: vIndex,
+                        Currency: currencyId,
+                        ConversionRate: exchangeRate
+                    };
+                    voucherGeneral.push(debitGeneral);
+               }
+                if (paymentTypeId == 1 || paymentTypeId == 2) {
+
+                }
+                else {
+                    totalGrossAmount = totalGrossAmount + parseFloat(that.find(".txtGross").val());
+                    totalDiscountAmount = totalDiscountAmount + parseFloat(that.find(".txtDiscountAmt").val());
+                }
+
+
+            });
+
+            if (voucherDetail.length == 0) {
+                $.alert.open("success", "Please add voucher details");
+                return false;
+            }
+            if (!creditAccId) {
+                $.alert.open("success", "Please Select Creadit Chart of Accounts");
+                return false;
+            }
+            if (!debitAccId) {
+                $.alert.open("success", "Please Select Debit Chart of Accounts");
+                return false;
+            }
+            if (paymentTypeId == 1 || paymentTypeId == 2) {
+
+            } else {
+                creditAmount = totalGrossAmount - totalDiscountAmount;
+            }
+            creditAmount = creditAmount - (vatAmount + iTaxAmount);
+
+            let creditDetail = {
+                EntryType: 2,
+                AccountID: creditAccId,
+                Amount: ((-1) * calculateAmountWRTcurrency(creditAmount, exchangeRate, 1)),
+                LocationID: locationId,
+                CostCenter: creditCostCenterId,
+                Activity: creditActivityId,
+                Vindex: 101
+            };
+            voucherDetail.push(creditDetail);
+            let creditGeneral = {
+                Description: PaidTo + " (" + voucherDescription+")",
+                AccountId: creditAccId,
+                Billno: "",
+                Billdate: "",
+                Refno: "",
+                discount: 0,
+                InTax: taxPercent,
+                Gross: ((-1) * calculateAmountWRTcurrency(creditAmount, exchangeRate, 1)),
+                Net: ((-1) * calculateAmountWRTcurrency(creditAmount, exchangeRate, 1)),
+                Comments: "",
+                VIndex: 101,
+                Currency: currencyId,
+                ConversionRate: exchangeRate
+            };
+            voucherGeneral.push(creditGeneral);
+            let bankVoucherInfo = {
+                InstrumentId:0,
+                AccountId: creditAccId,
+                InstrumentTypeID: instrumentTypeId,
+                InstrumentNo: instrumentNo,
+                VoucherDate: chequeDate,
+                VIndex:101
+            };
+            bankVoucher.push(bankVoucherInfo);
+
+            let instrument = {
+                InstrumentTypeId: instrumentTypeId,
+                InstrumentNo: instrumentNo,
+                ChqDate: chequeDate,
+                ChequeNarration: chequeNarration,
+                ChequeSignatoryId: signatoryId,
+                ChqAmount: calculateAmountWRTcurrency(creditAmount, exchangeRate, 0),
+                ExportInvoiceTypeID: $("#ExportInvoiceTypeID").val(),
+                ExportInvoiceType: $("#ExportInvoiceTypeID option:selected").text(),
+                VoucherDate: date
+            };
+
+            let Voucher = {
+                VoucherNumber: "",
+                VoucherType: 2,
+                Vdate: date,
+                VoucherDescription: voucherDescription,
+                AmtInDoller: 0,
+                PaymentTypeId: paymentTypeId,
+                CompanyId: companyId,
+                BusinessId: businessId,
+                Voucherdetail: voucherDetail,
+                VoucherGeneralInfo: voucherGeneral,
+                BankVoucherInfo: bankVoucher,
+                Instrument: instrument,
+            }
+            return Voucher;
+        }
+        function netPaybale() {
+            let netAmt = 0;
+            $("#tblDetailBody tr").each(function () {
+
+                let that = $(this);
+                netAmt += parseFloat(that.find(".txtNetAmt ").val());
+            });
+            $("#mainTable tfoot tr").find("#netPaybale").html(netAmt);
+        }
+
+
+        $(document).ready(function () {
+            showBankChequeInformation();
+            $("#DebitActivityID").chosen();
+            $("#CreaditActivityID").chosen();
+
+            $(".clsInstrumentNo").hide();
+            let DebitCostCenterID = $("#DebitCostCenterID").val();
+            let CreditCostCenterID = $("#CreditCostCenterID").val();
+
+            DebitActivity();
+            CreditActivity();
+           // GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": DebitCostCenterID }, "DebitActivityID", "");
+           // GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": CreditCostCenterID }, "CreaditActivityID", "");
+
+            $("#CompanyID").change(function () {
+                var companyId = $("#CompanyID").val();
+                if (companyId!="") {
+                    GenerateDropDown("CommonDropDown", "ddlChartOfAccounts", { "CompanyID": companyId, "LevelID": 2 }, "BusinessID", "");
+                    GenerateDropDown("CommonDropDown", "ddlChartOfAccounts", { "CompanyID": companyId, "LevelID": 3 }, "LocationID", "");
+                    GenerateDropDown("CommonDropDown", "ddlCostCenter", { "CompanyId": companyId }, "DebitCostCenterID", "");
+                    GenerateDropDown("CommonDropDown", "ddlCostCenter", { "CompanyId": companyId }, "CreditCostCenterID", "");
+                   // GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": DebitCostCenterID }, "DebitActivityID", "");
+                   // GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": CreditCostCenterID }, "CreaditActivityID", "");
+                    DebitActivity();
+                    CreditActivity();
+                }
+            });
+            $("#DebitCostCenterID").change(function () {
+                var costCenterID = $("#DebitCostCenterID").val();
+                if (costCenterID != "") {
+                    //   GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": costCenterID }, "DebitActivityID", "");
+                    DebitActivity();
+                }
+            });
+            $("#CreditCostCenterID").change(function () {
+                var costCenterID = $("#CreditCostCenterID").val();
+                if (costCenterID != "") {
+                 //   GenerateDropDown("CommonDropDown", "ddlCOAAcctivity", { "CostCenterId": costCenterID }, "CreaditActivityID", "");
+                    CreditActivity();
+                }
+            });
+            $("#CurrencyID").change(function () {
+                var currencyId = $("#CurrencyID").val();
+                if (currencyId != "") {
+                    $.ajax({
+                        type: "GET",
+                        url: "/BankPaymentVoucher/GetCurrencyRate",
+                        dataType: "json",
+                        data: { "CurrencyId": currencyId},
+                        success: function (data) {
+                            if (data != null) {
+                                $("#ExchangeRate").val(data.RateInPakRs);
+                            } else {
+                                $("#ExchangeRate").val(0);
+                            }
+                        }
+                    });
+                }
+            });
+            $("#PaidTo").autocomplete({
+                source: function (request, response) {
+                    var passData = { 'prefix': request.term.replace(".", ""), 'companyId': $("#CompanyID").val(), IsSupplier:0};
+                   // $.extend(passData, appendParameter);
+                    $.ajax({
+                        url: "/CommonAutoComplete/GetAutoCompleteChartOfAccounts",
+                        type: 'POST',
+                        data: passData,// JSON.stringify(passData),
+                        dataType: 'json',
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                focus: function (event, ui) {
+
+                  //$("#PaidTo").val(ui.item.Description);
+                    $("#DebitAccountID").val("");
+                    //$("#DebitAccountName").val(ui.item.AccountName);
+                    return false;
+                },
+
+                select: function (event, ui) {
+                    $("#PaidTo").val(ui.item.Description);
+                    $("#DebitAccountID").val(ui.item.Id);
+                    $("#ChequeNarration").val(ui.item.Description);
+                    GetLedgerBalence(ui.item.Id)
+                    //$("#PaymentType").trigger("change");
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<b>' + item.Description + '</b><span style="color:#EC0F95; font-size:12px;">(' + item.AccountDetail + ')</span>')
+                    .appendTo(ul);
+                };
+            $("#BankAccount").autocomplete({
+                source: function (request, response) {
+                    var passData = { 'prefix': request.term.replace(".", ""), 'companyId': $("#CompanyID").val() };
+                    // $.extend(passData, appendParameter);
+                    $.ajax({
+                        url: "/CommonAutoComplete/GetBankAccountAutocomplete",
+                        type: 'POST',
+                        data: passData,// JSON.stringify(passData),
+                        dataType: 'json',
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                focus: function (event, ui) {
+
+                 //   $("#BankAccount").val(ui.item.Description);
+                   $("#CreditAccountID").val("");
+                    //$("#DebitAccountName").val(ui.item.AccountName);
+                    return false;
+                },
+
+                select: function (event, ui) {
+                    $("#BankAccount").val(ui.item.Description);
+                    $("#CreditAccountID").val(ui.item.Id);
+                    //$("#ChequeNarration").val(ui.item.Description);
+                    //GetLedgerBalence(ui.item.Id)
+                    //$("#PaymentType").trigger("change");
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append('<b>' + item.Description + '</b><span style="color:#EC0F95; font-size:12px;">(' + item.AccountDetail + ')</span>')
+                    .appendTo(ul);
+                };
+            $("#VATPercentage").keyup(function () {
+
+                let that = $(this);
+                let vatPercent = parseFloat(that.val());
+                if (vatPercent > 0) {
+                    let totalNetAmount = 0;
+                    $(".txtNetAmt").each(function () {
+                        totalNetAmount = totalNetAmount + parseFloat($(this).val());
+                    });
+                    let vatAmt = totalNetAmount * (vatPercent / 100);
+                    $("#VATAmount").val(vatAmt);
+                } else {
+                    $("#VATAmount").val(0);
+                }
+            });
+            $("#VATAmount").keyup(function () {
+                debugger;
+                let that = $(this);
+                let vatAmt = parseFloat(that.val());
+                if (vatAmt > 0) {
+                    let totalNetAmount = 0;
+                    $(".txtNetAmt").each(function () {
+                        totalNetAmount = totalNetAmount + parseFloat($(this).val());
+                    });
+                    let vatPercent = (vatAmt * 100) / totalNetAmount;
+                    $("#VATPercentage").val(vatPercent);
+                } else {
+                    $("#VATPercentage").val(0);
+                }
+            });
+
+            $("#ITaxPercentage").keyup(function () {
+                debugger;
+                let that = $(this);
+                let taxPercent = parseFloat(that.val());
+                let vatAmount = parseFloat($("#VATAmount").val());
+                if (taxPercent > 0) {
+                    let totalNetAmount = 0;
+                    $(".txtNetAmt").each(function () {
+                        totalNetAmount = totalNetAmount + parseFloat($(this).val());
+                    });
+                    let taxAmt = (totalNetAmount - vatAmount) * (taxPercent / 100);
+                    $("#ITaxAmount").val(taxAmt);
+                } else {
+                    $("#ITaxAmount").val(0);
+                }
+            });
+            $("#ITaxAmount").keyup(function () {
+
+                let that = $(this);
+                let taxAmt = parseFloat(that.val());
+                let vatAmount = parseFloat($("#VATAmount").val());
+                if (taxAmt > 0) {
+                    let totalNetAmount = 0;
+                    $(".txtNetAmt").each(function () {
+                        totalNetAmount = totalNetAmount + parseFloat($(this).val());
+                    });
+                    let taxPercent = (taxAmt * 100) / (totalNetAmount - vatAmount);
+                    $("#ITaxPercentage").val(taxPercent);
+                } else {
+                    $("#ITaxPercentage").val(0);
+                }
+            });
+
+
+            $("#btnAddDetail").click(function () {
+                let description = $("#Description").val();
+                var trCount = $("#tblDetailBody tr").length;
+                $("#tblDetailBody").append(
+                    '<tr>' +
+                    '<td>' + (trCount+1)+'</td> ' +
+                 @*   '<td><input type="text" class="txtNarration input-size150" value="' + description+'"/></td> ' +
+                    '<td><input type="text" class="txtBillNo input-size100"/></td> ' +
+                    '<td><input type="text" class="txtBillDate dateField input-size100" value="@DateTime.Now.ToString("dd-MMM-yyyy")"/></td> ' +
+                    '<td><input type="text" class="txtRefNo input-size75"/></td> ' +
+                    '<td><input type="text" class="txtGross input-size75" onkeyup="calculateDiscount(this);"/></td> ' +
+                    '<td><input type="text" class="txtDiscountPercent input-size75" onkeyup="calculateDiscount(this);"/></td> ' +
+                    '<td><input type="text" class="txtDiscountAmt input-size75" onkeyup="calculateDiscountPercentage(this);"/></td> ' +
+                    '<td><input type="text" class="txtNetAmt input-size75"/></td>' + *@
+                     '<td><input type="text" class="txtNarration input-Size100Percent" value="' + description+'"/></td> ' +
+                    '<td><input type="text" class="txtBillNo input-Size100Percent"/></td> ' +
+                    '<td><input type="text" class="txtBillDate dateField input-Size100Percent" value="@DateTime.Now.ToString("dd-MMM-yyyy")"/></td> ' +
+                    '<td><input type="text" class="txtRefNo input-Size100Percent"/></td> ' +
+                    '<td><input type="text" class="txtGross input-Size100Percent" onkeyup="calculateDiscount(this);"/></td> ' +
+                    '<td><input type="text" class="txtDiscountPercent input-Size100Percent" onkeyup="calculateDiscount(this);"/></td> ' +
+                    '<td><input type="text" class="txtDiscountAmt input-Size100Percent" onkeyup="calculateDiscountPercentage(this);"/></td> ' +
+                    '<td><input type="text" class="txtNetAmt input-Size100Percent"/></td>' +
+                    '</tr>'
+                );
+            });
+            $("#btnRemoveDetail").click(function () {
+                $("#tblDetailBody tr:last").remove();
+            });
+            $("#InstrumentTypeID").change(function () {
+                let instrumentType = $("#InstrumentTypeID").val();
+                if (instrumentType != "" && instrumentType > 2) {
+                    $('.clsInstrumentNo').show();
+                } else {
+                    $('.clsInstrumentNo').hide();
+                }
+                showBankChequeInformation();
+            });
+
+            $("#btnSaveVoucher").click(function () {
+                debugger;
+                var validator = $("#frmBPV").valid();
+                if (validator==false) {
+
+                    $.alert.open("error", "Please enter required information.");
+                    return false;
+                }
+                let paymentTypeId = $("#PaymentTypeID").val();
+
+                let vouchersList = [];
+                let voucherMaster = GenerateVoucherMaster();
+                //let vatVoucher = GenerateVatVoucher();
+                //let taxVoucher = GenerateTaxVoucher();
+                if (voucherMaster != "") {
+                    vouchersList.push(voucherMaster);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/BankPaymentVoucher/SaveBankPaymentVoucher",
+                        dataType: "json",
+                        data: { "MasterVouchers": vouchersList, "InstrumentObj": voucherMaster.Instrument },
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open("success", data.message);
+                                $("#tblDetailBody").html("");
+                                $("#mainTable tfoot tr").find("#netPaybale").html(0);
+                                //$("#ExchangeRate").val(data.RateInPakRs);
+                            } else if (data.result == 2) {
+                                let response = JSON.parse(data.data);
+                                let errMsg = "<ul>";
+                                for (var i = 0; i < response.length; i++) {
+                                    var error = response[i];
+                                    let key = error.Key;
+                                    let msg = error.Message;
+                                    errMsg += `<li><b>${key}</b> : ${msg}</li>`;
+                                }
+                                errMsg += "</ul>";
+                                $.alert.open("success", errMsg);
+                            }
+                            else {
+                                $.alert.open("success", data.message);
+                            }
+
+                        }
+                    });
+                }
+
+
+            });
+        });
+
+    </script>
+}

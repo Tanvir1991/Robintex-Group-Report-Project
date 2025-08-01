@@ -1,0 +1,217 @@
+﻿@model RTEXERP.Contracts.BLModels.AppSecurity.AspNetRolesViewModel
+@{
+    ViewData["Title"] = "Create";
+    ViewData["pageTitle"] = "Role Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function ClearForm() {
+        debugger
+        $('#AspNetRolesCreate').find("input,textarea,select").val("");
+        $('input:checkbox').prop('checked', false);
+    }
+
+    function AspNetRolesList() {
+
+        var source =
+        {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'number' },
+                { name: 'Name', type: 'string' },
+                { name: 'Description', type: 'string' },
+                { name: 'CompanyId', type: 'number' },
+                { name: 'CompanyName', type: 'string' },
+                { name: 'IsSuperAdminRole', type: 'boolean' }
+            ],
+            id: 'Id',
+            url: '/AppSecurity/AspNetRoles/AspNetRolesList'
+        };
+        var buttonrenderer = function (row, columnfield, value, defaulthtml, columnproperties, rowdata) {
+            return '<div style="margin: 4px"><button class="btn btn-xs btn-warning" onclick="EditRow(' + row + ')"><i class="fa fa-edit"></i> Edit</button><span>&nbsp;</span><button class="btn btn-xs btn-danger" onclick="DeleteRow(' + row + ')"><i class="fa fa-trash"></i> Delete</button></div>';
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source, {
+            loadComplete: function (data) {
+                //console.log(data);
+            },
+            loadError: function (xhr, status, error) { }
+        });
+        //console.log(source);
+        //console.log(dataAdapter);
+        $("#jqxgrid").jqxGrid(
+            {
+                width: '100%',
+                source: dataAdapter,
+                theme: 'arctic',
+                pageSize: 20,
+                sortable: true,
+                filterable: true,
+                pageable: true,
+                columns: [
+                    {
+                        text: 'SL',
+                        align: 'center',
+                        cellsalign: 'center',
+                        sortable: false,
+                        filterable: false,
+                        editable: false,
+                        groupable: false,
+                        draggable: false,
+                        resizable: false,
+                        datafield: '',
+                        columntype: 'number',
+                        width: 50,
+                        cellsrenderer: function (row, column, value) {
+                            return "<div style='margin:4px;text-align:center'>" + (value + 1) + "</div>";
+                        }
+                    },
+                    { text: 'Id', dataField: 'id', hidden: true },
+                    { text: 'Name', dataField: 'Name', align: 'center', cellsalign: 'center' },
+                    { text: 'Description', dataField: 'Description', align: 'center', cellsalign: 'center' },
+                    { text: 'CompanyName', dataField: 'CompanyName', align: 'center', cellsalign: 'center' },
+                    //  { text: 'FabricCategoryName', dataField: 'FabricCategoryId', align: 'center', cellsalign: 'center' },
+                    { text: 'Action', cellsrenderer: buttonrenderer, width: 128, align: 'center', cellsalign: 'center' }
+                ]
+            });
+    }
+
+
+    $(document).ready(function () {
+        AspNetRolesList();
+        $("#btnClear").click(function () {
+            ClearForm();
+        });
+        $("#btnSubmit").click(function () {
+            debugger;
+            if ($("#AspNetRolesCreate").valid()) {
+                var name = $("#Name").val();
+                var companyId = $("#CompanyId").val();
+                var description = $("#Description").val();
+                var isSuperAdminRole = $('#IsSuperAdminRole').is(":checked");
+                var id = $("#Id").val();
+                if (id > 0) {
+                    var aspNetRolesVM = {
+                        Id: id,
+                        Name: name,
+                        CompanyId: companyId,
+                        Description: description,
+                        IsSuperAdminRole: isSuperAdminRole
+                    }
+                } else {
+                    var aspNetRolesVM = {
+                        Name: name,
+                        CompanyId: companyId,
+                        Description: description,
+                        IsSuperAdminRole: isSuperAdminRole
+                    }
+                }
+                GenericSaveAndGridLoad("POST", "/AppSecurity/AspNetRoles/Create", aspNetRolesVM, AspNetRolesList, ClearForm);
+            }
+        });
+    });
+
+    function EditRow(row) {
+        debugger;
+        var dataRecord = $("#jqxgrid").jqxGrid('getrowdata', row);
+        //console.log(dataRecord);
+        $("#Id").val(dataRecord.Id);
+        $("#Name").val(dataRecord.Name);
+        $("#Description").val(dataRecord.Description);
+        $("#IsSuperAdminRole").prop('checked', dataRecord.IsSuperAdminRole);
+        //$('#IsSuperAdminRole :checked').val(dataRecord.IsSuperAdminRole);
+    };
+
+      function DeleteRow(row) {
+        debugger;
+        var dataRecord = $("#jqxgrid").jqxGrid('getrowdata', row);
+
+        GenericDeleteAndGridLoad("POST", "/AppSecurity/AspNetRoles/Delete", dataRecord.Id, AspNetRolesList);
+    };
+
+
+</script>
+
+<form asp-action="Create" asp-controller="AspNetRoles" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <input type="hidden" asp-for="Id" />
+            @*<input type="hidden" asp-for="CompanyId" />*@
+            <div class="form-group">
+                <label asp-for="Name" class="input-sm"></label>
+                <input type="text" asp-for="Name" autocomplete="off" class="form-control input-sm" placeholder="Role Name ...">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Description" class="input-sm"></label>
+                <textarea asp-for="Description" rows="2" class="form-control input-sm" placeholder="Description  ..."></textarea>
+                @* <input type="text" asp-for="Details"  autocomplete="off" class="form-control input-sm" placeholder="Fabric Category Details  ...">*@
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+
+        @*<div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="ConcurrencyStamp" class="input-sm"></label>
+                <input type="text" asp-for="ConcurrencyStamp" autocomplete="off" class="form-control input-sm" placeholder="Role Description ...">
+                <span asp-validation-for="ConcurrencyStamp" class="text-danger"></span>
+            </div>
+        </div>*@
+
+
+
+        @*<div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="CompanyId" class="input-sm"></label>
+                <select asp-for="CompanyId" asp-items="Model.CompanyList" class="form-control input-sm"></select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>
+        </div>*@
+
+
+
+
+    </div>
+
+
+    <div class="row">
+
+        
+
+    </div>
+
+    <div class="row">
+
+
+        <div class="col-md-12">
+            <div class="form-group">
+                <div class="checkbox">
+                    <label asp-for="IsSuperAdminRole" class="input-group-lg"><input asp-for="IsSuperAdminRole" type="checkbox" value="IsActive">  IsSuperAdminRole</label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSubmit">Submit</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnClear">Clear</button>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div id='jqxWidget'>
+            <div id="jqxgrid">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,151 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.FabricStockReport;
+@{
+    ViewData["Title"] = "Stock Report";
+    ViewData["pageTitle"] = "Stock Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <style type="text/css">
+        .tableFixHead {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .tableFixHead thead {
+                position: sticky;
+                top: 0;
+                background: #eee;
+            }
+        /* Just common table stuff. Really. */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }  
+
+    </style>
+    <form asp-action="Index" asp-controller="FabricStockReport" id="frmIndex" method="post">
+        <div class="row">
+            @*<div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                    <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+                </div>
+            </div>*@
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="ReportType" class="label-ajt-sm required"></label>
+                    <select asp-for="ReportType" asp-items="Model.ReportTypeList" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="DateTo" value="@Model.DateTo.ToString("dd-MMM-yyyy")" class="form-control form-control-sm dateField" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="DateFrom" value="@Model.DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="DateTo" value="@Model.DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-sm"></label>
+                    <input type="checkbox" asp-for="WithAllTransaction" /> With All Transaction
+                </div>
+            </div>
+        </div>*@
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="btnPDF">PDF</button>
+                    <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="table-responsive" id="divGreigeFabricStock" style="max-height:500px;">
+            </div>
+        </div>
+        <div class="row">
+            <div class="table-responsive" id="divFinishFabricStock" style="max-height:500px;">
+            </div>
+        </div>
+    </form>
+
+@section scripts{
+    <script>
+        function ClearTableData() {
+            $("#divGreigeFabricStock").html('');
+            $("#divFinishFabricStock").html('');
+        }
+
+        function FabricStockReport(reportFormat) {
+            debugger;         
+            let reportType = $("#ReportType").val();            
+            let dateTo = $("#DateTo").val();
+
+            if (reportType != "" && dateTo != "") {
+                var url = `/FabricStockReport/StockReport?ReportType=${reportType}&DateTo=${dateTo}&ReportFormat=${reportFormat}`;
+                window.open(url, "Stock Report", `status=1,toolbar=0,width=${screen.width}`);
+            } else {
+                alert("Please provide all data");
+            }
+            
+        }
+       
+
+        $(document).ready(function () {
+            $("#ReportType,#DateTo").change(function () {
+                debugger;
+                ClearTableData();
+            });
+            
+            $("#btnPDF").click(function () {                
+                FabricStockReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            $("#btnExcel").click(function () {              
+                FabricStockReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+            $("#btnView").click(function () {
+                debugger;
+                
+                let reportType = $("#ReportType").val();
+               
+                let dateTo = $("#DateTo").val();
+               
+                if (reportType != "" && DateTo != "") {
+                    let fabReport = {                       
+                        DateTo: dateTo                       
+                    };
+                    $("#AjaxLoader").show();
+                    if (reportType == "FF") {
+                        $("#divFinishFabricStock").load("/CommonDropDown/GetViewComponent", { viewName: "FinishFabricStock", entity: JSON.stringify(fabReport) }, function () {                            
+                            $("#AjaxLoader").hide();                           
+                        });                        
+                    } else {
+                        $("#divGreigeFabricStock").load("/CommonDropDown/GetViewComponent", { viewName: "GreigeFabricStock", entity: JSON.stringify(fabReport) }, function () {
+                            $("#AjaxLoader").hide();
+                        });                        
+                    }
+                } else {
+                    $("#divFinishFabricStock").html("");
+                    $("#divGreigeFabricStock").html("");
+                }
+            });
+        });
+
+    </script>
+}
+
+
+
+

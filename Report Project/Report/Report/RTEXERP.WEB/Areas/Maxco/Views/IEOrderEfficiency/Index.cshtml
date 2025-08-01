@@ -1,0 +1,261 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.OrderEfficiencyViewModel
+@{
+    ViewData["Title"] = "Index";
+    ViewData["pageTitle"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["btnText"] = "Create";
+    ViewData["btnLink"] = "/Maxco/IEOrderEfficiency/CreateIEOrderEfficiency";
+    var sl = 1;
+    var btnDisable = "";
+    if (!Model.IsSupperAdmin)
+    {
+        btnDisable = "disabled";
+    }
+}
+<div class="row">
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+            <select class="form-control form-control-sm" required asp-for="BuyerID" asp-items="Model.BuyerList"></select>
+            <span asp-validation-for="BuyerID" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="OrderID"></label>
+            <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            <span asp-validation-for="OrderID" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="StyleID"></label>
+            <select class="form-control form-control-sm" required asp-for="StyleID" asp-items="Model.StyleList"></select>
+            <span asp-validation-for="StyleID" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="PantoneNo"></label>
+            <select class="form-control form-control-sm" required asp-for="PantoneNo" asp-items="Model.StyleList"></select>
+            <span asp-validation-for="PantoneNo" class="text-danger"></span>
+        </div>
+    </div>
+
+
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+            <input type="text" asp-for="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+            <span asp-validation-for="DateFrom" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="DateTo" class="label-ajt-sm required"></label>
+            <input type="text" asp-for="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+            <span asp-validation-for="DateTo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-1 text-left">
+        <label>&nbsp;</label>
+        <div class="form-group">
+            <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box-footer" style="text-align:center">
+            <button type="button" class="btn btn-sm btn-success" id="btnSearch"> Search</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" id="btnPdfAll">Order Efficiency (pdf)</button>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row ">
+    <div class="col-md-12">
+        <table class="table table-sm table-bordered text-center" style="font-size:12px;" id="">
+            <thead class="bg-dark">
+                <tr>
+                    <th>SL</th>
+                    <th>Line</th>
+                    <th>Manpower</th>
+                    <th>Order No</th>
+                    <th>Style No</th>
+                    <th>Panton No</th>
+                    <th>Hourly Targer Production</th>
+                    <th>Order SMV</th>
+                    <th>Target Efficient</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody style="font-size:11px;" class="OrderEfficiency">
+                @foreach (var ordEffi in Model.OrderEfficiency)
+                {
+                <tr>
+                    <td>@sl</td>
+                    <td>@ordEffi.LineName</td>
+                    <td>@ordEffi.ManPower</td>
+                    <td>@ordEffi.OrderNo</td>
+                    <td>@ordEffi.StyleName</td>
+                    <td>@ordEffi.PantoneNo</td>
+                    <td>@ordEffi.HourlyTargetProduction</td>
+                    <td>@ordEffi.OrderSMV</td>
+                    <td>@ordEffi.TargetEffiency</td>
+                    <td>
+                        <a href="/Maxco/IEOrderEfficiency/EditIEOrderEfficiency?Id=@ordEffi.ID"><input @btnDisable type="button" class="btn btn-sm btn-success" value="Edit" id="" /></a>&nbsp;
+                        <a><input @btnDisable type="button" onclick="DeleteData(@ordEffi.ID)" class="btn btn-sm btn-danger" value="Delete" id="" /></a>
+                    </td>
+                </tr>
+                    sl++;
+                }
+            </tbody>
+            <tfoot>
+                @*<tr>
+                        <td colspan="8"></td>
+                        <td colspan="2">Total Quantity :</td>
+                        <td class="TotalQuantity"></td>
+                    </tr>*@
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    function DeleteData(id) {
+        debugger
+        $.alert.open('confirm', 'Are you sure to delete this record?', function (button) {
+            if (button == 'yes') {
+                debugger
+              //  GenericDeleteWithoutConfirmation("POST","Maxco/IEOrderEfficiency/Remove",{'Id':id});
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Maxco/IEOrderEfficiency/Remove',
+                    data: { ID: id },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open('success', data.message, function (button) {
+                                if (button == 'ok') {
+                                    window.location.href = "/Maxco/IEOrderEfficiency/Index";
+                                }
+                            });
+
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+
+            } else {
+                return false;
+            }
+        });
+    }
+
+    $(function () {
+         $("#clearDate").click(function () {
+             const dateFrom = $("#DateFrom").val();
+
+            if (!dateFrom) {
+                $("#DateFrom").val('@Model.DateFrom')
+                $("#DateTo").val('@Model.DateTo')
+            } else {
+                $("#DateFrom").val("")
+                $("#DateTo").val("")
+            }
+        })
+
+         $("#btnPdfAll").click(function () {
+             let orderId = RtnNumber($("#OrderID").val())
+             let styleId = RtnNumber($("#StyleID").val())
+             let pantoneNo = $("#PantoneNo").val();
+             let dateFrom = $("#DateFrom").val();
+             let dateTo = $("#DateTo").val();
+            if (!dateFrom) {
+                dateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!dateTo) {
+                dateTo = @DateTime.Now.ToShortDateString();
+            }
+            let reportFormat = ("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+             var url = `/Maxco/IEOrderEfficiency/OrderEfficiencyReportPage?DateFrom=${dateFrom}&DateTo=${dateTo}&OrderID=${orderId}&StyleID=${styleId}&PantoneNo=${pantoneNo}&ReportFormat=${reportFormat}`
+
+            window.open(url);
+        });
+
+
+
+        $("#BuyerID").change(function () {
+            var buyerID = $("#BuyerID").val();
+            var dropDownOption = GenerateDropDownOptions('CommonDropDown', 'DDLBuyerWiseOrder', { "BuyerID": buyerID }, "");
+            $("#OrderID").html(dropDownOption);
+            $("#OrderID").trigger('change');
+        });
+        $("#OrderID").change(function () {
+            var orderID = $("#OrderID").val();
+            var dropDownOption = GenerateDropDownOptions('Maxco/IEOrderEfficiency', 'DDLGetOrderWiseStyle', { "orderID": orderID }, "");
+            $("#StyleID").html(dropDownOption);
+            $("#StyleID").trigger('change');
+        });
+        $("#StyleID").change(function () {
+            var styleID = $("#StyleID").val();
+            var dropDownOption = GenerateDropDownOptions('Maxco/IEOrderEfficiency', 'DDLGetStyleWisePantonList', { "styleID": styleID }, "");
+            $("#PantoneNo").html(dropDownOption);
+            $("#PantoneNo").trigger('change');
+        });
+
+        $("#btnSearch").click(function () {
+            let orderId = RtnNumber($("#OrderID").val())
+            let styleId = RtnNumber($("#StyleID").val())
+            let pantoneNo = $("#PantoneNo").val();
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+            pantoneNo = pantoneNo == "" ? null : pantoneNo;
+            $.ajax({ 
+                type: 'POST',
+                url: '/Maxco/IEOrderEfficiency/GetIEOrderEfficeient',
+                data: { dateFrom: dateFrom, dateTo: dateTo, orderID: orderId, styleID: styleId, pantoneNo: pantoneNo },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    let sl = 1;
+                    let tbodyTR = "";
+                    if (data!=null) {
+                        $(".OrderEfficiency").html('');
+                        $.each(data, function (i,v) {
+                            tbodyTR+=`<tr>
+                        <td>${sl}</td>
+                        <td>${v.LineName}</td>
+<td>${v.ManPower}</td>
+                        <td>${v.OrderNo}</td>
+                        <td>${v.StyleName}</td>
+                        <td>${v.PantoneNo}</td>
+                        <td>${v.HourlyTargetProduction}</td>
+                        <td>${v.OrderSMV}</td>
+                        <td>${v.TargetEffiency}</td>
+                        <td><a href="/Maxco/IEOrderEfficiency/EditIEOrderEfficiency?Id=${v.ID}"><input @btnDisable type="button" class="btn btn-sm btn-success" value="Edit" id="btnSave" /></a>
+                       <a><input @btnDisable  type="button" onclick="DeleteData(${v.ID})" class="btn btn-sm btn-danger" value="Delete" id="" /></a></td>
+                       </td>
+                    </tr>`
+                            sl++;
+                        })
+                        $(".OrderEfficiency").html(tbodyTR);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        })
+    })
+</script>

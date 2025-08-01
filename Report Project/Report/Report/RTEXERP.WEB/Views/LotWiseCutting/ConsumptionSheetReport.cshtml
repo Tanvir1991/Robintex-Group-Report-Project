@@ -1,0 +1,734 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingStatusViewModel
+@{
+    Layout = null;
+
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Robintex OrderSheet">
+    @*<meta name="generator" content="Jekyll v3.8.6">*@
+    <title>Consumption Sheet</title>
+    <meta name="theme-color" content="#563d7c">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @*<script src="~/lib/jquery/dist/3.4.1/jquery-3.4.1.slim.min.js"></script>*@
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    @*<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+
+    <style>
+        .txtAlignCenter {
+            text-align: center;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .td-form-control-sm {
+            width: 75px;
+            height: 15px;
+            font-size: 10px;
+        }
+
+        .customTd {
+            padding: 2px;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 0px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+        table.table-Shrink > tfoot > tr > td {
+            padding: 1px;
+        }
+    </style>
+
+</head>
+<body>
+    <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">
+        <div class="row">
+            <div class="form-group" style="margin-bottom:0px;">
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 12px;" id="tblOrderShipping">
+                        <thead style="background-color:yellow;">
+                            <tr>
+                                <th colspan="4" class="txtAlignCenter">Fabric Requirement Plan</th>
+                                <th colspan="3" class="txtAlignCenter">Knitting Portion</th>
+                                <th colspan="3" class="txtAlignCenter">Dyeing/ AOP Portion</th>
+                            </tr>
+                            <tr>
+                                <th class="txtAlignCenter">Actual <br/> ODQ (Pcs)</th>
+                                <th class="txtAlignCenter" colspan="2">Export <br/> Date</th>
+                                <th class="txtAlignCenter">ALGO Qty <br/>(Pcs)</th>
+
+                                <th class="txtAlignCenter">Batch Delivery Req (Kg)</th>
+                                <th class="txtAlignCenter">Delivery Qty <br/> (Kg)</th>
+                                <th class="txtAlignCenter">Delivery Balance <br/>(Kg)</th>
+
+                                <th class="txtAlignCenter">Req Finish Fabric <br/>(Kg)</th>
+                                <th class="txtAlignCenter">Delivery Qty <br /> (Kg)</th>
+                                <th class="txtAlignCenter">Delivery Balance <br/>(Kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group" style="margin-bottom:0px;">
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 12px;" id="tblOrderInfo">
+                        <thead>
+                            <tr>
+                                <th colspan="5" class="txtAlignCenter"></th>
+                                <th colspan="8" class="txtAlignCenter">Present Status</th>
+                                <th colspan="5" class="txtAlignCenter">Projection Status</th>
+                            </tr>
+                            <tr>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Order</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Color</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Fabric Compo.</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Fabric Quality</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">GSM</th>
+
+                                <th style="vertical-align:middle" class="txtAlignCenter">ALGO Qty</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Order Qty (Finish)</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Yarn in KRS</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Batch Delivery</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Batch Balance</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Dyeing/ Print Qty</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Finish Qty</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Process Loss</th>
+
+                                <th style="vertical-align:middle" class="txtAlignCenter">Dyeing Balance</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Finish Qty From Bal.</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter" id="thDelivery">Delivery Short</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter" id="thCuttingShort">Cutting Short</th>
+                                <th style="vertical-align:middle" class="txtAlignCenter">Total Delivery will be</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" style="margin-bottom:0px;">
+                <div class="col-md-6">
+                    <table class="txtAlignCenter" style="font-size: 12px;width: 400px;" id="tblGeneralInfo">
+                        <thead>
+                            <tr>
+                                <th class="txtAlignCenter" id="thKRS"></th>
+                                <th class="txtAlignCenter">Company</th>
+                                <th class="txtAlignCenter" id="tdCompany"></th>
+                                <th class="txtAlignCenter">Buyer</th>
+                                <th class="txtAlignCenter" id="tdBuyer"></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <table class="" style="font-size: 12px;width: 400px;" id="tblOrderDetail">
+                        <thead>
+
+                            <tr>
+                                <th colspan="2" class="txtAlignCenter">Order Info Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>PO Sheet Order Qty =</td><td id="tdPOOrderQty"></td></tr>
+                            <tr><td>Sewing Input Req <span id="tdSewingInputPercent"></span> %+=</td><td id="tdSewingInputReq"></td></tr>
+                            <tr><td>Cutting Quantity =</td><td id="tdCuttingQty"></td></tr>
+                            <tr><td>Total Inspection Quantity =</td><td id="tdTotalInspectionQty"> </td></tr>
+                            <tr><td>Panel Reject&nbsp;&nbsp;&nbsp;<span id="tdPanelRejectPercentage" class="">% =</span></td><td id="tdPanelReject"> </td></tr>
+                            <tr><td>Actual Cutting/Input=</td><td id="tdActualCutting"></td></tr>
+                            <tr><td>Input Balance with Reject % =</td><td id="tdInputBalWithRej"></td></tr>
+                            <tr><td>Total Cutting Req with Reject % =</td><td id="tdCuttingReqWithRej"></td></tr>
+                            <tr><td>Cutting Progress =</td><td id="tdCuttingProgress"></td></tr>
+                            <tr><td colspan="2">&nbsp;</td></tr>
+                            <tr><td style="padding:2px 0px 2px 0px;"><b>Total Finish Fabric May Req =</b></td><td id="tdFinishFabReq" style="padding:2px 0px 2px 0px;"></td></tr>
+                            <tr><td style="padding:2px 0px 2px 0px;"><b>Total batch Delivery Req =</b></td><td id="tdBatchDeliveryReq" style="padding:2px 0px 2px 0px;"></td></tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+                <div class="col-sm-12">
+                    <table class="" style="font-size:12px; width:400px;" id="tblConsumptions">
+                        <tbody>
+
+                            <tr><td>Quotation consumption =</td><td id="tdCostingCons"></td></tr>
+                            <tr><td>Booking consumption =</td><td id="tdBookingCons"></td></tr>
+                            <tr><td>Cutting consumption =</td><td id="tdCuttingCons"></td></tr>
+                            <tr><td>Final consumption =</td><td id="tdFinalCons"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered" style="font-size: 12px; width:350px;" id="tblOrderRejectionBreakdown">
+                        <thead>
+                            <tr>
+                                <th colspan="2" class="txtAlignCenter">Order Rejection Breakdown</th>
+                            </tr>
+                            <tr>
+                                <th class="txtAlignCenter">Defect Name</th>
+                                <th class="txtAlignCenter">Defect Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                    <table class="" style="font-size: 12px; width:300px;" id="tblOrderCM">
+                        <tbody>
+                            <tr><td><b>CPM = <span id="tdCPM"></span></b></td></tr>
+                            <tr><td><b>SMV = <span id="tdSMV"></span></b></td></tr>
+                            <tr><td><b>Efficiency = <span id="tdEfficiency"></span></b></td></tr>
+                            <tr><td><b>Quotation CM = <span id="tdQuotationCM"></span></b></td></tr>
+                            <tr><td><b>CM as per SMV = <span id="tdSMVCM"></span></b></td></tr>
+                            <tr><td><b>ALGO CM = $ </b><input style="border:0px; font-weight:bold" type="text" id="tdALGOCM" onkeyup="CalculateReviseCM(this);" /><input type="hidden" id="hdnALGOCM" /><input type="hidden" id="hdnAdditionalFabricValue" /><input type="hidden" id="hdnTotalOrderQty" /></td></tr>
+                            <tr><td id=""><b><span id="tdAdditionalFabricText">Additional Fabric Value = </span></b></td></tr>
+
+                            <tr><td><b>Revise CM = $ <span id="tdReviseCM"></span></b></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <table class="" style="font-size: 12px; width:700px;" id="tblOrderAdditionalInfo">
+                        <tbody>
+                            <tr><td><b>Note for Mr. Nipu: <span id="tdCalculatedAmt"></span> Yarn in KRS(ALGO OS Qty=<span id="tdALGOOSQty"></span>).</b></td></tr>
+                            <tr><td><b>Total Finish Fabric Used in This Order =<span id="tdTotalFinishFabricUsed"></span></b></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="row d-print-none">
+        <div class="col-md-12">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <input type="button" class="btn btn-sm btn-success" id="btnPrint" value="Print" onclick="window.print()" />
+                    <input type="button" class="btn btn-sm btn-warning" id="btnExcel" value="Excel" />
+                </div>
+            </div>
+        </div>
+    </div>    
+    <script type="text/javascript">
+        function fnHtmlToExcelCuttingReport(tableList) {
+            debugger;
+            let tab_text = '<table><tr>';
+            $.each(tableList, function (i, v) {
+                if (v.Position == 'First' || v.Position == 'Side') {
+                    if (i > 0) {
+                        tab_text = tab_text + '<td></td>'
+                    }
+                    tab_text = tab_text + "<td>";
+                }
+                if (v.Position == 'Bottom') {
+                    tab_text = tab_text + '<table><tr><td>&nbsp;</td></tr></table>';
+                }
+                debugger;
+                tab_text = tab_text + "<table border='2px'><tr>";
+                var textRange; var j = 0;
+                let tab = document.getElementById(v.TableId); // id of table
+                for (j = 0; j < tab.rows.length; j++) {
+                    tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                }
+                tab_text = tab_text + "</table>";
+                if (v.Position == 'First' || v.Position == 'Side') {
+                    tab_text = tab_text + "</td>";
+                }
+            });
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, "CuttingMarkerStatus.xls");
+            }
+            else {
+                //other browser not tested on IE 11
+                let dt = new Date();
+                let day = dt.getDate();
+                let month = dt.getMonth() + 1;
+                let year = dt.getFullYear();
+                let hour = dt.getHours();
+                let mins = dt.getMinutes();
+                let sec = dt.getSeconds();
+                let postfix = day + "." + month + "." + year + "_" + hour + "." + mins + "." + sec;
+
+                // sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+                let a = document.createElement('a');
+                a.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
+                a.download = 'CuttingMarkerStatus' + postfix + '.xls';
+                a.click();
+                //just in case, prevent default behaviour
+                e.preventDefault();
+            }
+            //return (sa);
+        }
+            function clearForm() {
+                $("#OrderID").val('').trigger('chosen:updated');
+                ClearDropDown("Color", "Please Select");
+                $("#InspectionPcs").val(0);
+                $("#PanelRejectPcs").val(0);
+        }
+        function CalculateReviseCM(that) {
+            var currentALGOCM = $(that).val();
+            //$("#hdnALGOCM").val(data.ConsumptionSheetCM.ALGOCM);
+            let additionalFabricValue=$("#hdnAdditionModellFabricValue").val();
+            let totalOrderQty=$("#hdnTotalOrderQty").val();
+            //if (additionalFabricValue > 0) {
+                $("#tdReviseCM").text((currentALGOCM - (additionalFabricValue * 12 / totalOrderQty)).toFixed(3));
+            //} else {
+            //    $("#tdReviseCM").text((currentALGOCM + (additionalFabricValue * 12 / totalOrderQty)).toFixed(3));
+            //}
+
+        }
+            $(function () {
+                if ('@Model.OrderID'!='' && '@Model.OrderNo'!='' && '@Model.Color'!='') {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/LotWiseCutting/GetConsumptionSheetReport',
+                        data: { orderID: '@Model.OrderID', orderNo: '@Model.OrderNo', color: '@Model.Color', MarkerCuttingPlanMasterExcel_ID:'@Model.MarkerCuttingPlanMaster_ExcelID' },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            let shippingTr = '';
+                            let orderDetailTr = '';
+                            if (data != null) {
+                                let totalActualODQ = 0;
+                                let totalAlgoQty = 0;
+                                let totalBatchDeliveryQty = 0;
+                                let totalKnittingDeliveryQty = 0;
+                                let totalKnittingDeliveryBalance = 0;
+                                let totalReqFinishFabric = 0;
+                                let totalDyeingDeliveryQty = 0;
+                                let totalDyeingDeliveryBalance = 0;
+                                $.each(data.OrderShippingInfo, function (i, v) {
+                                    shippingTr = shippingTr +
+                                        '<tr>' +
+                                        '<td>' + v.ActualODQ + '</td><td>' + v.ExportDate + '</td><td>' + v.ExportWeek + '</td><td>' + v.AlgoQty + '</td>' +
+                                        '<td>' + v.BatchDeliveryQty.toFixed(0) + '</td><td>' + v.KnittingDeliveryQty.toFixed(0) + '</td><td>' + v.KnittingDeliveryBalance.toFixed(0) + '</td>' +
+                                        '<td>' + v.ReqFinishFabric.toFixed(0) + '</td><td>' + v.DyeingDeliveryQty.toFixed(0) + '</td><td>' + v.DyeingDeliveryBalance.toFixed(0) + '</td>' +
+                                        '</tr>';
+                                    totalActualODQ = totalActualODQ + v.ActualODQ;
+                                    totalAlgoQty = totalAlgoQty + v.AlgoQty;
+                                    totalBatchDeliveryQty = totalBatchDeliveryQty + v.BatchDeliveryQty;
+                                    totalKnittingDeliveryQty = totalKnittingDeliveryQty + v.KnittingDeliveryQty;
+                                    totalKnittingDeliveryBalance = totalKnittingDeliveryBalance + v.KnittingDeliveryBalance;
+                                    totalReqFinishFabric = totalReqFinishFabric + v.ReqFinishFabric;
+                                    totalDyeingDeliveryQty = totalDyeingDeliveryQty + v.DyeingDeliveryQty;
+                                    totalDyeingDeliveryBalance = totalDyeingDeliveryBalance + v.DyeingDeliveryBalance;
+                                });
+
+                                orderDetailTr = '<tr><td>' + data.OrderNo + '</td><td>' + data.Color + '</td><td>' + data.FabricComposition + '<td>' + data.FabricQuality+'</td></td><td>' + data.GSM + '</td><td>' + data.AlgoQty + ' Pcs.</td><td>' + data.OrderQty + ' Kg</td><td>' + data.YarnInKRS + ' Kg @@' + data.YarnInKRSPercentage + '%</td>' +
+                                    '<td>' + data.BatchDelivery + ' Kg</td><td>' + data.BatchBalance + ' Kg</td><td>' + data.DyeingPrintQty + ' Kg</td><td>' + data.FinishQty + ' Kg</td><td>' + data.ProcessLoss + '%</td><td>' + data.DyeingBalance + ' Kg</td><td>' + data.FinishQtyFromBalance + ' Kg</td>' +
+                                    '<td>' + Math.abs(data.DeliveryShort) + ' Kg</td><td>' + Math.abs(data.CuttingShort) + ' Pcs.</td><td>' + data.TotalDeliveryWillBe + ' Kg</td>' +
+                                    '</tr>';
+                                if (data.DeliveryShort>0) {
+                                    $("#thDelivery").html('Delivery Short');
+                                } else {
+                                    $("#thDelivery").html('Delivery Excess');
+                                }
+                                if (data.CuttingShort > 0) {
+                                    $("#thCuttingShort").html('Cutting Short');
+                                } else {
+                                    $("#thCuttingShort").html('Cutting Excess');
+                                }
+
+
+
+                                $("#tblOrderShipping tbody").html(shippingTr);
+                                $("#tblOrderShipping tfoot").html('<tr><td><b>' + totalActualODQ + ' Pcs</b></td><td></td><td><b>&nbsp;</b></td><td><b>' + totalAlgoQty + ' Pcs.</b></td><td><b>' + totalBatchDeliveryQty.toFixed(0) + ' Kg</b></td><td><b>' + totalKnittingDeliveryQty.toFixed(0) + ' Kg</b></td><td><b>' + totalKnittingDeliveryBalance.toFixed(0) + ' Kg</b></td><td><b>' + totalReqFinishFabric.toFixed(0) + ' Kg</b></td><td><b>' + totalDyeingDeliveryQty.toFixed(0) + ' Kg</b></td><td><b>' + totalDyeingDeliveryBalance.toFixed(0) + ' Kg</b></td></tr>');
+                                $("#tblOrderInfo tbody").html(orderDetailTr);
+
+                                $("#thKRS").html(data.KRSNo);
+                                $("#tdCompany").html(data.CompanyShortName);
+                                $("#tdBuyer").html(data.BuyerName);
+              
+                                $("#tdPOOrderQty").html(data.AlgoQty + ' Pcs.');
+                                $("#tdSewingInputReq").html(data.SewingInputValue + ' Pcs.');
+                                $("#tdCuttingQty").html(data.CuttingQty + ' Pcs.');
+                                $("#tdPanelReject").text(data.PanelRejectPcs + ' Pcs.');
+                                $("#tdSewingInputPercent").text(data.SewingInputPercentage);
+                                $("#tdPanelRejectPercentage").text(data.PanelRejectPercentage + ' % =');
+                                $("#tdTotalInspectionQty").html(data.InspectionPcs + ' Pcs.');
+                                $("#tdActualCutting").html(Math.round(Math.abs(data.ActualCuttingInput),0) + ' Pcs.');
+                                $("#tdInputBalWithRej").html(data.InputBalanceWithReject + ' Pcs.');
+                                $("#tdCuttingReqWithRej").html(data.TotalCuttingReqWithReject + ' Pcs.');
+                                $("#tdCuttingProgress").html(data.CuttingProgress + ' Kg.(' + ((data.CuttingProgress / data.OrderQty) * 100).toFixed(0) + '%)');
+                                $("#tdFinishFabReq").html('<b>'+data.TotalFinishFabricMayRequired + ' Kg</br>');
+                                $("#tdBatchDeliveryReq").html('<b>'+data.TotalBatchDeliveryRequired + ' Kg</br>');
+                                $("#tdALGOOSQty").html(data.ALGOOSQty + ' Kg');
+
+                                if ((data.YarnInKRS - data.TotalBatchDeliveryRequired)<0) {// changer > to <
+                                    $("#tdCalculatedAmt").html('Please Add '+Math.abs(data.YarnInKRS - data.TotalBatchDeliveryRequired) + ' Kg')
+                                } else {
+                                    $("#tdCalculatedAmt").html('Please Reduce ' + Math.abs(data.YarnInKRS - data.TotalBatchDeliveryRequired) + ' Kg')
+                                }
+
+
+
+                                $("#tdTotalFinishFabricUsed").html(data.TotalFinishFabricUsed + ' Kg');
+
+                                $("#tdCostingCons").html((data.ConsumptionSheetCM.FabricConsumptionKGPerDzn / 12).toFixed(3) + ' Kg/Pcs. || ' + (data.ConsumptionSheetCM.FabricConsumptionKGPerDzn).toFixed(3) + ' Kg/Dzn.');
+                                $("#tdBookingCons").html(data.BookingConsumptionPerPiece + ' Kg/Pcs. || ' + (data.BookingConsumptionPerPiece * 12).toFixed(3) + ' Kg/Dzn.');
+                    $("#tdCuttingCons").html(data.CuttingConsumptionPerPiece + ' Kg/Pcs. || ' + (data.CuttingConsumptionPerPiece * 12).toFixed(3) + ' Kg/Dzn.');
+        $("#tdFinalCons").html(data.FinalConsumptionPerPiece + ' Kg/Pcs. || ' + (data.FinalConsumptionPerPiece * 12).toFixed(3) + ' Kg/Dzn.');
+
+                                let rejectionTr = '';
+                                let grandTotalDefectQty = 0;
+                                $.each(data.OrderColorWiseRejectionBreakdown_Report.filter(x => x.TotalDefectQty > 0), function (l, m) {
+                                    rejectionTr = rejectionTr + '<tr><td>' + m.DefectName + ' =' +
+                                        '<input type="hidden" class="tdBreakdownID" value=' + m.BreakdownID + '>' +
+                                        '<input type="hidden" class="tdDefectID" value=' + m.DefectID + '>' +
+                                        '<input type="hidden" class="tdDefectName" value="' + m.DefectName + '">' +
+                                        '</td>' +
+                                        '<td>' + m.TotalDefectQty + ' Pcs.</td></tr>';
+                                    grandTotalDefectQty = grandTotalDefectQty + m.TotalDefectQty;
+                                });
+
+                                $("#tblOrderRejectionBreakdown tbody").html(rejectionTr);
+                                $("#tblOrderRejectionBreakdown tfoot").html('<tr><td><b>Total</b></td><td><b>' + grandTotalDefectQty + ' Pcs. (' + ((grandTotalDefectQty * 100) / data.InspectionPcs).toFixed(2) + ' %)</b></td></tr>');
+
+                                $("#tdCPM").html(data.ConsumptionSheetCM.CPM);
+                                $("#tdSMV").html(data.ConsumptionSheetCM.SMV);
+                                $("#tdEfficiency").html( data.ConsumptionSheetCM.Efficiency+" %");
+                                $("#tdQuotationCM").html("$" + data.ConsumptionSheetCM.QuotationCM);
+                                if (data.ConsumptionSheetCM.SMVCM > data.ConsumptionSheetCM.QuotationCM) {
+                                    $("#tdQuotationCM").css('color', 'red');
+                                }
+                                $("#tdSMVCM").html("$" + data.ConsumptionSheetCM.SMVCM);
+                                //
+                                $("#hdnALGOCM").val(data.ConsumptionSheetCM.ALGOCM);
+                                $("#hdnAdditionalFabricValue").val(data.ConsumptionSheetCM.AdditionalFabricValue);
+                                $("#hdnTotalOrderQty").val(data.ConsumptionSheetCM.TotalOrderQty);
+
+
+                                $("#tdALGOCM").val(data.ConsumptionSheetCM.ALGOCM);
+                                if (data.ConsumptionSheetCM.SMVCM > data.ConsumptionSheetCM.ALGOCM) {
+                                    $("#tdALGOCM").css('color', 'red');
+                                }
+
+                                if (data.ConsumptionSheetCM.AdditionalFabricQty > 0) {
+                                    $("#tdAdditionalFabricText").text('Additional Fabric Value = $' + Math.abs(data.ConsumptionSheetCM.AdditionalFabricValue) + ' ($' + data.ConsumptionSheetCM.FabricCostPerKG + ' * ' + Math.abs(data.ConsumptionSheetCM.AdditionalFabricQty) + ' KG)');
+                                } else {
+                                    $("#tdAdditionalFabricText").text('Saved Fabric Value = $' + Math.abs(data.ConsumptionSheetCM.AdditionalFabricValue) + ' ($' + data.ConsumptionSheetCM.FabricCostPerKG + ' * ' + Math.abs(data.ConsumptionSheetCM.AdditionalFabricQty) + ' KG)');
+                                }
+
+                                $("#tdAdditionalFabric").html();
+                                //$("#tdTotalOrderQty").html( data.ConsumptionSheetCM.TotalOrderQty+" Pcs.");
+                                $("#tdReviseCM").html(data.ConsumptionSheetCM.ReviseCM);
+
+
+                            } else {
+
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+
+
+                $("#btnExcel").click(function () {
+                    let tableList = new Array();
+                    var excelTable1 = {
+                        TableId: "tblOrderShipping",
+                        Position: "First"
+                    }
+                    var excelTable2 = {
+                        TableId: "tblOrderInfo",
+                        Position: "Bottom"
+                    }
+                    var excelTable3 = {
+                        TableId: "tblGeneralInfo",
+                        Position: "Bottom"
+                    }
+                    var excelTable4 = {
+                        TableId: "tblOrderDetail",
+                        Position: "Bottom"
+                    }
+                    var excelTable5 = {
+                        TableId: "tblOrderRejectionBreakdown",
+                        Position: "Bottom"
+                    }
+                    var excelTable6 = {
+                        TableId: "tblOrderCM",
+                        Position: "Bottom"
+                    }
+                    var excelTable7 = {
+                        TableId: "tblConsumptions",
+                        Position: "Bottom"
+                    }
+                    var excelTable8 = {
+                        TableId: "tblOrderAdditionalInfo",
+                        Position: "Bottom"
+                    }
+                    tableList.push(excelTable1);
+                    tableList.push(excelTable2);
+                    tableList.push(excelTable3);
+                    tableList.push(excelTable4);
+                    tableList.push(excelTable5);
+                    tableList.push(excelTable6);
+                    tableList.push(excelTable7);
+                    tableList.push(excelTable8);
+
+                    fnHtmlToExcelCuttingReport(tableList);
+                });
+
+                //$("#Color").change(function () {
+                //    let orderID = $("#OrderID").val();
+                //    let orderNo = $("#OrderID option:selected").text();
+                //    let color = $("#Color").val();
+                //    if (orderID != "" && color != "") {
+                //        $.ajax({
+                //            type: 'GET',
+                //            contentType: "application/json; charset=utf-8",
+                //            url: '/LotWiseCutting/GetConsumptionSheetReport',
+                //            data: { orderID: orderID, orderNo: orderNo, color: color },
+                //            dataType: 'json',
+                //            async: false,
+                //            success: function (data) {
+                //                let shippingTr = '';
+                //                let orderDetailTr = '';
+                //                if (data != null) {
+                //                    let totalActualODQ = 0;
+                //                    let totalAlgoQty = 0;
+                //                    let totalBatchDeliveryQty = 0;
+                //                    let totalKnittingDeliveryQty = 0;
+                //                    let totalKnittingDeliveryBalance = 0;
+                //                    let totalReqFinishFabric = 0;
+                //                    let totalDyeingDeliveryQty = 0;
+                //                    let totalDyeingDeliveryBalance = 0;
+                //                    $.each(data.OrderShippingInfo, function (i, v) {
+                //                        shippingTr = shippingTr +
+                //                            '<tr>' +
+                //                            '<td>' + v.ActualODQ + ' Pcs.</td><td>' + v.ExportDate + '</td><td>' + v.ExportWeek + '</td><td>' + v.AlgoQty + '</td>' +
+                //                            '<td>' + v.BatchDeliveryQty + '</td><td>' + v.KnittingDeliveryQty + '</td><td>' + v.KnittingDeliveryBalance + '</td>' +
+                //                            '<td>' + v.ReqFinishFabric + '</td><td>' + v.DyeingDeliveryQty + '</td><td>' + v.DyeingDeliveryBalance + '</td>' +
+                //                            '</tr>';
+                //                        totalActualODQ = totalActualODQ + v.ActualODQ;
+                //                        totalAlgoQty = totalAlgoQty + v.AlgoQty;
+                //                        totalBatchDeliveryQty = totalBatchDeliveryQty + v.BatchDeliveryQty;
+                //                        totalKnittingDeliveryQty = totalKnittingDeliveryQty + v.KnittingDeliveryQty;
+                //                        totalKnittingDeliveryBalance = totalKnittingDeliveryBalance + v.KnittingDeliveryBalance;
+                //                        totalReqFinishFabric = totalReqFinishFabric + v.ReqFinishFabric;
+                //                        totalDyeingDeliveryQty = totalDyeingDeliveryQty + v.DyeingDeliveryQty;
+                //                        totalDyeingDeliveryBalance = totalDyeingDeliveryBalance + v.DyeingDeliveryBalance;
+                //                    });
+                //                    orderDetailTr = '<tr><td>' + data.OrderNo + '</td><td>' + data.Color + '</td><td>' + data.FabricComposition + '</td><td>' + data.GSM + '</td><td>' + data.AlgoQty + ' Pcs.</td><td>' + data.OrderQty + ' Kg</td><td>' + data.YarnInKRS + ' Kg @@' + data.YarnInKRSPercentage + '%</td>' +
+                //                        '<td>' + data.BatchDelivery + ' Kg</td><td>' + data.BatchBalance + ' Kg</td><td>' + data.DyeingPrintQty + ' Kg</td><td>' + data.FinishQty + ' Kg</td><td>' + data.ProcessLoss + '%</td><td>' + data.DyeingBalance + ' Kg</td><td>' + data.FinishQtyFromBalance + ' Kg</td>' +
+                //                        '<td>' + data.DeliveryShort + ' Kg</td><td>' + data.CuttingShort + ' Pcs.</td><td>' + data.TotalDeliveryWillBe + ' Kg</td>' +
+                //                        '</tr>';
+
+                //                    $("#tblOrderShipping tbody").html(shippingTr);
+                //                    $("#tblOrderShipping tfoot").html('<tr><td>' + totalActualODQ + ' Pcs.</td><td></td><td>Total</td><td>' + totalAlgoQty + ' Pcs.</td><td>' + totalBatchDeliveryQty + ' Kg</td><td>' + totalKnittingDeliveryQty + ' Kg</td><td>' + totalKnittingDeliveryBalance + ' Kg</td><td>' + totalReqFinishFabric + ' Kg</td><td>' + totalDyeingDeliveryQty + ' Kg</td><td>' + totalDyeingDeliveryBalance + ' Kg</td></tr>');
+                //                    $("#tblOrderInfo tbody").html(orderDetailTr);
+
+                //                    $("#tdPOOrderQty").html(data.AlgoQty + ' Pcs.');
+                //                    $("#tdSewingInputReq").html(data.SewingInputValue + ' Pcs.');
+                //                    $("#tdCuttingQty").html(data.CuttingQty + ' Pcs.');
+                //                    $("#tdPanelReject").text(data.PanelRejectPcs + ' Pcs.');
+                //                    $("#tdPanelRejectPercentage").text(data.PanelRejectPercentage + ' %');
+                //                    $("#tdTotalInspectionQty").html(data.InspectionPcs + ' Pcs.');
+                //                    $("#tdActualCutting").html(data.ActualCuttingInput + ' Pcs.');
+                //                    $("#tdInputBalWithRej").html(data.InputBalanceWithReject + ' Pcs.');
+                //                    $("#tdCuttingReqWithRej").html(data.TotalCuttingReqWithReject + ' Pcs.');
+                //                    $("#tdCuttingProgress").html(data.CuttingProgress + ' Kg.');
+                //                    $("#tdFinishFabReq").html(data.TotalFinishFabricMayRequired + ' Kg');
+                //                    $("#tdBatchDeliveryReq").html(data.TotalBatchDeliveryRequired + ' Kg');
+                //                    $("#tdTotalFinishFabricUsed").html(data.TotalFinishFabricUsed + ' Kg');
+
+                //                    $("#tdCostingCons").html(data.CostingConsumptionPerPiece + ' Kg/Pcs.');
+                //                    $("#tdBookingCons").html(data.BookingConsumptionPerPiece + ' Kg/Pcs.');
+                //                    $("#tdCuttingCons").html(data.CuttingConsumptionPerPiece + ' Kg/Pcs.');
+                //                    $("#tdFinalCons").html(data.FinalConsumptionPerPiece + ' Kg/Pcs.');
+
+                //                    let rejectionTr = '';
+                //                    let grandTotalDefectQty = 0;
+                //                    $.each(data.OrderColorWiseRejectionBreakdown_Report.filter(x => x.TotalDefectQty > 0), function (l, m) {
+                //                        rejectionTr = rejectionTr + '<tr><td>' + m.DefectName + ' =' +
+                //                            '<input type="hidden" class="tdBreakdownID" value=' + m.BreakdownID + '>' +
+                //                            '<input type="hidden" class="tdDefectID" value=' + m.DefectID + '>' +
+                //                            '<input type="hidden" class="tdDefectName" value="' + m.DefectName + '">' +
+                //                            '</td>' +
+                //                            '<td>' + m.TotalDefectQty + ' Pcs.</td></tr>';
+                //                        grandTotalDefectQty = grandTotalDefectQty + m.TotalDefectQty;
+                //                    });
+
+                //                    $("#tblOrderRejectionBreakdown tbody").html(rejectionTr);
+                //                    $("#tblOrderRejectionBreakdown tfoot").html('<tr><td>Total</td><td>' + grandTotalDefectQty + ' Pcs. (' + ((grandTotalDefectQty * 100) / data.InspectionPcs).toFixed(2) + ' %)</td></tr>');
+
+
+                //                    $("#tdSMVCM").html("$" + data.ConsumptionSheetCM.SMVCM);
+                //                    $("#tdALGOCM").html("$" + data.ConsumptionSheetCM.ALGOCM);
+                //                    if (data.ConsumptionSheetCM.AdditionalFabricQty > 0) {
+                //                        $("#tdAdditionalFabricText").text('Additional Fabric Value =');
+                //                    } else {
+                //                        $("#tdAdditionalFabricText").text('Saved Fabric Value =');
+                //                    }
+
+                //                    $("#tdAdditionalFabric").html("$" + data.ConsumptionSheetCM.AdditionalFabricValue + '( $' + data.ConsumptionSheetCM.FabricCostPerKG + '*' + Math.abs(data.ConsumptionSheetCM.AdditionalFabricQty) + ' KG)');
+                //                    //$("#tdTotalOrderQty").html( data.ConsumptionSheetCM.TotalOrderQty+" Pcs.");
+                //                    $("#tdReviseCM").html("$" + data.ConsumptionSheetCM.ReviseCM);
+
+
+                //                } else {
+
+                //                }
+                //            },
+                //            error: function (request, status, error) {
+                //                alert(request.statusText + "/" + request.statusText + "/" + error);
+                //            }
+                //        });
+                //    } else {
+                //        //clearForm();
+
+                //    }
+                //});
+                //$("#btnSave").click(function () {
+
+                //    let orderID = $("#OrderID").val();
+                //    let orderNo = $("#OrderID option:selected").text();
+                //    let pantoneNo = $("#Color").val();
+                //    let inspectionPcs = $("#tdTotalInspectionQty").val();
+                //    let panelRejectPcs = $("#tdPanelReject").val();
+                //    let panelRejectPercentage = $("#tdPanelRejectPercentage").val();
+                //    let totalFinishFabricUsed = $("#tdTotalFinishFabricUsed").val();
+
+                //    let userInput = {
+                //        OrderID: orderID,
+                //        OrderNo: orderNo,
+                //        PantoneNo: pantoneNo,
+                //        InspectionPcs: inspectionPcs,
+                //        PanelRejectPcs: panelRejectPcs,
+                //        PanelRejectPercentage: panelRejectPercentage,
+                //        TotalFinishFabricUsed: totalFinishFabricUsed
+                //    }
+
+                //    let rejectBreakdown = new Array();
+                //    debugger;
+                //    $("#tblOrderRejectionBreakdown tbody tr").each(function () {
+                //        let that = $(this);
+                //        let breakdownID = that.find('.tdBreakdownID').val();
+                //        let defectID = that.find('.tdDefectID').val();
+                //        let defectName = that.find('.tdDefectName').val();
+                //        let totalDefectQty = that.find('.tdTotalDefectQty').val();
+                //        let reject = {
+                //            BreakdownID: breakdownID,
+                //            OrderID: orderID,
+                //            OrderNo: orderNo,
+                //            PantoneNo: pantoneNo,
+                //            DefectID: defectID,
+                //            DefectName: defectName,
+                //            TotalDefectQty: totalDefectQty
+                //        }
+                //        rejectBreakdown.push(reject);
+                //    });
+
+                //    let updateModel = {
+                //        ConsumptionSheetUserInputs: userInput,
+                //        OrderColorWiseRejectionBreakdown_Report: rejectBreakdown
+                //    }
+
+                //    $.ajax({
+                //        type: 'POST',
+                //        url: '/LotWiseCutting/LotWiseCuttingInfoUpdate',
+                //        data: { updateModel: updateModel },
+                //        dataType: 'json',
+                //        async: false,
+                //        success: function (data) {
+                //            if (data.result == 1) {
+                //                $.alert.open('success', data.message);
+                //                clearForm();
+                //            } else {
+                //                $.alert.open('error', data.message);
+                //            }
+                //        },
+                //        error: function (request, status, error) {
+                //            alert(request.statusText + "/" + request.statusText + "/" + error);
+                //        }
+                //    });
+                //});
+            });
+    </script>
+</body>
+</html>
+
+
+

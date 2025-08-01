@@ -1,0 +1,405 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="BuyerName" xml:space="preserve">
+    <value>Buyer Name</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Code1" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="CodePH" xml:space="preserve">
+    <value>Code ...</value>
+  </data>
+  <data name="Collection" xml:space="preserve">
+    <value>Collection</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>Contact Person</value>
+  </data>
+  <data name="ContactPersonPhoneNo" xml:space="preserve">
+    <value>Contact Person PhoneNo</value>
+  </data>
+  <data name="ConvertedUnit" xml:space="preserve">
+    <value>Converted Unit</value>
+  </data>
+  <data name="ConvertedUnitPH" xml:space="preserve">
+    <value>Converted Unit ...</value>
+  </data>
+  <data name="CountryName" xml:space="preserve">
+    <value>Country Name</value>
+  </data>
+  <data name="CurrencyType" xml:space="preserve">
+    <value>Currency Type</value>
+  </data>
+  <data name="CurrencyTypePH" xml:space="preserve">
+    <value>Currency Type ...</value>
+  </data>
+  <data name="DateOfBirth" xml:space="preserve">
+    <value>Date Of Birth</value>
+  </data>
+  <data name="DateOfJoin" xml:space="preserve">
+    <value>Date Of Join</value>
+  </data>
+  <data name="DatePH" xml:space="preserve">
+    <value>MM/DD/YYYY ...</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="DescriptionPH" xml:space="preserve">
+    <value>Description ....</value>
+  </data>
+  <data name="DesFYCI" xml:space="preserve">
+    <value>DescriptionFYCI .....</value>
+  </data>
+  <data name="Design" xml:space="preserve">
+    <value>Design</value>
+  </data>
+  <data name="Designation" xml:space="preserve">
+    <value>Designation</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EquivalentQuantity" xml:space="preserve">
+    <value>Equivalent Quantity</value>
+  </data>
+  <data name="EquivalentQuantityPH" xml:space="preserve">
+    <value>Equivalent Quantity ...</value>
+  </data>
+  <data name="ErrEngNotAllowed" xml:space="preserve">
+    <value>English letters not allowed</value>
+  </data>
+  <data name="ErrSpecCharNotAllowed" xml:space="preserve">
+    <value>Special character not allowed (#, @ ...)</value>
+  </data>
+  <data name="EstimatedDate" xml:space="preserve">
+    <value>Estimated Date</value>
+  </data>
+  <data name="Fabric" xml:space="preserve">
+    <value>Fabric</value>
+  </data>
+  <data name="FabricCategoryName" xml:space="preserve">
+    <value>Fabric Category Name</value>
+  </data>
+  <data name="FabricTypeName" xml:space="preserve">
+    <value>Fabric Type Name</value>
+  </data>
+  <data name="FabricYarnCompositionName" xml:space="preserve">
+    <value>Fabric YarnComposition Name</value>
+  </data>
+  <data name="Fax" xml:space="preserve">
+    <value>Fax Number</value>
+  </data>
+  <data name="GarmentCategoryName" xml:space="preserve">
+    <value>Garment CategoryName</value>
+  </data>
+  <data name="GarmentCode" xml:space="preserve">
+    <value>Garment Code</value>
+  </data>
+  <data name="GarmentType" xml:space="preserve">
+    <value>Garment Type</value>
+  </data>
+  <data name="GarmentTypeName" xml:space="preserve">
+    <value>Garment TypeName</value>
+  </data>
+  <data name="GProTypeName" xml:space="preserve">
+    <value>Gender Wise ProductType Name</value>
+  </data>
+  <data name="HasChild" xml:space="preserve">
+    <value>Has Child</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="IncomeTaxAccount" xml:space="preserve">
+    <value>I.Tax Acc</value>
+  </data>
+  <data name="IncomeTaxAmount" xml:space="preserve">
+    <value>I.Tax Amt</value>
+  </data>
+  <data name="IncomeTaxPercentage" xml:space="preserve">
+    <value>I.Tax %</value>
+  </data>
+  <data name="LabelClassification" xml:space="preserve">
+    <value>Label Classification</value>
+  </data>
+  <data name="LabelType" xml:space="preserve">
+    <value>Label Type</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="LengthPH" xml:space="preserve">
+    <value>Length ...</value>
+  </data>
+  <data name="Material" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="Measurement" xml:space="preserve">
+    <value>Measurement</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Name1" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="NamePH" xml:space="preserve">
+    <value>Name ...</value>
+  </data>
+  <data name="NameUc" xml:space="preserve">
+    <value>Name (BN)</value>
+  </data>
+  <data name="NameUcPH" xml:space="preserve">
+    <value>Name (BN) ...</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="NoOfPatternPieces" xml:space="preserve">
+    <value>No of Pattern Pieces</value>
+  </data>
+  <data name="Phone1" xml:space="preserve">
+    <value>Phone 1</value>
+  </data>
+  <data name="Phone2" xml:space="preserve">
+    <value>Phone 2</value>
+  </data>
+  <data name="PhoneCode" xml:space="preserve">
+    <value>Phone Code</value>
+  </data>
+  <data name="PhoneCodePH" xml:space="preserve">
+    <value>Phone Code ...</value>
+  </data>
+  <data name="PleaseSelect" xml:space="preserve">
+    <value>Please Select</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Prefix</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="ProductSize" xml:space="preserve">
+    <value>Product Size</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Season" xml:space="preserve">
+    <value>Season</value>
+  </data>
+  <data name="SeasonPH" xml:space="preserve">
+    <value>Season ...</value>
+  </data>
+  <data name="Sector" xml:space="preserve">
+    <value>Sector</value>
+  </data>
+  <data name="Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="SeriesBasis" xml:space="preserve">
+    <value>Series Basis</value>
+  </data>
+  <data name="SeriesPH" xml:space="preserve">
+    <value>Series ...</value>
+  </data>
+  <data name="SizeRangeTypeName" xml:space="preserve">
+    <value>Size Range TypeName</value>
+  </data>
+  <data name="SortOrder" xml:space="preserve">
+    <value>Sort Order</value>
+  </data>
+  <data name="StateName" xml:space="preserve">
+    <value>State Name</value>
+  </data>
+  <data name="StateNamePH" xml:space="preserve">
+    <value>State Name</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="TrimCategory" xml:space="preserve">
+    <value>Trim Category</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="UserCode" xml:space="preserve">
+    <value>User Code</value>
+  </data>
+  <data name="UserCodePH" xml:space="preserve">
+    <value>User Code</value>
+  </data>
+  <data name="VatAccount" xml:space="preserve">
+    <value>V.A.T Acc</value>
+  </data>
+  <data name="VatAmount" xml:space="preserve">
+    <value>V.A.T Amt</value>
+  </data>
+  <data name="VatPercentage" xml:space="preserve">
+    <value>V.A.T %</value>
+  </data>
+  <data name="Vendor" xml:space="preserve">
+    <value>Vendor</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="WidthPH" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="YearPH" xml:space="preserve">
+    <value>Year</value>
+  </data>
+</root>

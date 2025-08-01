@@ -1,0 +1,82 @@
+﻿@using RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel;
+@model RTEXERP.Contracts.Common.RResult<ChemicalStockSPModel>
+@{
+    ViewData["Title"] = "Chemical Item Details";
+    ViewData["pageTitle"] = "Chemical Item Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int i = 1;
+    bool hasData = Model.modelObjectList != null ? true : false;
+    decimal RunningSum = 0;
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive" id="yarn-stock-onDate">
+            @if (hasData == true)
+            {
+                <table class="table table-sm table-bordered table-striped" style="font-size:11px;">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Item</th>
+                            <th>Supplier</th>
+                            <th>Received <br /> Date</th>
+                            <th>Received <br /> Quantity</th>
+                            <th>Issued <br /> Date</th>
+                            <th>Issued <br /> Quantity</th>
+                            <th>Running <br /> Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model.modelObjectList)
+                        {
+                            
+                            @if (item.SupplierName == "Opening")
+                            {
+                                RunningSum = item.OpQuantity;
+                                <tr style="font-size:13px;font-weight:bold;background:#d4d258">
+                                    <th>#</th>
+                                    <th colspan="2">@item.ItemName</th>
+                                    <th colspan="1">@item.ReceivedDateST</th>
+                                    <th colspan="1">@item.OpQuantity</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th colspan="1">@item.OpQuantity</th>
+                                </tr>
+                            }
+                            else
+                            {
+                                RunningSum += item.RCVQuantity - item.IssueQuantity;
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@item.ItemName</td>
+                                    <td>@item.SupplierName</td>
+                                    <td>@item.ReceivedDateST</td>
+                                    <td>@item.RCVQuantity</td>
+                                    <td>@item.IssueDateST</td>
+                                    <td>@item.IssueQuantity</td>
+                                    @*<td>@item.IssueDateST</td>
+                                    <td>@item.IssueQuantity</td>*@
+                                    <td style="background:#f1c977">@String.Format("{0:n}", RunningSum)</td>
+                                </tr>
+                                    i = i + 1;
+                                }
+                            }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <h5>No Data found or Found problem</h5>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+

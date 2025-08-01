@@ -1,0 +1,433 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.PurchaseOrderReport
+@{
+    ViewData["Title"] = "Order Wise Stock Status";
+    ViewData["pageTitle"] = "Order Wise Stock Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+@*Bangladesh*@
+    <style type="text/css">
+        .tableFixHead {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+            .tableFixHead thead {
+                position: sticky;
+                top: 0;
+                background: #eee;
+            }
+
+        /* Just common table stuff. Really. */
+        /*table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {*/
+        /*padding: 8px 16px;*/
+        /*}
+
+        th {
+        }*/
+        .txtAlignCenter {
+            text-align: center;
+        }
+    </style>
+@section scripts{
+    <script>
+
+        function GetBusinessByCompany(CompanyId) {
+
+            GenerateDropDown("CommonDropDown", "ddlBusiness", { "CompanyId": CompanyId }, "BusinessID", "");
+        }
+        function GetBuyerWiseOrder() {
+          //  var DateFrom = $("#DateFrom").val();
+          //  var DateTo = $("#DateTo").val();
+            var BuyerID = $("#BuyerID").val();
+
+            var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID}, "");
+            $("#OrderID").html(dropDownOption);
+            $('#OrderID').trigger("chosen:updated");
+ 
+        }
+        function GetPurchaseOrderWiseStock(reportFormat) {
+             debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var companyID = $("#CompanyID").val();
+            var businessID = $("#BusinessID").val();
+            var MRPItemCode = $("#MRPItemCode").val();
+            var OrderID = $("#OrderID").val();
+            var ReportType = $("#ReportType").val();
+            let WithAllTransaction = 0;
+            if($('#WithAllTransaction').is(":checked"))
+            {
+                WithAllTransaction = 1;
+            }
+            if (!companyID) {
+                companyID = 0;
+            }
+            if (!businessID) {
+                businessID = 0;
+            }
+            if (!MRPItemCode) {
+                MRPItemCode = 0;
+            }
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            if (!OrderID) {
+                OrderID = 0;
+            }
+            //DateFrom, DateTo, int CompanyID,  BusinessID, ReportFormat
+            if (ReportType == 1) {
+                window.open("/CostCenterReport/ItemWiseOrderStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode + "&OrderID=" + OrderID + "&WithAllTransaction=" + WithAllTransaction + "&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+            }
+            if (ReportType == 2) {
+                window.open("/CostCenterReport/PurchaseOrderWiseStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode +"&OrderID="+OrderID+ "&WithAllTransaction=" + WithAllTransaction + "&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+            }
+            else if (ReportType == 3){
+                window.open("/CostCenterReport/PurchaseOrder_IndividualStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode + "&OrderID=" + OrderID + "&WithAllTransaction=" + WithAllTransaction+"&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+            }
+        return false;
+        }
+        //function PurchaseOrderWiseIndividualStockView(DateFrom, DateTo, companyID, businessID, MRPItemCode, WithAllTransaction) {
+        //    $.ajax({
+        //        type: 'GET',
+        //        url: '/CostCenterReport/GetPurchaseOrderWiseStock',
+        //        data: { "DateFrom": DateFrom, "DateTo": DateTo, "MrpItemCode": MRPItemCode, "CompanyID": companyID, "BusinessID": businessID, "WithAllTransaction": WithAllTransaction },
+        //        dataType: 'json',
+        //        async: false,
+        //        success: function (data) {
+        //            debugger;
+        //            if (data.length > 0) {
+        //                $.each(data, function (i, v) {
+        //                    $("#tBodyOrderWiseItemStock").append(
+        //                        '<tr>' +
+        //                        '<td class="txtAlignCenter">' + (i + 1) + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.BuyerName + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.PurchaseOrderNo + '</td>' +
+        //                        '<td class="txtAlignCenter"><a target="_blank" href="/CostCenterReport/IndividuaPOItemDetails?BuyerID=' + v.BuyerID + '&DateFrom=' + DateFrom + ' &DateTo=' + DateTo + '&MrpItemCode=' + MRPItemCode + '&CompanyID=' + companyID + '&BusinessID=' + businessID + '&WithAllTransaction=' + WithAllTransaction + '&AttributeInstanceID=' + v.AttributeInstanceID + '&WithAllTransaction=' + WithAllTransaction + '" title="Details">' + v.MRPItem + '</a></td>' +
+        //                        '<td class="txtAlignCenter">' + v.Measurment + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.Unit + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.OpeningQty + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.OpeningQtyValue + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.CurrentReceiveQty + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.CurrentReceiveValue + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.CurrentIssuedQty + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.CurrentIssuedValue + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.ClosingQuantity + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.ClosingValue + '</td>' +
+        //                        '<td class="txtAlignCenter">' + v.Rate + '</td>' +
+        //                        '</tr>'
+        //                    );
+        //                });
+        //                $("#divOrderWiseItemStock").show();
+        //            } else {
+        //                alert("No data found in given date duration");
+        //            }
+        //        },
+        //        error: function (request, status, error) {
+        //            alert(request.statusText + "/" + request.statusText + "/" + error);
+        //        }
+        //    });
+        //}
+
+        function PurchaseOrderWiseIndividualStockView(DateFrom, DateTo, companyID, businessID, MRPItemCode, WithAllTransaction) {
+            $.ajax({
+                type: 'GET',
+                url: '/CostCenterReport/Get_Individual_PO_ItemStock',
+                data: { "DateFrom": DateFrom, "DateTo": DateTo, "MrpItemCode": MRPItemCode, "CompanyID": companyID, "BusinessID": businessID, "WithAllTransaction": WithAllTransaction },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    debugger;
+                    if (data.length > 0) {
+                        $.each(data, function (i, v) {
+                            $("#tBodyIndividualItemStock").append(
+                                '<tr>' +
+                                '<td class="txtAlignCenter">' + (i + 1) + '</td>' +
+                                '<td class="txtAlignCenter">' + v.BuyerName + '</td>' +
+                                '<td class="txtAlignCenter">' + v.PurchaseOrderNo + '</td>' +
+                                '<td class="txtAlignCenter"><a target="_blank" href="/CostCenterReport/IndividuaPOItemDetails?BuyerID=' + v.BuyerID + '&DateFrom=' + DateFrom + ' &DateTo=' + DateTo + '&MrpItemCode=' + MRPItemCode + '&CompanyID=' + companyID + '&BusinessID=' + businessID + '&WithAllTransaction=' + WithAllTransaction+'&AttributeInstanceID=' + v.AttributeInstanceID + '&WithAllTransaction=' + WithAllTransaction + '" title="Details">' + v.MRPItem + '</a></td>' +
+                                '<td class="txtAlignCenter">' + v.Measurment + '</td>' +
+                                '<td class="txtAlignCenter">' + v.Unit + '</td>' +
+                                '<td class="txtAlignCenter">' + v.OpeningQty + '</td>' +
+                                '<td class="txtAlignCenter">' + v.OpeningQtyValue + '</td>' +
+                                '<td class="txtAlignCenter">' + v.CurrentReceiveQty + '</td>' +
+                                '<td class="txtAlignCenter">' + v.CurrentReceiveValue + '</td>' +
+                                '<td class="txtAlignCenter">' + v.CurrentIssuedQty + '</td>' +
+                                '<td class="txtAlignCenter">' + v.CurrentIssuedValue + '</td>' +
+                                '<td class="txtAlignCenter">' + v.ClosingQuantity + '</td>' +
+                                '<td class="txtAlignCenter">' + v.ClosingValue + '</td>' +
+                                '<td class="txtAlignCenter">' + v.Rate + '</td>' +
+                                '</tr>'
+                            );
+                        });
+                        $("#divIndividualItemStock").show();
+                    } else {
+                        alert("No data found in given date duration");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#OrderID").chosen();
+
+            $("#CompanyID").change(function () {
+                var companyID = $("#CompanyID").val();
+                if (companyID != "") {
+                    GetBusinessByCompany(companyID);
+                } else {
+                    $("#BusinessID").html('<option value="">Please Select</option>');
+                }
+
+            })
+            $("#BuyerID").change(function () {
+                GetBuyerWiseOrder();
+            })
+            $("#btnView").click(function () {
+                debugger;
+                $("#divIndividualItemStock").hide();
+                $("#tBodyIndividualItemStock").html('');
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var companyID = $("#CompanyID").val();
+            var businessID = $("#BusinessID").val();
+            var MRPItemCode = $("#MRPItemCode").val();
+            var ReportType = $("#ReportType").val();
+            let WithAllTransaction = 0;
+            if($('#WithAllTransaction').is(":checked"))
+            {
+                WithAllTransaction = 1;
+            }
+            if (!companyID) {
+                companyID = 0;
+            }
+            if (!businessID) {
+                businessID = 0;
+            }
+            if (!MRPItemCode) {
+                MRPItemCode = 0;
+            }
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+               }
+              if (ReportType == 2) {
+                    let poReport = {
+                        DateFrom: DateFrom,
+                        DateTo: DateTo,
+                        CompanyID: companyID,
+                        BusinessID: businessID,
+                        MRPItemCode: MRPItemCode,
+                        WithAllTransaction: WithAllTransaction
+                    };
+
+                    $("#divOrderWiseItemStock").load("/CommonDropDown/GetViewComponent", { viewName: "OrderWiseItemStock", entity: JSON.stringify(poReport) });
+                    //PurchaseOrderWiseStockView(DateFrom, DateTo, companyID, businessID, MRPItemCode, WithAllTransaction);
+                //    window.open("/CostCenterReport/PurchaseOrderWiseStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode + "&WithAllTransaction=" + WithAllTransaction + "&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+                }
+                else if (ReportType == 3) {
+                    PurchaseOrderWiseIndividualStockView(DateFrom, DateTo, companyID, businessID, MRPItemCode, WithAllTransaction);
+                  //  window.open("/CostCenterReport/PurchaseOrder_IndividualStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&CompanyID=" + companyID + "&BusinessID=" + businessID + "&MRPItemCode=" + MRPItemCode + "&WithAllTransaction=" + WithAllTransaction + "&ReportFormat=" + reportFormat, "Stock Status", "status=1,toolbar=0");
+                }
+
+            });
+            $("#ReportType").change(function () {
+                $("#divOrderWiseItemStock").html('');
+                //$("#divOrderWiseItemStock").hide();
+                $("#tBodyIndividualItemStock").html('');
+                $("#divIndividualItemStock").hide();
+
+            });
+
+            $("#btnPdf").click(function () {
+                GetPurchaseOrderWiseStock("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                GetPurchaseOrderWiseStock("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+
+        })
+
+
+
+
+    </script>
+
+}
+
+
+<form asp-action="CostWiseExpanse" asp-controller="CostCenterReport" id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BusinessID" class="label-ajt-sm required"></label>
+                <select asp-for="BusinessID" asp-items="Model.DDLBusiness" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSTR" class="dateField form-control form-control-sm" />
+                
+                @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateToSTR" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="MRPItemCode" class="label-ajt-sm required"></label>
+                <select asp-for="MRPItemCode" asp-items="Model.DDLMRPItem" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="ReportType" class="label-ajt-sm required"></label>
+                <select asp-for="ReportType" asp-items="Model.DDLReportType" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="BuyerID" class="label-ajt-sm required"></label>
+                <select asp-for="BuyerID" asp-items="Model.DDLBuyer" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.DDLOrder" class="form-control form-control-sm"></select>
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="label-ajt-sm form-check-label" style="color:#Fff;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.</label>
+                <input type="checkbox" class="form-check-input" name="WithAllTransaction" id="WithAllTransaction" /> All Transaction
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive" id="divOrderWiseItemStock" style="max-height:500px;">
+            @*<table class="table table-bordered">
+                <thead style="font-size: 11px;">
+                    <tr>
+                        <th rowspan="2" class="txtAlignCenter">Buyer<br />Name</th>
+                        <th rowspan="2" class="txtAlignCenter">Order<br />Number</th>
+                        <th rowspan="2" class="txtAlignCenter">Purchase<br />Order No</th>
+                        <th rowspan="2" class="txtAlignCenter">Item</th>
+                        <th rowspan="2" class="txtAlignCenter">Unit</th>
+                        <th rowspan="2" class="txtAlignCenter">Color /<br/>Measurement</th>
+                        <th colspan="2" class="txtAlignCenter">Opening</th>
+                        <th colspan="2" class="txtAlignCenter">Receive</th>
+                        <th colspan="2" class="txtAlignCenter">Issue</th>
+                        <th colspan="2" class="txtAlignCenter">Closing</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                    
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyOrderWiseItemStock" style="font-size: 11px;">
+                </tbody>
+            </table>*@
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="table-responsive" id="divIndividualItemStock" style="display:none; max-height:500px;">
+            <table class="table table-bordered tableFixHead">
+                <thead style="font-size: 11px;">
+                    <tr>
+                        <th colspan="2"></th>
+                        <th rowspan="2" class="txtAlignCenter">Purchse<br />Order</th>
+                        <th rowspan="2" class="txtAlignCenter">MRP<br />Item</th>
+                        <th colspan="2"></th>
+                        <th colspan="2" class="txtAlignCenter">Opening</th>
+                        <th colspan="2" class="txtAlignCenter">Receive</th>
+                        <th colspan="2" class="txtAlignCenter">Issue</th>
+                        <th colspan="2" class="txtAlignCenter">Closing</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="txtAlignCenter">SL</th>
+                        <th class="txtAlignCenter">Buyer</th>
+                        <th class="txtAlignCenter">Measurement</th>
+                        <th class="txtAlignCenter">Unit</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyIndividualItemStock" style="font-size: 11px;">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+

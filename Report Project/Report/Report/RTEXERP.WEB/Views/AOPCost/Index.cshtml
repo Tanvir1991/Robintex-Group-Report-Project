@@ -1,0 +1,90 @@
+﻿
+@{
+    ViewData["Title"] = "AOP Cost Summary";
+}
+
+    <form  id="AspNetRolesCreate" method="post">
+        @*<div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-control-sm required"> Order No </label>
+                    <select class="form-control form-control-sm" id="OrderId" name="OrderId"></select>
+
+                </div>
+            </div>
+
+        </div>*@
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required"> From :</label>
+                    <input type="date" autocomplete="off" id="DateFrom" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required>
+                    @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="label-ajt-sm required"> To :</label>
+                    <input type="date" autocomplete="off" id="DateTo" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control form-control-sm " required>
+
+                    @*<span asp-validation-for="EstimatedDate" class="text-danger"></span>*@
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+<script type="text/javascript">
+            function ShowReport(reportFormat) {
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var ComapnyId = $("#company").val();
+            var CostCenterId = $("#ddlcost").val();
+            var ActivityId = $("#ddlCOAAcc").val();
+            var VoucherType = $("#VoucherType").val();
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            if (!ComapnyId) {
+                ComapnyId = 0;
+            }
+            if (!CostCenterId) {
+                CostCenterId = 0
+            }
+            if (!ActivityId) {
+                ActivityId = 0;
+            }
+            window.open("/AOPCost/GETAOPCostSummary?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ReportFormat=" + reportFormat,"AOP Cost Summary","status=1,toolbar=0");
+  return false;
+
+        }
+    $(function () {
+        $("#btnPdf").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+    });
+    
+</script>

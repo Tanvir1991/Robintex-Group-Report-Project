@@ -1,0 +1,151 @@
+﻿@model RTEXERP.Contracts.BLModels.EMBRO.ExportInvoiceAdjustmentListViewModel
+@{
+    ViewData["Title"] = "Invoice Adjustment";
+    ViewData["pageTitle"] = "Invoice Adjustment";
+}
+ 
+@section scripts{
+    <script>
+
+        function getDataList() {
+            const ExportInvoiceTypeID = $("#ExportInvoiceTypeID").val();
+            const CompanyID = $("#CompanyID").val();
+            const DateFrom = $("#DateFrom").val();
+            const DateTo = $("#DateTo").val();
+            const param = {
+                ExportInvoiceTypeID: ExportInvoiceTypeID,
+                CompanyID: CompanyID, 
+                DateFrom: DateFrom,
+                DateTo: DateTo
+            };
+            let datamodel = { model: param };
+            $.ajax({
+                type: 'POST',
+               // contentType: "application/json; charset=utf-8",
+                url: '/BankPaymentVoucher/GetExportInvoiceAdjustmentList',
+                data: datamodel,
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data != null && data.length > 0) {
+                        let tr = "";
+                        $.each(data, function (id, option) {
+                            tr += "<tr>";
+                            tr += `<td>${id + 1}</td>`;
+                            tr += `<td>${option.AdjustmentNo}</td>`;
+                            tr += `<td>${option.AdjustmentDate}</td>`;
+                            tr += `<td>${option.ChequeNumber}</td>`;
+                            
+                            tr += `<td>${option.VoucherNumber}</td>`;
+                            tr += `<td>${option.VoucherDate}</td>`;
+                            tr += `<td>${option.Amount}</td>`;
+                            tr += `<td><a target="_blank" class="btn btn-xs btn-danger" href="/BankPaymentVoucher/GetExportInvoiceAdjustmentInfoReport?AdjustmentID=${option.AdjustmentID}&ExportInvoiceTypeID=${ExportInvoiceTypeID}&ReportFormat=PDF" class="btn btn-danger">PDF</a>|`;
+                            tr += `<a target="_blank" class="btn btn-xs btn-danger" href="/BankPaymentVoucher/GetExportInvoiceAdjustmentInfoReport?AdjustmentID=${option.AdjustmentID}&ExportInvoiceTypeID=${ExportInvoiceTypeID}&ReportFormat=EXCEL" class="btn btn-primary">Excel</a></td >`;
+                            tr += "</tr>";
+
+                        });
+                        $("#tblAdjustmentList tbody").html(tr);
+                    }
+                    else {
+                        $("#tblAdjustmentList tbody").html("");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+
+        }
+
+        $(document).ready(function () {
+            getDataList();
+            $("#CompanyID").change(function () {
+                location.href = "/BankPaymentVoucher/ExportInvoiceAdjustmentList?CompanyID=" + $("#CompanyID").val();
+            });
+          $("#btnSubmit").click(function () {
+              getDataList();
+
+            });
+          $("#btnExcel").click(function () {
+                BlanceYrnLotReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+         
+         
+        }) 
+    </script>
+
+}
+
+
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ExportInvoiceTypeID" class="label-ajt-sm required"></label>
+                <select asp-for="ExportInvoiceTypeID" asp-items="Model.DDLExportInvoiceType" class="form-control form-control-sm"></select>
+                <span asp-validation-for="ExportInvoiceTypeID" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" class="form-control form-control-sm dateField" value="@Model.DateFromSTR" autocomplete="off" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo" class="form-control form-control-sm dateField" value="@Model.DateToSTR" autocomplete="off" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+
+        </div>
+    </div>
+     
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSubmit">Show</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-sm-12">
+            <table class="table table-sm table-bordered table-striped" id="tblAdjustmentList">
+                <thead class="">
+                    <tr>
+                        <td>SL#</td>
+                        <td>Adjustment No.</td>
+                        <td>Adjustment Date</td>
+                        <td>Cheque Number</td>
+                        <td>Voucher Number</td>
+                        <td>Voucher Date</td>
+                        <td>Amount</td>
+                        <td>Report</td>
+                    </tr>
+
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+
+
+

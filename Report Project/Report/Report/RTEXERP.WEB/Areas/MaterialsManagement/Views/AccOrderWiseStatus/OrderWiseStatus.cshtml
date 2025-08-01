@@ -1,0 +1,103 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.AccOrderWiseStatusViewModel
+@{
+    ViewData["Title"] = "Order Finish Fabric to left over";
+    ViewData["pageTitle"] = "Order Finish Fabric to left over";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<form id="frmAccountOrderWiseStatus">
+    <input type="hidden" asp-for="ID" />
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="BuyerID" class="label-ajt-sm required"></label>
+                <select asp-for="BuyerID" asp-items="Model.BuyerList" class="form-control form-control-sm select2Filter"></select>
+
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.OrderList" class="form-control form-control-sm select2Filter"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSTR" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateToSTR" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-2 text-left">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                @*<button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>*@
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{ 
+    <script type="text/javascript">
+         function GetBuyerWiseOrder() {
+            var BuyerID = $("#BuyerID").val();
+            var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID, "DateFrom": '@DateTime.Now.AddYears(-5)' }, "");
+            $("#OrderID").html(dropDownOption);
+        }
+
+        function GetAccountOrderWiseStatus(reportFormat) {
+            debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var OrderID = $("#OrderID").val();
+            var BuyerID = $("#BuyerID").val();
+
+            window.open("/MaterialsManagement/AccOrderWiseStatus/AccountOrderWiseStatusReportPrint?BuyerID="+BuyerID+"&OrderID=" + OrderID + "&DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ReportFormat=" + reportFormat);
+
+            return false;
+        }
+      $(function () {
+        $("#clearDate").click(function () {
+            const dateFrom = $("#DateFrom").val();
+
+            if (!dateFrom) {
+                $("#DateFrom").val('@Model.DateFromSTR')
+                $("#DateTo").val('@Model.DateToSTR')
+            } else {
+                $("#DateFrom").val("")
+                $("#DateTo").val("")
+            }
+        })
+        $("#BuyerID").change(function () {
+            GetBuyerWiseOrder();
+        });
+
+        $("#btnPdf").click(function () {
+                GetAccountOrderWiseStatus("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+        $("#btnExcel").click(function () {
+            GetAccountOrderWiseStatus("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+        });
+    });
+
+
+    </script>
+}

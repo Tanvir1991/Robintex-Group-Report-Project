@@ -1,0 +1,291 @@
+﻿@model RTEXERP.Contracts.BLModels.Materials.YarnLotNo
+
+@{
+    ViewData["Title"] = "Yarn Lot";
+    ViewData["pageTitle"] = "Yarn Lot";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section scripts{
+    <script>
+        function ShowreportType() {
+            $("#tBodyYarnStock").html("");
+            $("#divYarnStock").hide();
+            var rptType = $("#ReportType").val();
+            if (rptType == 1) {
+                $("#divLotNo").show();
+                $("#btnView").hide();
+               
+                $("#divAllTransaction").hide();
+            } else if (rptType == 2) {
+                $("#divLotNo").hide();
+                $("#btnView").show();
+               
+                $("#divAllTransaction").show();
+            }
+        }
+           function GetLotNo() {
+               var DateFrom = $("#DateFrom").val();
+               var DateTo = $("#DateTo").val();
+                if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            GenerateDropDown("CostCenterReport", "getBlanceLotYarn", { "DateFrom": DateFrom,"DateTo": DateTo}, "LotNo", "");
+        }
+
+        function BlanceYrnLotReport(reportFormat) {
+            debugger;
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var lotNo = $("#LotNo").val();
+            var reportType = $("#ReportType").val();
+            var WithAllTransaction = 0;
+            var ShowEmptyClosing = 0
+            if ($('#WithAllTransaction').is(":checked")) {
+                WithAllTransaction = 1;
+            }
+            if ($('#ShowEmptyClosing').is(":checked")) {
+                ShowEmptyClosing = 1;
+            }
+            if (!lotNo) {
+                lotNo = "";
+            }
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+            }
+            if (reportType == 1) {
+                window.open("/CostCenterReport/BlanceYrnLotReport?lotNo=" + lotNo + "&DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&ReportFormat=" + reportFormat, "Blance Yarn Lot", "status=1,toolbar=0");
+            }
+            else if (reportType == 2) {
+                window.open("/CostCenterReport/GetYarnStockReport?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&WithAllTransaction=" + WithAllTransaction + "&ShowEmptyClosing=" + ShowEmptyClosing + "&ReportFormat=" + reportFormat, "Yarn Stock", "status=1,toolbar=0");
+            }
+        return false;
+
+        }
+
+        $(document).ready(function () {
+            ShowreportType();
+            $("#ReportType").change(function () {
+                ShowreportType();
+            });
+
+            $("#btnSubmit").click(function () {
+                BlanceYrnLotReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnExcel").click(function () {
+                BlanceYrnLotReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+
+            });
+
+            $("#DateFrom").change(function () {
+                var rptType = $("#ReportType").val();
+                if (rptType == 1)
+                    GetLotNo();
+            });
+            $("#DateTo").change(function () {
+                var rptType = $("#ReportType").val();
+                if (rptType == 1)
+                    GetLotNo();
+            });
+
+            $("#btnView").click(function () {
+                debugger;
+                var DateFrom = $("#DateFrom").val();
+                var DateTo = $("#DateTo").val();
+                var WithAllTransaction = 0;
+                if ($('#WithAllTransaction').is(":checked")) {
+                    WithAllTransaction = 1;
+                }
+
+
+                if (DateFrom != "" && DateTo != "") {
+                    $.ajax({
+                        type: 'GET',
+                        //contentType: "application/json; charset=utf-8",
+                        url: '/CostCenterReport/GetYarnStock',
+                        data: { "DateFrom": DateFrom, "DateTo": DateTo, "WithAllTransaction": WithAllTransaction},
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.length > 0) {
+                                $.each(data, function (i, v) {
+                                    $("#tBodyYarnStock").append(
+                                        '<tr>' +
+                                        '<td class="txtAlignCenter">' + (i + 1) + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.Supplier + '</td>' +
+                                        '<td class="txtAlignCenter"><a target="_blank" href="/CostCenterReport/YarnLotDetails?LotNo=' + v.LotNo+'" title="Details">' + v.LotNo + '</a></td>' +
+                                        '<td class="txtAlignCenter">' + v.YarnCount + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.YarnComposition + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.opQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.opValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.RcvQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.RCVValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.IssQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.IssValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.ClosingQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.ClosingValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.Rate + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                $("#divYarnStock").show();
+                            } else {
+                                alert("No data found in given date duration");
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $("#tBodyYarnStock").html("");
+                    $("#divYarnStock").hide();
+                }
+            });
+
+        });
+    </script>
+
+}
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+
+        .tableFixHead thead {
+            position: sticky;
+            top: 0;
+            background: #eee;
+        }
+
+    /* Just common table stuff. Really. */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        /*padding: 8px 16px;*/
+    }
+
+    th {
+       
+    }
+
+   
+    .txtAlignCenter {
+        text-align: center;
+    }
+</style>
+
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label asp-for="ReportType" class="label-ajt-sm required"></label>
+                <select asp-for="ReportType" asp-items="Model.DDLReportType" class="form-control form-control-sm"></select>
+                <span asp-validation-for="ReportType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-6" id="divAllTransaction" style="display:none;">
+            <div class="form-check">
+ 
+                @*<label class="label-ajt-sm form-check-label" style="color:#Fff;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;....<br /></label>*@
+                <input type="checkbox" class="form-check-input" name="WithAllTransaction" id="WithAllTransaction" /> All Transaction
+                <br />
+                <input type="checkbox" class="form-check-input" name="ShowEmptyClosing" id="ShowEmptyClosing" /> Show Empty Closing Lot
+
+                @*  <span asp-validation-for="CompanyId" class="text-danger"></span>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFromSt" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateToST" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-4" id="divLotNo" style="display:none;">
+            <div class="form-group">
+                <label asp-for="LotNo" class="label-ajt-sm required"></label>
+                <select asp-for="LotNo" asp-items="Model.DDlLotNo" class="form-control form-control-sm"></select>
+                <span asp-validation-for="LotNo" class="text-danger"></span>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnView" style="display:none">View</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnSubmit">PDF</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive tableFixHead" id="divYarnStock" style="display: none ;max-height:500px;">
+            <table class="table">
+                <thead style="font-size: 12px;">
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th colspan="2" class="txtAlignCenter">Opening</th>
+                        <th colspan="2" class="txtAlignCenter">Receive</th>
+                        <th colspan="2" class="txtAlignCenter">Issue</th>
+                        <th colspan="2" class="txtAlignCenter">Closing</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="txtAlignCenter">SL</th>
+                        <th class="txtAlignCenter">Supplier Name</th>
+                        <th class="txtAlignCenter">Lot No.</th>
+                        <th class="txtAlignCenter">Count</th>
+                        <th class="txtAlignCenter">Yarn Description</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Quantity</th>
+                        <th class="txtAlignCenter">Value</th>
+                        <th class="txtAlignCenter">Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyYarnStock" style="font-size: 11px;">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+</form>
+
+
+
+

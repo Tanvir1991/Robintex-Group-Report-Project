@@ -1,0 +1,126 @@
+﻿@model List<RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.PurchaseOrderStockSPModel>
+@{
+
+    string CompositionName = "";
+    string YarnCount = "";
+    decimal RunningSum = 0;
+}
+<style type="text/css">
+    .tableFixHead {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+
+        .tableFixHead thead {
+            position: sticky;
+            top: 0;
+            background: #eee;
+        }
+
+    /* Just common table stuff. Really. */
+    /*table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {*/
+    /*padding: 8px 16px;*/
+    /*}
+
+        th {
+        }*/
+
+
+    .txtAlignCenter {
+        text-align: center;
+    }
+</style>
+
+<table class="table tableFixHead table-sm table-bordered table-striped" style="font-size:11px;">
+    <thead>
+        <tr>
+            <th rowspan="2" class="txtAlignCenter">Buyer<br />Name</th>
+            <th rowspan="2" class="txtAlignCenter">Order<br />Number</th>
+            <th rowspan="2" class="txtAlignCenter">Purchase<br />Order No</th>
+            <th rowspan="2" class="txtAlignCenter">Item</th>
+            <th rowspan="2" class="txtAlignCenter">Unit</th>
+            <th rowspan="2" class="txtAlignCenter">Color /<br />Measurement</th>
+            <th colspan="2" class="txtAlignCenter">Opening</th>
+            <th colspan="2" class="txtAlignCenter">Receive</th>
+            <th colspan="2" class="txtAlignCenter">Issue</th>
+            <th colspan="2" class="txtAlignCenter">Closing</th>
+            <th></th>
+        </tr>
+        <tr>
+
+            <th class="txtAlignCenter">Quantity</th>
+            <th class="txtAlignCenter">Value</th>
+            <th class="txtAlignCenter">Quantity</th>
+            <th class="txtAlignCenter">Value</th>
+            <th class="txtAlignCenter">Quantity</th>
+            <th class="txtAlignCenter">Value</th>
+            <th class="txtAlignCenter">Quantity</th>
+            <th class="txtAlignCenter">Value</th>
+            <th class="txtAlignCenter">Rate</th>
+        </tr>
+    </thead>
+    <tbody id="tBodyOrderWiseItemStock" style="font-size: 11px;">
+        @foreach (var group in Model.GroupBy(b => new { b.OrderNo }))
+        {
+            int i = 1;
+            RunningSum = 0;
+            foreach (var groupItem in group)
+            {
+                <tr>
+                    @if (i == 1)
+                    {
+                        <td class="txtAlignCenter">@groupItem.BuyerName</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (i == 1)
+                    {
+                        @*<a target="_blank" href="/CostCenterReport/OrderNoWiseStockDetails?BuyerID="+ @groupItem.BuyerID +"&DateFrom=' + DateFrom + ' &DateTo=' + DateTo + '&MrpItemCode=' + MRPItemCode + '&CompanyID=' + companyID + '&BusinessID=' + businessID + '&WithAllTransaction=' + WithAllTransaction+'&AttributeInstanceID=' + v.AttributeInstanceID + '&WithAllTransaction=' + WithAllTransaction + '" title="Details">*@
+                           
+                        <td class="txtAlignCenter"><a onclick="GetStockDetails()">@groupItem.OrderNo</a></td>
+                        @*</a>*@
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    <td class="txtAlignCenter">@groupItem.PurchaseOrderNo</td>
+                    <td class="txtAlignCenter">@groupItem.MRPItem</td>
+                    <td class="txtAlignCenter">@groupItem.Unit</td>
+                    <td class="txtAlignCenter">@groupItem.Measurment</td>
+                    <td class="txtAlignCenter">@groupItem.OpeningQty</td>
+                    <td class="txtAlignCenter">@groupItem.OpeningQtyValue</td>
+                    <td class="txtAlignCenter">@groupItem.CurrentReceiveQty</td>
+                    <td class="txtAlignCenter">@groupItem.CurrentReceiveValue</td>
+                    <td class="txtAlignCenter">@groupItem.CurrentIssuedQty</td>
+                    <td class="txtAlignCenter">@groupItem.CurrentIssuedValue</td>
+                    <td class="txtAlignCenter">@groupItem.ClosingQuantity</td>
+                    <td class="txtAlignCenter">@groupItem.ClosingValue</td>
+                    <td class="txtAlignCenter">@groupItem.Rate</td>
+                </tr>
+                i++;
+            }
+            <tr style="font-size:12px;font-weight:bold;background:#d4d258">
+                <td></td>
+                <th class="txtAlignCenter" colspan="5">Order Total</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.OpeningQty))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.OpeningQtyValue))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.CurrentReceiveQty))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.CurrentReceiveValue))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.CurrentIssuedQty))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.CurrentIssuedValue))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.ClosingQuantity))</th>
+                <th class="txtAlignCenter" colspan="1">@String.Format("{0:n}", group.Sum(b => b.ClosingValue))</th>
+            </tr>
+        }
+    </tbody>
+
+</table>
+

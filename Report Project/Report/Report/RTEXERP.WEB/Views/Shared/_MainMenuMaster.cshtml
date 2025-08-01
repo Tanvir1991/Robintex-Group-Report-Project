@@ -1,0 +1,241 @@
+﻿@using RTEXERP.Extension.Extensions
+@using RTEXERP.Contracts.BLModels.Hrm.LoginUserInfo
+@using RTEXERP.Common.Constants
+@using Newtonsoft.Json
+ @inject UserMenuAccessServices SetUserInfo
+@{
+    if(User !=null && User.Identity.IsAuthenticated && !string.IsNullOrEmpty(User.Identity.Name) && SessionData.Session_USER_ID==0)
+    {
+        SetUserInfo.SetSessionUserAccess(User.Identity.Name);
+    }
+
+    var UserMenu = RTEXERP.WEB.Helper.SessionData.UserMenuList.Where(b => b.IsMenuItem == true).ToList();
+    var ParrentMenu = RTEXERP.WEB.Helper.SessionData.PARENT_MODULES;    // Context.Session.GetList<LogedUserAccessViewModel>(SessionKey.All_Modules);
+}
+<nav class="mt-2">
+    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+        <li class="nav-item"> <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i><span> Home</span></a></li>
+
+        @{
+            foreach (var fLevelItem in ParrentMenu)
+            {
+                var FirstLevelList = UserMenu.Where(f => f.ParentModuleId == fLevelItem.ModuleMenuId && (!f.IsMenuItem.HasValue || f.IsMenuItem.Value == true))
+                .OrderBy(b => b.DisplayOrder).ToList();
+                if (FirstLevelList.Count > 0)
+                {
+                    <li class="nav-item">
+                                <a href="#@fLevelItem.ModuleMenuId" class="nav-link">
+                                    @Html.Raw(fLevelItem.MenuSymbol)
+                                    <p>
+                                       @fLevelItem.LinkText
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                        <ul class="nav nav-treeview">
+                            @foreach (var secondLevelMenuItem in FirstLevelList)
+                            {
+                                var SecondLevelList = UserMenu.Where(s => s.ParentModuleId == secondLevelMenuItem.ModuleMenuId).ToList();
+                                if (SecondLevelList.Count > 0)
+                                {
+                            <li class="nav-item">
+                                <a href="#@secondLevelMenuItem.ModuleMenuId" class="nav-link">
+                                    @Html.Raw(secondLevelMenuItem.MenuSymbol)
+                                    <p>
+                                        @secondLevelMenuItem.LinkText
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+
+
+                                @*<a href="#@secondLevelMenuItem.ModuleMenuId" class="nav-link">
+                                    @Html.Raw(secondLevelMenuItem.MenuSymbol)<span>@secondLevelMenuItem.LinkText</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>*@
+
+                                <ul class="nav nav-treeview">
+                                    @foreach (var ThirdLeveMenuItem in SecondLevelList)
+                                    {
+                                        var ThirdLevelList = UserMenu.Where(t => t.ParentModuleId == ThirdLeveMenuItem.ModuleMenuId).ToList();
+                                        if (ThirdLevelList.Count > 0)
+                                        {
+                                    <li class="nav-item">
+                                        <a href="#@ThirdLeveMenuItem.ModuleMenuId" class="nav-link">
+                                            @Html.Raw(ThirdLeveMenuItem.MenuSymbol)
+                                            <p>
+                                                @ThirdLeveMenuItem.LinkText
+                                                <i class="right fas fa-angle-left"></i>
+                                            </p>
+                                        </a>
+
+                                        @*<a href="#@ThirdLeveMenuItem.ModuleMenuId">
+                                            @Html.Raw(ThirdLeveMenuItem.MenuSymbol)<span>@ThirdLeveMenuItem.LinkText</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-left pull-right"></i>
+                                            </span>
+                                        </a>*@
+                                        <ul class="nav nav-treeview">
+                                            @foreach (var FourLevelMenuItem in ThirdLevelList)
+                                            {
+                                                var FourLevelMenuList = UserMenu.Where(fr => fr.ParentModuleId == ThirdLeveMenuItem.ModuleMenuId).ToList();
+                                                if (FourLevelMenuList.Count > 0)
+                                                {
+                                            <li class="nav-item">
+                                                <a href="#@FourLevelMenuItem.ModuleMenuId" class="nav-link">
+                                                    @Html.Raw(FourLevelMenuItem.MenuSymbol)
+                                                    <p>
+                                                        @FourLevelMenuItem.LinkText
+                                                        <i class="right fas fa-angle-left"></i>
+                                                    </p>
+                                                </a>
+
+                                                @*<a href="#@FourLevelMenuItem.ModuleMenuId" class="nav-link">
+                                                    @Html.Raw(FourLevelMenuItem.MenuSymbol)
+                                                    <span>@FourLevelMenuItem.LinkText</span>
+                                                    <span class="pull-right-container">
+                                                        <i class="fa fa-angle-left pull-right"></i>
+                                                    </span>
+                                                </a>*@
+                                                <ul class="nav nav-treeview">
+                                                    @foreach (var FiveLevelMenuItem in FourLevelMenuList)
+                                                    {
+                                                        var FiveLevelMenuList = UserMenu.Where(b => b.ParentModuleId == FiveLevelMenuItem.ModuleMenuId).ToList();
+                                                        @foreach (var FiveLevelMenuLi in FiveLevelMenuList)
+                                                        {
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" 
+                                                           asp-area="@FiveLevelMenuLi.AreaName"
+                                                           asp-controller="@FiveLevelMenuLi.ControllerName"
+                                                           asp-action="@FiveLevelMenuLi.ActionName">
+                                                            @Html.Raw(FiveLevelMenuLi.MenuSymbol)
+                                                            <p>
+                                                                @FiveLevelMenuLi.LinkText
+                                                                <i class="right fas fa-angle-left"></i>
+                                                            </p>
+                                                        </a>
+
+                                                        @*<a class="nav-link" asp-area="@FiveLevelMenuLi.AreaName"
+                                                           asp-controller="@FiveLevelMenuLi.ControllerName"
+                                                           asp-action="@FiveLevelMenuLi.ActionName">
+                                                            @Html.Raw(FiveLevelMenuLi.MenuSymbol)
+                                                            <span> @FiveLevelMenuLi.LinkText </span>
+
+                                                        </a>*@
+                                                    </li>
+                                                        }
+                                                    }
+                                                </ul>
+                                            </li>
+
+
+                                                }
+                                                else if (FourLevelMenuItem.ControllerName != "#")
+                                                {
+                                        <li class="nav-item">
+                                            <a class="nav-link"
+                                               asp-area="@FourLevelMenuItem.AreaName"
+                                               asp-controller="@FourLevelMenuItem.ControllerName"
+                                               asp-action="@FourLevelMenuItem.ActionName">
+                                                @Html.Raw(FourLevelMenuItem.MenuSymbol)
+                                                <p>
+                                                    @FourLevelMenuItem.LinkText                                                    
+                                                </p>
+                                            </a>
+                                            @*<a class="nav-link" asp-area="@FourLevelMenuItem.AreaName"
+                                               asp-controller="@FourLevelMenuItem.ControllerName"
+                                               asp-action="@FourLevelMenuItem.ActionName">
+                                                @Html.Raw(FourLevelMenuItem.MenuSymbol)
+                                                <span> @FourLevelMenuItem.LinkText </span>
+                                            </a>*@
+                                        </li>
+                                                }
+                                            }
+                                        </ul>
+
+                                    </li>
+                                        }
+                                        else if (ThirdLeveMenuItem.ControllerName != "#")
+                                        {
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       asp-area="@ThirdLeveMenuItem.AreaName"
+                                       asp-controller="@ThirdLeveMenuItem.ControllerName"
+                                       asp-action="@ThirdLeveMenuItem.ActionName">
+                                        @Html.Raw(ThirdLeveMenuItem.MenuSymbol)
+                                        <p>
+                                            @ThirdLeveMenuItem.LinkText
+                                            
+                                        </p>
+                                    </a>
+
+                                    @*<a class="nav-link" asp-area="@ThirdLeveMenuItem.AreaName"
+                                           asp-controller="@ThirdLeveMenuItem.ControllerName"
+                                           asp-action="@ThirdLeveMenuItem.ActionName">
+                                            @Html.Raw(ThirdLeveMenuItem.MenuSymbol)
+                                            <span> @ThirdLeveMenuItem.LinkText </span>
+
+                                        </a>*@
+                                </li>
+                                        }
+                                    }
+                                </ul>
+                            </li>
+                                }
+                                else if (secondLevelMenuItem.ControllerName != "#")
+                                {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area="@secondLevelMenuItem.AreaName"
+                               asp-controller="@secondLevelMenuItem.ControllerName"
+                               asp-action="@secondLevelMenuItem.ActionName">
+                                @Html.Raw(secondLevelMenuItem.MenuSymbol)
+                                <p>
+                                    @secondLevelMenuItem.LinkText
+                                    
+                                </p>
+                            </a>
+
+                            @*<a class="nav-link" asp-area="@secondLevelMenuItem.AreaName"
+           asp-controller="@secondLevelMenuItem.ControllerName"
+           asp-action="@secondLevelMenuItem.ActionName">
+            @Html.Raw(secondLevelMenuItem.MenuSymbol)
+            <span> @secondLevelMenuItem.LinkText </span>
+        </a>*@
+                        </li>
+                                }
+                            }
+
+                        </ul>
+                    </li>
+                }
+                else if (fLevelItem.ControllerName != "#")
+                {
+    <li class="nav-item">
+        <a class="nav-link"
+           asp-area="@fLevelItem.AreaName"
+           asp-controller="@fLevelItem.ControllerName"
+           asp-action="@fLevelItem.ActionName">
+            @Html.Raw(fLevelItem.MenuSymbol)
+            <p>
+                @fLevelItem.LinkText
+               
+            </p>
+        </a>
+
+        @*<a class="nav-link" asp-area="@fLevelItem.AreaName"
+           asp-controller="@fLevelItem.ControllerName"
+           asp-action="@fLevelItem.ActionName">
+            @Html.Raw(fLevelItem.MenuSymbol)
+            <span>@fLevelItem.LinkText</span>
+
+        </a>*@
+    </li>
+                }
+
+            }
+        }
+
+    </ul>
+</nav>

@@ -1,0 +1,107 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingStatusViewModel
+@{
+    ViewData["Title"] = "Lot wise Cutting Update";
+    ViewData["pageTitle"] = "Lot wise Cutting Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form method="post" enctype="multipart/form-data" asp-controller="LotWiseCutting" name="frmIndex" id="frmIndex" asp-action="Index">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="Color"></label>
+                <select class="form-control form-control-sm" required asp-for="Color" asp-items="Model.ColorList"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">        
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="InspectionPcs" class="label-ajt-sm"></label>
+                <input type="text" autocomplete="off" asp-for="InspectionPcs" class="form-control form-control-sm">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="PanelRejectPcs" class="label-ajt-sm"></label>
+                <input type="text" autocomplete="off" asp-for="PanelRejectPcs" class="form-control form-control-sm">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-sm btn-success" id="btnSave" value="Save" />
+            </div>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script type="text/javascript">
+        function clearForm() {
+            $("#OrderID").val('').trigger('chosen:updated');
+            ClearDropDown("Color", "Please Select");
+            $("#InspectionPcs").val(0);
+            $("#PanelRejectPcs").val(0);
+        }
+        $(function () {
+            $("#OrderID").chosen();
+            $("#OrderID").change(function () {
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                if (orderID != "") {
+                    GenerateDropDown("LotWiseCutting", "GetDDLOrderWiseColor", { orderNo: orderNo }, "Color", "");
+                } else {
+                    ClearDropDown("Color", "Please Select");
+                }
+            });
+            $("#btnSave").click(function () {
+                debugger;
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                let color = $("#Color").val();
+                //let dia = $("#Dia").val();
+                let inspectionPcs = $("#InspectionPcs").val();
+                let panelRejectPcs = $("#PanelRejectPcs").val();
+
+                if (orderID != "" && color != "" && (inspectionPcs > 0 || panelRejectPcs > 0)) {
+                    let cuttingPlanMaster = {
+                        OrderNo: orderNo,
+                        Color: color,
+                        InspectionPcs: inspectionPcs,
+                        PanelRejectPcs: panelRejectPcs
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/LotWiseCutting/LotWiseCuttingInfoUpdate',
+                        data: { cuttingPlanMaster: cuttingPlanMaster },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open('success', data.message);
+                                clearForm();
+                            } else {
+                                $.alert.open('error', data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $.alert.open('warning', 'Please provide value to update');
+                }
+            });            
+        });
+    </script>
+
+}

@@ -1,0 +1,80 @@
+﻿@{
+    ViewData["Title"] = "Excel Upload";
+    ViewData["pageTitle"] = "Excel Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@model List<RTEXERP.Contracts.BLModels.EMBRO.ShippingInvoiceExcelMigrationViewModel>
+@*@model RTEXERP.Contracts.Common.RResult<RTEXERP.Contracts.BLModels.EMBRO.ShippingInvoiceExcelMigrationViewModel>*@
+
+<form method="post" enctype="multipart/form-data" asp-controller="ExcelUpload" name="frmExcelUpload" id="frmExcelUpload" asp-action="Index">
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <h4 class="text-danger">Upload Excel file here :</h4>
+                <input type="file" name="files" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="submit" class="btn btn-sm btn-success" value="Upload" />
+            </div>
+        </div>
+    </div>
+    <label class="text-danger" id="lblMessage"></label>
+
+</form>
+<div class="row">
+    @{
+        if (Model != null && Model.Count > 0)
+        {
+
+            <div class="col-md-12">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Serial</th>
+                            <th>Invoice No</th>
+                            <th>Shipping Bill No</th>
+                            <th>Shipping Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.ExcelSerial</td>
+                                <td>@item.InvoiceNo</td>
+                                <td>@item.ShippingBillNo</td>
+                                <td>@item.ShippingDate.ToString("dd-MMM-yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        }
+
+    }
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var result ='@ViewBag.result';
+        if (result == "Success") {
+             $("#lblMessage").html("Uploaded Successfully")
+            setTimeout(function () {
+               window.location.replace('/ExcelUpload/Index');
+            }, 1000);             
+            
+        } else {           
+            $("#lblMessage").html(result);
+        }
+    });
+</script>
+

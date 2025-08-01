@@ -1,0 +1,86 @@
+﻿@using RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel;
+@model RTEXERP.Contracts.Common.RResult<PurchaseOrderStockSPModel>
+@{
+    ViewData["Title"] = "PO Item Details";
+    ViewData["pageTitle"] = "PO Item Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int i = 1;
+    bool hasData = Model.modelObjectList != null ? true : false;
+    decimal RunningSum = 0;
+}
+
+    <style>
+        .txtAlignCenter {
+            text-align: center;
+        }
+    </style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive" id="yarn-stock-onDate">
+            @if (hasData == true)
+            {
+                <table class="table table-sm table-bordered table-striped" style="font-size:11px;">
+                    <thead>
+                        <tr>
+                            <th class="txtAlignCenter">SL</th>
+                            <th class="txtAlignCenter">Item</th>
+                            <th class="txtAlignCenter">Buyer Name</th>
+                            <th class="txtAlignCenter">Received <br /> Date</th>
+                            <th class="txtAlignCenter">Received <br /> Quantity</th>
+                            <th class="txtAlignCenter">Issued <br /> Date</th>
+                            <th class="txtAlignCenter">Issued <br /> Quantity</th>
+                            <th class="txtAlignCenter">Running <br /> Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model.modelObjectList)
+                        {
+                            
+                            @if (item.DocumentTypeID == 0)
+                            {
+                                RunningSum = item.OpeningQty;
+                                <tr style="font-size:13px;font-weight:bold;background:#d4d258">
+                                    <th class="txtAlignCenter">#</th>
+                                    <th class="txtAlignCenter" colspan="2">@item.MRPItem</th>
+                                    <th class="txtAlignCenter" colspan="1">@item.ReceivedDateMSG</th>
+                                    <th class="txtAlignCenter" colspan="1">@item.OpeningQty</th>
+                                    <th class="txtAlignCenter"></th>
+                                    <th class="txtAlignCenter"></th>
+                                    <th class="txtAlignCenter" colspan="1">@item.OpeningQty</th>
+                                </tr>
+                            }
+                            else
+                            {
+                                RunningSum += item.CurrentReceiveQty - item.CurrentIssuedQty;
+                                <tr>
+                                    <td class="txtAlignCenter">@i</td>
+                                    <td class="txtAlignCenter">@item.MRPItem</td>
+                                    <td class="txtAlignCenter">@item.BuyerName</td>
+                                    <td class="txtAlignCenter">@item.ReceivedDateMSG</td>
+                                    <td class="txtAlignCenter">@item.CurrentReceiveQty</td>
+                                    <td class="txtAlignCenter">@item.IssueDateMSG</td>
+                                    <td class="txtAlignCenter">@item.CurrentIssuedQty</td>
+                                    @*<td>@item.IssueDateST</td>
+                                    <td>@item.IssueQuantity</td>*@
+                                    <td class="txtAlignCenter" style="background:#f1c977">@String.Format("{0:n}", RunningSum)</td>
+                                </tr>
+                                    i = i + 1;
+                                }
+                            }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <h5>No Data found or Found problem</h5>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+

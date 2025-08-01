@@ -1,0 +1,126 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.FabricBookingMasterViewModel
+
+@{
+    ViewData["Title"] = "Fabric Booking List";
+    ViewData["pageTitle"] = "Fabric Booking List";
+    ViewData["btnText"] = "Create New";
+    ViewData["btnLink"] = "/FabricBooking/Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-controller="FabricBooking" id="frmBookingList" asp-action="Index">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm" required asp-for="BuyerID" asp-items="Model.BuyerList"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input asp-for="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input asp-for="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-warning" id="btnSearch">Search</button>
+            </div>
+        </div>
+    </div>    
+    
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-sm table-bordered text-center" style="font-size:12px;" id="tblFabricBookingList">
+                <thead>
+                    <tr>
+                        <th>SL #</th>
+                        <th>Order No</th>
+                        <th>Fabric Booking No</th>
+                        <th>Version</th>                        
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody style="font-size:11px;">
+                </tbody>
+            </table>
+        </div>
+    </div>    
+</form>
+
+<script type="text/javascript">
+
+    function ReviseFabricBooking(FabricBookingID, OrderID, Version) {
+        window.location.replace('/FabricBooking/Create?FabricBookingID=' + FabricBookingID + '&OrderID=' + OrderID);
+    }
+    function FabricBookingVersions(FabricBookingID, OrderID) {
+        window.location.replace('/FabricBooking/BookingVersions?FabricBookingID=' + FabricBookingID + '&OrderID=' + OrderID);
+    }
+
+    function GetBookingList() {
+        let OrderID = $("#OrderID").val();
+        let DateFrom = $("#DateFrom").val();
+        let DateTo = $("#DateTo").val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/FabricBooking/GetFabricBookingList',
+            data: { OrderID: OrderID, DateFrom: DateFrom, DateTo: DateTo },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length>0) {
+                    let tr = '';
+                    $.each(data, function (i, v) {
+                        tr += `<tr>
+                                    <td>${(i+1)}</td>
+                                    <td>${v.OrderNo}</td>
+                                    <td>${v.FabricBookingNo}</td>
+                                    <td>${v.CurrentVersion}</td>
+                                    <td><input type='button' class='btn btn-xs btn-danger' value='Revise' onclick='ReviseFabricBooking(${v.FabricBookingID},${v.OrderID},${v.CurrentVersion})'>
+                                        <input type='button' class='btn btn-xs btn-warning' value='Versions' onclick='FabricBookingVersions(${v.FabricBookingID},${v.OrderID})'>
+                                    </td>
+                                </tr>`;
+                    });
+
+                    $("#tblFabricBookingList tbody").html(tr);
+                } else {
+                    $("#tblFabricBookingList tbody").html("");
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    $(function () {
+        $("#BuyerID").chosen();
+        $("#OrderID").chosen();
+        GetBookingList();
+         $("#BuyerID").change(function () {
+            var BuyerID = $("#BuyerID").val();
+            var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID, 'DateFrom': '@DateTime.Now.AddMonths(-6)' }, "");
+            $("#OrderID").html(dropDownOption);
+            $('#OrderID').trigger("chosen:updated");
+        });
+        $("#btnSearch").click(function () {
+            GetBookingList();
+        });
+
+    })
+</script>

@@ -1,0 +1,238 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.DFS_LotDyeingDeliveryVM
+@{
+    ViewData["Title"] = "Lot Confirm";
+    ViewData["pageTitle"] = "Lot Confirm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="frmLotDelivery" method="post">
+    <input type="hidden" asp-for="ID" />
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="LotID" class="label-ajt-sm required"></label>
+                <select asp-for="LotID" asp-items="Model.DDLLot" class="form-control input-sm"></select>
+                <span asp-validation-for="LotID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+
+                <label asp-for="LotConfirmDate" class="label-ajt-sm required"></label>
+                <input type="text" name="LotConfirmDate" id="LotConfirmDate" value="@DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy")"  class="form-control input-sm dateField" autocomplete="off" />
+                <span asp-validation-for="LotConfirmDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3" id="divRemarks" style="display:none;">
+            <div class="form-group">
+                <label asp-for="Remarks" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="Remarks" class="form-control input-sm" autocomplete="off" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="label-ajt-sm">&nbsp;</label>
+            <div class="form-group">
+
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+                <button type="reset" class="btn btn-sm btn-warning" id="btnReset">Clear</button>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<div class="card ">
+    <div class="card-header border">
+        <h4>Lot Confirm List</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label class="label-ajt-sm required">Create Date Duration</label>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control input-sm dateField" value="@DateTime.Now.ToString("dd-MMM-yyyy")" autocomplete="off" id="DateFrom" placeholder="dd/mm/yyyy" />
+                        </div>
+                        <div class="col-md-1 col-sm-1 col-lg-1">
+                            -
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control input-sm dateField" value="@DateTime.Now.ToString("dd-MMM-yyyy")" autocomplete="off" id="DateTo" placeholder="dd/mm/yyyy" />
+                        </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="label-ajt-sm">&nbsp;</label>
+                <div class="form-group">
+                   
+                    <button type="button" class="btn btn-sm btn-primary" id="btnSearch">Search</button>
+
+                </div>
+            </div>
+        </div>
+        <div class="row"> 
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped" id="tblLotDelivery">
+                    <thead>
+                        <tr>
+                            <td>SL</td>
+                            <td>Lot No</td>
+                            <td>Delivery Date</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+            lotDeliveryList();
+
+            $("#LotID").chosen();
+
+            $("#btnReset").click(function () {
+                $("#frmLotDelivery").resetForm();
+                $("#LotID").chosen("destroy")
+                $("#LotID").val("");
+                $("#LotID").chosen();
+                $("#divRemarks").hide();
+            })
+
+            $("#btnSave").click(function () {
+                const LotID = $("#LotID").val();
+                const LotConfirmDate = $("#LotConfirmDate").val();
+                const ID = $("#ID").val();
+                let Remarks = "";
+
+                if ($('#divRemarks:visible').length > 0) {
+                    Remarks = $("#Remarks").val();
+                }
+
+
+                if (LotID && LotConfirmDate) {
+                    const datamodel = { ID: ID, LotID: LotID, LotConfirmDate: LotConfirmDate, Remarks: Remarks, UIDeleted:false };
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/FiniteScheduler/DFS_LotDyeingDelivery/SaveLotDyeing',
+                        data: datamodel,
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open("success", data.message);
+                                $("#divRemarks").hide();
+                                $("#btnReset").trigger("click");
+                                lotDeliveryList();
+                            } else {
+                                $.alert.open("warning", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+            });
+
+            $("#btnSearch").click(function () {
+                lotDeliveryList();
+            })
+        })
+
+
+        function lotDeliveryList() {
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var data = GetData("FiniteScheduler/DFS_LotDyeingDelivery", "GetDeliveryLot", { DateFrom: dateFrom, DateTo: dateTo }, "");
+            var tblObject = "";
+            if (data != null && data.length > 0) {
+                $.each(data, function (i, v) {
+                    tblObject += `<tr>
+                                        <td>${i + 1}</td><td>${v.LotNo}</td>
+                                        <td>${v.LotConfirmDate_STR}</td>
+                                        <td>
+                                         <button type="button" class="btn btn-xs btn-primary" onclick="UpdateLotDelivery(${v.ID},${v.LotID},'${v.LotConfirmDate_STR}')">Update</button>
+                                         <button type="button" class="btn btn-xs btn-danger" onclick="deleteLotDelivery(${v.ID})">Del</button>
+                                        </td>
+                                  </tr>`;
+                });
+                $("#tblLotDelivery tbody").html(tblObject);
+            } else {
+                $("#tblLotDelivery tbody").html("");
+            }
+        }
+
+        function deleteLotDelivery(id) {
+            if (id) {
+                $.alert.open('prompt', `Enter Remarks (Remove Reason)`, function (button, value) {
+                    if (button == 'ok' && value) {
+
+                        $.ajax({
+                            type: "Post",
+                            data: { ID: id, Remarks: value, UIDeleted:true },
+                            url: '/FiniteScheduler/DFS_LotDyeingDelivery/SaveLotDyeing',
+                            dataType: "json",
+                            async: false,
+                            success: function (data) {
+
+                                if (data != null && data.result == 1) {
+                                    lotDeliveryList();
+                                }
+                                else if (data != null && data.result == 0) {
+                                    $.alert.open("error", data.message);
+                                } else {
+                                    $.alert.open("error", "not found");
+                                }
+                            },
+                            failure: function (errMsg) {
+                                $.alert.open("error", errMsg);
+                                return false;
+                            }
+                        });
+                    } else if (button == 'ok' && !value) {
+                        $.alert.open("warning", 'Enter remarks.');
+                        return false;
+                    }
+                });
+
+            }
+        }
+        function UpdateLotDelivery(ID, LotID, LotConfirmDate_STR) {
+            $("#LotID").chosen("destroy")
+            $("#LotID").val(LotID);
+            $("#LotID").chosen();
+            $("#ID").val(ID);
+            $("#LotConfirmDate").val(LotConfirmDate_STR);
+            $("#divRemarks").show();
+        }
+    </script>
+
+}
+

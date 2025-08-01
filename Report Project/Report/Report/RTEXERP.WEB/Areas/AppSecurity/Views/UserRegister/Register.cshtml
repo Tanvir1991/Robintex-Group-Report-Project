@@ -1,0 +1,189 @@
+﻿@model RTEXERP.Contracts.BLModels.AppSecurity.UserRegisterViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    ViewData["pageTitle"] = "Registration Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function GetEmployeeListByCompany(CompanyId) {
+       
+        GenerateDropDown("AppSecurity/UserRegister", "GetEmployeeListByCompany", { "CompanyId": CompanyId }, "EmployeeId", "");
+    }
+
+    function ClearForm() {
+
+        $('#RegisterCreate').find("input,select").val("");//[type=text], textarea
+    }
+
+
+    $(document).ready(function () {
+        $("#CompanyId").change(function () {
+  
+            var CompanyId = $("#CompanyId").val();
+            if (CompanyId != "") {
+                GetEmployeeListByCompany(CompanyId);
+            } else {
+
+                $("#EmployeeId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#btnSubmit").click(function () {
+         
+            if ($("#RegisterCreate").valid()) {
+                var userName = $("#UserName").val();
+                var email = $("#Email").val();
+                var password = $("#Password").val();
+                var confirmPassword = $("#ConfirmPassword").val();
+                var companyId = $("#CompanyId").val();
+                var employeeId = $("#EmployeeId").val();
+                var isActive = $("#IsActive").val();
+                var RoleId = $("#RoleId").val();
+
+                //var isActive = $('#IsActive').is(":checked");
+
+                var id = $("#Id").val();
+                if (id > 0) {
+                    var userRegisterVM = {
+                        Id: id,
+                        UserName: userName,
+                        Email: email,
+                        Password: password,
+                        ConfirmPassword: confirmPassword,
+                        CompanyId: companyId,
+                        EmployeeId: employeeId,
+                        IsActive: isActive,
+                        RoleId: RoleId
+                    };
+                } else {
+                    var userRegisterVM = {
+                        UserName: userName,
+                        Email: email,
+                        Password: password,
+                        ConfirmPassword: confirmPassword,
+                        CompanyId: companyId,
+                        EmployeeId: employeeId,
+                        IsActive: isActive,
+                        RoleId: RoleId
+                    };
+                }
+                $.ajax({
+
+                    type: "POST",
+                    data: userRegisterVM,
+                    url: "/AppSecurity/UserRegister/Register",
+                    dataType: "json",
+                    async: false,
+                    success: function (rResult) {
+                        if (rResult.result == 1) {
+                            ClearForm();
+                            $.alert.open("Success", rResult.message);
+                        } else {
+                            $.alert.open("error", rResult.message);
+                        }
+                    },
+                    failure: function (errMsg) {
+                        $.alert.open("error", errMsg);
+                    }
+                });
+
+
+            }
+        });
+
+    })
+
+
+</script>
+
+
+<form asp-action="Register" asp-controller="UserRegister" method="post" id="RegisterCreate">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="UserName" class="input-sm"></label>
+                <input type="text" asp-for="UserName" autocomplete="off" class="form-control input-sm" placeholder="User Name ...">
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Email" class="input-sm"></label>
+                <input asp-for="Email" class="form-control input-sm" autocomplete="off" placeholder="User Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Password" class="input-sm"></label>
+                <input asp-for="Password" class="form-control input-sm" autocomplete="off" placeholder="User Password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="input-sm"></label>
+                <input asp-for="ConfirmPassword" class="form-control input-sm" autocomplete="off" placeholder="User Confirm password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="CompanyId" class="input-sm"></label>
+                @*<input asp-for="ConfirmPassword" class="form-control" />*@
+                <select asp-for="CompanyId" class="form-control input-sm" asp-items="Model.CompanyList"></select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="EmployeeId" class="input-sm"></label>
+                @*<input asp-for="ConfirmPassword" class="form-control" />*@
+                <select asp-for="EmployeeId" class="form-control input-sm" asp-items="Model.EmployeeList"></select>
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="RoleId" class="input-sm"></label>
+                @*<input asp-for="ConfirmPassword" class="form-control" />*@
+                <select asp-for="RoleId" class="form-control input-sm" asp-items="Model.RoleList"></select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="IsActive" class="input-sm col-md-12"></label>
+                <select asp-for="IsActive" class="form-control input-sm" asp-items="Model.ActiveList"></select>
+                <span asp-validation-for="IsActive" class="text-danger"></span>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                @*<button type="submit" class="btn btn-primary">Register</button>*@
+                <button type="button" class="btn btn-sm btn-primary" id="btnSubmit">Submit</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnClear">Clear</button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+
+

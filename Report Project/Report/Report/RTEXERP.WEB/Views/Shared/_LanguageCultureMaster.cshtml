@@ -1,0 +1,32 @@
+﻿
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@using RTEXERP.SResources.Resources
+@inject LocService SharedLocalizer
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
+        .ToList();
+}
+
+<div title="@Localizer["Request culture provider:"] @requestCulture?.Provider?.GetType().Name">
+    <form class="form-inline form-horizontal" id="selectLanguage" asp-controller="SetLanguage" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" role="form">
+        <div class="col-md-4 col-sm-4" style=" padding:0px;">
+            <div class="item form-group" style=" margin-top:8px;">               
+                <div class="col-md-8 col-sm-8">
+                    <select class="form-control form-control-sm btn-primary" name="culture" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems"></select>
+                </div>
+                <div class="col-md-4 col-sm-4" style=" padding-left:5px;">
+                    <button type="submit" class="btn btn-sm btn-primary">@SharedLocalizer.GetLocalizedHtmlString("Change")</button>
+                </div>
+
+            </div>
+        </div> 
+    </form>
+</div>

@@ -1,0 +1,408 @@
+﻿@model RTEXERP.Contracts.BLModels.AOP.DigitalPrintReportModel.DigitalPrintCostingReportModel
+@{
+    ViewData["Title"] = $"AOP Costing Report";
+    Layout = null;
+    int sl = 0;
+    string bgColor = "";
+    string textColor = "";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Digital Print Costing Report</title>
+
+    <meta name="theme-color" content="#563d7c">
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+
+    <style>
+        table.floatThead-table {
+            border-top: none;
+            border-bottom: none;
+            background-color: #fff;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+</head>
+<body>
+    <br />
+    <div class="container-fluid printArea">
+        @{
+            <div class="row">
+                <div class="col-md-5 col-lg-5 col-sm-5">
+                    <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                        <thead>
+                            <tr class="table-thead" style="font-size:12px;">
+                                <th style="width:30%">LOT Type</th>
+                                <th class="text-center">Earining</th>
+                                <th class="text-center">Dyes/Chemical Cost</th>
+                                <th class="text-center">Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                bgColor = Model.InHouseDigitalProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                            }
+                            <tr class="table-thead">
+                                <td class="text-center">In House</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.InHouseDigitalEarnings)</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.InHouseDigitalCosting)</td>
+                                <td class="text-right table-body @bgColor">@String.Format("{0:n2}", Model.InHouseDigitalProfit)</td>
+
+                            </tr>
+                            @{
+                                bgColor = Model.SubContractDigitalProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                            }
+                            <tr class="table-thead">
+                                <td class="text-center">Sub-Contract</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.SubContractDigitalEarnings)</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.SubContractDigitalCosting)</td>
+                                <td class="text-right table-body @bgColor">@String.Format("{0:n2}", Model.SubContractDigitalProfit)</td>
+
+                            </tr>
+                            <tr class="table-thead">
+                                <td class="text-center">Total $</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", (Model.InHouseDigitalEarnings + Model.SubContractDigitalEarnings)) </td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", (Model.InHouseDigitalCosting + Model.SubContractDigitalCosting))</td>
+                                <td class="text-right table-body @bgColor">@String.Format("{0:n2}", (Model.InHouseDigitalProfit + Model.SubContractDigitalProfit))</td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-size:12px;font-weight:bold;">
+                        <tr class="table-thead">
+                            <td rowspan="2" style="vertical-align:middle;" class="text-center">Doller Rate <br> BDT:@Model.doller_rate </td>
+                            <td class="text-center">Earning</td>
+                            <td class="text-center">Material Cost</td>
+                            <td class="text-center">Salary</td>
+                            <td class="text-center">Total Cost</td>
+                            <td class="text-center">Profit/Loss</td>
+                        </tr>
+                        @{
+                            bgColor = ((Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)) - (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)) - Model.DigitalPrintPerDayTotalSalary) >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                        }
+                        <tr class="table-thead">
+                            <td class="text-center">@(String.Format("{0:n2}", Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)))</td>
+                            <td class="text-center">@(String.Format("{0:n2}", Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)))</td>
+                            <td class="text-center">@(String.Format("{0:n2}", Model.DigitalPrintPerDayTotalSalary))</td>
+                            <td class="text-center">@(String.Format("{0:n2}", (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)) + Model.DigitalPrintPerDayTotalSalary))</td>
+                            <td class="text-center @bgColor">
+                                @String.Format("{0:n2}", ((Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)) - (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)) - Model.DigitalPrintPerDayTotalSalary))
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+                <div class="col-md-4 col-lg-4 col-sm-4" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Robintex Group Bangladesh</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Digital Print Costing Summary</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Date Duration @Model.DateFrom To @Model.DateTo</span>
+                </div>
+                <div class="col-md-3 col-lg-3 col-sm-3">
+                    <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                        <tbody>
+                            <tr class="table-thead">
+                                <td colspan="2" style="text-align:center;">Production (KG/Meter)</td>
+                            </tr>
+
+                            <tr class="table-thead">
+                                <td class="text-center">In House</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.InHouseDigitalProduction) (KG)</td>
+                            </tr>
+                            <tr class="table-thead">
+                                <td class="text-center">Sub Contract</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.SubContractDigitalProduction) (Meter)</td>
+                            </tr>
+                            @*<tr class="table-thead">
+                                <td class="text-center">Total</td>
+                                <td class="text-right table-body">@String.Format("{0:n2}", Model.InHouseDigitalProduction + Model.SubContractDigitalProduction)</td>
+                            </tr>*@
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+            if (Model.InHouseDigitalPrintCosting.Count > 0)
+            {
+
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 col-sm-12">
+                        <div class="table-responsive">
+                            <h6 style="background:#ed8080" class="text-center p-1">In House Digital Print</h6>
+                            <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0 sticky-header">
+                                <thead style="font-size:12px;">
+                                    <tr class="table-thead">
+                                        <th style="vertical-align:middle">SL</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Lot No</th>
+                                        <th class="th-md th-lg">Order<br /> No</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Color</th>
+                                        <th class="th-md th-lg">Issued<br /> Qty</th>
+                                        <th class="th-md th-lg">Delivered<br />Qty</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Unit</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Price ($)</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Cost ($)</th>
+                                        <th style="vertical-align:middle" class="th-md th-lg">Profit ($)</th>
+                                        <th class="th-md th-lg">Total<br />Earning ($)</th>
+                                        <th class="th-md th-lg">Total <br />Cost ($)</th>
+                                        <th class="th-md th-lg">Total <br />Profit ($)</th>
+                                        <th class="th-md th-lg">Total <br />Earning (TK)</th>
+                                        <th class="th-md th-lg">Total <br />Cost (TK)</th>
+                                        <th class="th-md th-lg">Total <br />Profit (TK)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+
+                                    @{
+                                        @*<tr class="table-thead">
+                                            <td colspan="16" style="font-weight:bold">In House Digital Print</td>
+                                        </tr>*@
+
+                                        sl = 0;
+                                        string OldMachineName ="";
+                                        int totalRowCount = Model.InHouseDigitalPrintCosting.Count;
+                                        for (var digi = 0; digi < Model.InHouseDigitalPrintCosting.Count; digi++)
+                                        {
+                                            sl = sl + 1;
+                                            bgColor = Model.InHouseDigitalPrintCosting[digi].Profit_BDT >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                            textColor = Model.InHouseDigitalPrintCosting[digi].Price_per_KG_Order == 0 ? "text-warning" : "";
+
+                                            if (Model.InHouseDigitalPrintCosting[digi].MachineName != OldMachineName)
+                                            {
+                                                <tr>
+                                                    <td colspan="16"> &nbsp; &nbsp;&nbsp;<span style="font-weight:bold;">@Model.InHouseDigitalPrintCosting[digi].MachineName</span></td>
+                                                </tr>
+                                            }
+                                            <tr>
+                                                <td>@sl</td>
+                                                <td style="text-align:center"><a href="http://192.173.163.8/aoperp/Full_lot_cost_print.aspx?id=@Model.InHouseDigitalPrintCosting[digi].LotID" target="_blank">@Model.InHouseDigitalPrintCosting[digi].LotNo</a></td>
+                                                <td style="text-align:center">@Model.InHouseDigitalPrintCosting[digi].OrderNo</td>
+                                                <td style="text-align:center">@Model.InHouseDigitalPrintCosting[digi].PantoneNo</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Issued_Qty</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Delivered_Qty</td>
+                                                <td style="text-align:center;">@Model.InHouseDigitalPrintCosting[digi].Unit</td>
+                                                <td class="@textColor" style="text-align:center;font-weight:bold">@Model.InHouseDigitalPrintCosting[digi].Price_per_KG_Order</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Cost_KG_dol</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Profit_per_KG_Dol</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Total_Price_order_dol</td>
+                                                <td style="text-align:right;">@(Math.Round((Model.InHouseDigitalPrintCosting[digi].Total_COst_BDT / Convert.ToDecimal(Model.InHouseDigitalPrintCosting[digi].doller_rate)), 2))</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Lot_Income_Dol</td>
+                                                <td style="text-align:right;">@(Model.InHouseDigitalPrintCosting[digi].Total_Price_order_dol * Convert.ToDecimal(Model.InHouseDigitalPrintCosting[digi].doller_rate))</td>
+                                                <td style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Total_COst_BDT</td>
+                                                <td class="@bgColor" style="text-align:right;">@Model.InHouseDigitalPrintCosting[digi].Profit_BDT</td>
+                                            </tr>
+
+                                            if ((sl == totalRowCount || ( Model.InHouseDigitalPrintCosting[digi].MachineName != Model.InHouseDigitalPrintCosting[digi+1].MachineName)))
+                                            {
+                                                <tr>
+                                                    <td class="text-right text-bold" colspan="4"><span>@OldMachineName => Total</span></td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Issued_Qty))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Delivered_Qty))</td>
+                                                    <td colspan="4"></td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Total_Price_order_dol))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", ((Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Total_COst_BDT / Convert.ToDecimal(b.doller_rate)))))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Lot_Income_Dol))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Total_Price_order_dol * Convert.ToDecimal(b.doller_rate)))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Total_COst_BDT))</td>
+                                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Where(f => f.MachineName == Model.InHouseDigitalPrintCosting[digi].MachineName).Sum(b => b.Profit_BDT))</td>
+                                                </tr>
+                                            }
+
+                                            OldMachineName = Model.InHouseDigitalPrintCosting[digi].MachineName;
+
+                                        }
+                                        <tr class="table-thead">
+                                            <td colspan="4" style="text-align:right;font-weight:bold;">In House Digital Print Total</td>
+
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Issued_Qty))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Delivered_Qty))</td>
+                                            <td colspan="4"></td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Total_Price_order_dol))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", ((Model.InHouseDigitalPrintCosting.Sum(b => b.Total_COst_BDT / Convert.ToDecimal(b.doller_rate)))))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Lot_Income_Dol))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Total_Price_order_dol * Convert.ToDecimal(b.doller_rate)))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Total_COst_BDT))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.InHouseDigitalPrintCosting.Sum(b => b.Profit_BDT))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <h5 class="text-danger text-center">No In House Digital Print Found For The Given Date @Model.DateFrom To @Model.DateTo</h5>
+            }
+            if (Model.SubContractDigitalPrintCosting.Count > 0)
+            {
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 col-sm-12">
+                        <div class="table-responsive">
+                            <h6 style="background:#ed8080" class="text-center p-1">Sub Contract Digital Print</h6>
+                            <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0 sticky-header">
+                                <thead style="font-size:12px;">
+                                    <tr class="table-thead">
+                                        <th style="vertical-align:middle; width:3%">SL</th>
+                                        <th style="vertical-align:middle;width:7%" class="th-md th-lg">Requisition No</th>
+                                        <th class="th-md th-lg" style="width:7%">Requisition <br /> Date</th>
+                                        <th class="th-md th-lg" style="width:7%">Work Order<br /> No</th>
+                                        <th class="th-md th-lg" style="vertical-align: middle; width: 18%">Customer Name</th>
+                                        <th class="th-md th-lg" style="width:7%">Order<br /> No</th>
+                                        <th class="th-md th-lg" style="width:5%">Order<br /> Qty</th>
+                                        <th style="width:5%" class="th-md th-lg">Rate<br /> (TK)</th>
+                                        <th style="vertical-align:middle;width:10%" class="th-md th-lg">Design Code</th>
+                                        <th class="th-md th-lg" style="width:5%">Process<br /> Qty</th>
+                                        <th style="vertical-align:middle;width:5%" class="th-md th-lg">Unit</th>
+                                        <th class="th-md th-lg" style="width:7%">Total <br />Earning (TK)</th>
+                                        <th class="th-md th-lg" style="width:7%">Total <br />Cost (TK)</th>
+                                        <th class="th-md th-lg" style="width:7%">Total <br />Profit (TK)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-body">
+                                    @{
+                                        @*<tr class="table-thead">
+                <td colspan="14" style="font-weight:bold">Sub Contract Digital Print</td>
+            </tr>*@
+
+                                        sl = 0;
+                                        string OldMachineName = "";
+                                        int totalRowCount = Model.SubContractDigitalPrintCosting.Count;
+                                        for (var digi = 0; digi < Model.SubContractDigitalPrintCosting.Count; digi++)
+                                        {
+                                            sl = sl + 1;
+                                            bgColor = Model.SubContractDigitalPrintCosting[digi].Profit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                            textColor = Model.SubContractDigitalPrintCosting[digi].OrderRate == 0 ? "text-warning" : "";
+
+                                            if (Model.SubContractDigitalPrintCosting[digi].MachineName != OldMachineName)
+                                            {
+                                                <tr>
+                                                    <td colspan="14"> &nbsp; &nbsp;&nbsp;<span style="font-weight:bold;">@Model.SubContractDigitalPrintCosting[digi].MachineName</span></td>
+                                                </tr>
+                                            }
+
+                                            <tr>
+                                                <td>@sl</td>
+                                                <td style="text-align:center"><a href="http://119.148.55.92/aoperp/Independent_callan_print.aspx?id=@Model.SubContractDigitalPrintCosting[digi].ReqID" target="_blank">@Model.SubContractDigitalPrintCosting[digi].ReqID</a></td>
+                                                @*<td style="text-align:center">@Model.SubContractDigitalPrintCosting[digi].ReqID</td>*@
+                                                <td style="text-align:center">@Model.SubContractDigitalPrintCosting[digi].ReqDate</td>
+                                                <td style="text-align:center;">@Model.SubContractDigitalPrintCosting[digi].WorkorderNo</td>
+                                                <td style="text-align:center;">@Model.SubContractDigitalPrintCosting[digi].Customername</td>
+                                                <td style="text-align:center;">@Model.SubContractDigitalPrintCosting[digi].OrderNo</td>
+                                                <td style="text-align:right;">@Model.SubContractDigitalPrintCosting[digi].OrderQty</td>
+                                                <td style="text-align:right;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting[digi].OrderRate)</td>
+                                                <td style="text-align:center;">@Model.SubContractDigitalPrintCosting[digi].Design_code</td>
+                                                <td style="text-align:right;">@Model.SubContractDigitalPrintCosting[digi].ProcessQty</td>
+                                                <td style="text-align:center;">@Model.SubContractDigitalPrintCosting[digi].Unit</td>
+                                                <td style="text-align:right;">@Model.SubContractDigitalPrintCosting[digi].ClientRate</td>
+                                                <td style="text-align:right;">@Model.SubContractDigitalPrintCosting[digi].ttlCost</td>
+                                                <td class="@bgColor" style="text-align:right;">@Model.SubContractDigitalPrintCosting[digi].Profit</td>
+
+                                            </tr>
+                                            if ((sl == totalRowCount || (Model.SubContractDigitalPrintCosting[digi].MachineName != Model.SubContractDigitalPrintCosting[digi+1].MachineName)))
+                                            {
+                                            <tr>
+                                                <td class="text-right text-bold" colspan="6"><span>@Model.SubContractDigitalPrintCosting[digi].MachineName => Total</span></td>
+                                                <td colspan="3"></td>
+                                                <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Where(f => f.MachineName == Model.SubContractDigitalPrintCosting[digi].MachineName).Sum(b => b.ProcessQty))</td>
+                                                <td></td>
+                                                <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Where(f => f.MachineName == Model.SubContractDigitalPrintCosting[digi].MachineName).Sum(b => b.ClientRate))</td>
+                                                <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Where(f => f.MachineName == Model.SubContractDigitalPrintCosting[digi].MachineName).Sum(b => b.ttlCost))</td>
+                                                <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Where(f => f.MachineName == Model.SubContractDigitalPrintCosting[digi].MachineName).Sum(b => b.Profit))</td>
+                                            </tr>
+                                            }
+                                            OldMachineName = Model.SubContractDigitalPrintCosting[digi].MachineName;
+                                        }
+                                        <tr class="table-thead">
+                                            <td colspan="6" style="text-align:right;font-weight:bold;">Sub Contract Digital Print Total</td>
+
+                                            @*<td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Sum(b => b.OrderQty))</td>*@
+
+                                            <td colspan="3"></td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Sum(b => b.ProcessQty))</td>
+                                            <td></td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Sum(b => b.ClientRate))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Sum(b => b.ttlCost))</td>
+                                            <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.SubContractDigitalPrintCosting.Sum(b => b.Profit))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+                                                {
+                <h5 class="text-danger text-center">No Sub Contract Digital Print Found For The Given Date @Model.DateFrom To @Model.DateTo</h5>
+            }
+        }
+    </div>
+    @*<div class="row noprint no-print text-center">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+            </div>
+        </div>*@
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/floatThead/floatThead.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".sticky-header").floatThead({ scrollingTop: 50 });
+
+        });
+    </script>
+</body>
+</html>

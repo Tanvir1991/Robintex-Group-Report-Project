@@ -1,0 +1,424 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.PurchaseOrderReportViewModel
+
+@{
+    //ViewData["Title"] = "Trim Purchase Order";
+    //ViewData["pageTitle"] = "Trim Purchase Order";
+    Layout = null;
+}
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Robintex OrderSheet">
+    @*<meta name="generator" content="Jekyll v3.8.6">*@
+    <title>Trim Purchase Order</title>
+    <meta name="theme-color" content="#563d7c">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @*<script src="~/lib/jquery/dist/3.4.1/jquery-3.4.1.slim.min.js"></script>*@
+
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.css" rel="stylesheet" />
+    @*<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link href="~/lib/alert/css/alert.css" rel="stylesheet" />
+    <script src="~/lib/alert/js/alert.js"></script>
+    <link href="~/lib/alert/themes/light/theme.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <script src="~/script/customFunctions/fileasWord.js"></script>
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+
+
+    <style>
+        .txtAlignCenter {
+            text-align: center;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .td-form-control-sm {
+            width: 75px;
+            height: 15px;
+            font-size: 10px;
+        }
+
+        .customTd {
+            padding: 2px;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 0px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+            table.table-bordered > tbody > tr > th {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+                padding: 1px;
+            }
+
+        table.table-Shrink > tfoot > tr > td {
+            padding: 1px;
+        }
+    </style>
+
+</head>
+<body id="body">
+    <div class="wrapper">
+
+        <div class="row  text-sm" id="divPO">
+            <div class="col-7" style="float:left;">
+                <h5>@Model.POInfo.Companyname</h5>
+                <span style="font-size:12px;">@Model.POInfo.CompanyAddress</span> <br />
+                <span>Tel:@Model.POInfo.Telephone</span> <br />
+                <span>Fax:@Model.POInfo.Fax</span>
+            </div>
+            <div class="col-5 text-right" style="float:right;">
+                <img style="float:right;" height="50" src="~/siteImage/CompanyLogo/robinGroupLogo.png" alt="Logo" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h5>Trim Purchase Order No. @Model.POInfo.PurchaseOrderNo</h5>
+            </div>
+        </div>
+        <div class="row" id="divPOInfo">
+            <div class="col-md-12">
+                <table class="table table-sm table-borderless  mb-0 pb-0 text-bold" style="border:1px solid #000;">
+                    <tr>
+                        <td>
+                            <table class="table-borderless table-sm  mb-0 pb-0">
+                                <tr>
+                                    <td class="w-25">Supplier: </td>
+                                    <th class="w-75"> @Model.POInfo.SupplierName </th>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">Address </td>
+                                    <td class="w-75"> @Model.POInfo.SupplierAddress </td>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">Phone: </td>
+                                    <td class="w-75"> @Model.POInfo.TelephoneNumber </td>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">Fax: </td>
+                                    <td class="w-75"> @Model.POInfo.SupplierFax </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="w-25">Contact Person: </td>
+                                    <td class="w-75"> N/A </td>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">GST# :</td>
+                                    <td class="w-75">none </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td>
+                            <table class="table table-borderless table-sm mb-0 pb-0">
+                                <tr>
+                                    <td class="w-25">P.O Date : </td>
+                                    <td class="w-75">@Model.POInfo.PODateSTR</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="w-25">Order Number :</td>
+                                    <td class="w-75">@Model.POInfo.OrderNo</td>
+                                </tr>
+                                <!--<tr>
+                              <td width="150" class="revsecondheading">Created By </td>
+                              <td class="revsecondheading"><%'=XMLPO.documentElement.getAttribute("CreatedBy")%></td>
+                            </tr>-->
+                                <tr>
+                                    <td class="w-25">Master LC # :</td>
+                                    <td class="w-75">@Model.POInfo.LCNO</td>
+                                </tr>
+
+
+                                <tr>
+                                    <td class="w-25">Payment Mode :</td>
+                                    <td class="w-75">@Model.POInfo.PaymentMode</td>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">Payment Term :</td>
+                                    <td class="w-75">@Model.POInfo.PaymentTerm</td>
+                                </tr>
+                                <tr>
+                                    <td class="w-25">Buyer Name :</td>
+                                    <td class="w-75">@Model.POInfo.BuyerName</td>
+                                </tr>
+                                @*<tr>
+                                    <td width="150" class="revsecondheading">Garment Quantity :</td>
+                                    <td class="revsecondheading"></td>
+                                </tr>*@
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>P.O Total Amount  @Model.POInfo.CurrencySymbol @String.Format("{0:n2}",@Model.POMRPItemList.Sum(b=>b.TotalAmount))</th>
+                        <th>@Model.POInfo.Companyname GST #. @Model.POInfo.CompanySTN</th>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <span>We are pleased to place the following order :</span>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-12">
+                @foreach (var mrp in Model.POMRPItemList)
+                {
+                    <table class="table table-sm table-bordered">
+                        <tr>
+                            <th class="text-center">@mrp.MRPItemName</th>
+                            <th class="text-center">Total Quantity @mrp.TotalQuantity @mrp.UnitName</th>
+                            <th class="text-center">Total Amount @Model.POInfo.CurrencySymbol @String.Format("{0:n2}",mrp.TotalAmount) </th>
+                        </tr>
+                    </table>
+                    @foreach (var highList in mrp.HighLevel)
+                    {
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr>
+                                <th width="5%" class="text-center">SL</th>
+                                @foreach (var highAttribute in highList.HighAttributeRow.Where(b => b.ValueDescription != "-1").OrderBy(b => b.Priority).ToList())
+                                {
+                                    <th class="text-center">@highAttribute.Name</th>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="text-center">@highList.SL</td>
+                                @foreach (var highValue in highList.HighAttributeRow.Where(b => b.ValueDescription != "-1").OrderBy(b => b.Priority).ToList())
+                                {
+                                    <td class="text-center">@highValue.ValueDescription</td>
+                                }
+                            </tr>
+                            <tr>
+                                <th width="5%" class="text-center">&nbsp;</th>
+                                <td colspan="@highList.HighAttributeRow.Where(b => b.ValueDescription != "-1").Count()">
+                                    <table class="table table-sm table-borderless text-xs mt-1 mb-1">
+
+                                        @for (var lowDetailsSL = 0; lowDetailsSL < highList.LowLevelList.Count; lowDetailsSL++)
+                                        {
+                                            @if (lowDetailsSL == 0)
+                                            {
+                                                <tr>
+
+                                                    @foreach (var lowAttribute in highList.LowLevelList[lowDetailsSL].LowAttribute.Where(b => b.ValueDescription != "-1").OrderBy(b => b.Priority).ToList())
+                                                    {
+                                                        <th class="text-center">@lowAttribute.Name</th>
+                                                    }
+                                                    <th class="text-center">Order Qty</th>
+                                                    <th class="text-center">Delivery Date</th>
+                                                    <th class="text-center">Delivery Point</th>
+                                                    <th class="text-center">Unit Price</th>
+                                                    <th class="text-center">Currency</th>
+                                                    <th class="text-center">Amount</th>
+                                                    <th class="text-center">Requistion No</th>
+                                                </tr>
+                                            }
+                                            <tr>
+
+                                                @foreach (var lowAttribute in highList.LowLevelList[lowDetailsSL].LowAttribute.Where(b => b.ValueDescription != "-1").OrderBy(b => b.Priority).ToList())
+                                                {
+                                                    <td class="text-center">@lowAttribute.ValueDescription</td>
+
+                                                }
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].OrderQuantity</td>
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].DeliveryDate</td>
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].DeliveryPoint</td>
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].UnitPrice</td>
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].SelectedCurrency</td>
+                                                <td class="text-center">@String.Format("0:n2",highList.LowLevelList[lowDetailsSL].OrderedQtyAmount)</td>
+                                                <td class="text-center">@highList.LowLevelList[lowDetailsSL].RequisitionNumber</td>
+                                            </tr>
+                                            @if (Model.ShowStyleWise == 1)
+                                            {
+                                                var sizeList = highList.LowLevelList[lowDetailsSL].StyleGarmentsSizeQuantity;
+                                                <tr>
+                                                    <td class="text-center" colspan="@(highList.LowLevelList[lowDetailsSL].LowAttribute.Where(b => b.ValueDescription != "-1").ToList().Count+7)">
+                                                        <div class="row justify-content-center">
+                                                            <div class="col-6 text-center">
+                                                                <table class="table table-sm table-bordered text-xs mt-1 mb-1">
+                                                                    <tr>
+                                                                        <th class="text-center">Size</th>
+                                                                        @for (int s = 0; s < sizeList.Count; s++)
+                                                                        {
+
+                                                                            <th class="text-center">@sizeList[s].SizeName</th>
+
+                                                                        }
+
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <th class="text-center">@highList.LowLevelList[lowDetailsSL].UnitName</th>
+                                                                        @for (int s = 0; s < sizeList.Count; s++)
+                                                                        {
+                                                                            <td class="text-center">@Math.Round(((Convert.ToDecimal(sizeList[s].NumberOfGarments) / sizeList[s].StyleNumberOfGarments) * @highList.LowLevelList[lowDetailsSL].OrderQuantity), 0)</td>
+                                                                        }
+
+                                                                    </tr>
+
+
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                            }
+                                        }
+
+
+                                    </table>
+                                </td>
+
+                            </tr>
+
+                        </table>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="row mt-0">
+            <div class="col-md-12 text-center">
+                <h5><u>Terms and Conditions of Purchase Order </u></h5>
+            </div>
+            <div class="col-md-12 text-xs">
+                <ol class="appendNewTerms">
+                    <li>Delivery will only be accepted within mercantile business hours between 9:00 am to 5:30 pm.</li>
+                    <li>In case Goods hereby ordered are delivered after the delivery date stipulated herein and/or such Goods are found short in quantity and/or of inferior quality, Buyer reserves the right to reject any part or all of the Goods delivered and/or cancel future deliveries hereunder and/or issue Debit Note(s) and/or claim compensation, which shall be accepted by the Supplier as conclusive and final.</li>
+                    <li>Buyer shall not accept delivery of any Goods hereby ordered unless accompanied by an approved copy of this Purchase Order(PO) along with Supplier's Original Delivery Challan containing this PO Number.</li>
+                    <li>Sales Tax Invoice, containing this P.O Number and Suppliers Delivery Challan Number, covering each delivery here under must be submitted within 7 days of delivery. Payment shall be made within above mentioned Payment Term of receipt of the duly Approved Sales Tax Invoice</li>
+                    <li>No delivery will be accepted unless delivered as per packing assortment annexed with this P.O</li>
+
+                </ol>
+                <button class="btn-sm btn-warning no-print" id="AddTermsw">ADD Terms and Conditions</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4 ml-4">
+                <span>___________________ </span><br />
+                <span> Prepared By</span>
+
+
+            </div>
+            <div class="col-sm-4">
+                <span>___________________ </span><br />
+                <span> Checked By</span>
+            </div>
+            <div class="col-sm-3">
+                <span>_______________________________ </span><br />
+                <span> Approved By : Head of Purchase</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 m-2">
+                I hereby represent that I am lawfully authorized to accept this Purchase Order and that I have read all terms and conditions and agree to be bound accordingly.
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-6 ml-2">
+                <span>Date:___________________ </span> &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <span>Signature: ___________________ </span><br />
+
+            </div>
+     
+        </div>
+    </div>
+    <div class="row justify-content-md-center no-print">
+        <div class="col-md-3">
+            <button type="button" class="btn btn-sm btn-primary" id="btnPrint">Print</button>
+            <button  class="btn btn-sm btn-danger " id="btnWord">MS Word</button>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        function printData() {
+            var divToPrint = document.getElementById("divPrint");
+            newWin = window.open("");
+            newWin.document.write(divToPrint.outerHTML);
+            newWin.print();
+            newWin.close();
+        }
+
+        $(function ($) {
+            $("#btnPrint").click(function () {
+                window.print();
+            })
+
+            $("#AddTermsw").click(function () {
+                $.alert.open('prompt', `If needed Add extra Terms and Condition.`, function (button, value) {
+                    if (button == 'ok' && value) {
+                        $(".appendNewTerms").append(`<li>${value}</li>`);
+                    }
+                });
+
+                
+            });
+            
+        })
+
+        jQuery(document).ready(function ($) {
+            $("#btnWord").click(function (event) {
+                $("#body").wordExport();
+            });
+        });
+    </script>
+
+</body>
+</html>

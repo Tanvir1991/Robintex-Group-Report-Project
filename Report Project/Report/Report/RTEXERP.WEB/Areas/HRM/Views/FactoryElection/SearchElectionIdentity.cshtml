@@ -1,0 +1,56 @@
+﻿@model RTEXERP.Contracts.BLModels.Hrm.ElectionMemberSelectionViewModel
+@{
+    ViewData["Title"] = "Election Identity Information";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .table {
+        border: 2px solid #000 !important;
+    }
+</style>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<form id="frmSearchElectionIdentity" method="post" asp-area="HRM" asp-controller="FactoryElection" asp-action="SearchElectionIdentity">
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="EmployeeCode" class="label-ajt-sm required"></label>
+
+                <input type="text" autocomplete="off" id="empCode" class="form-control form-control-sm" maxlength="200" required>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="ElectionMemberType" class="label-ajt-sm required"></label>
+                <select asp-for="ElectionMemberType" asp-items="Model.DDLElectionMemberType" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnShow">Show</button>
+                @*<button type="button" class="btn btn-sm btn-primary" onclick="printDiv('Rpt')" id="btnPrint">Print</button>*@
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            $("#btnShow").click(function () {
+                var EmpCodeList = $("#empCode").val();
+                var ElectionMemberType = $("#ElectionMemberType").val();
+                window.open('ElectionIdentity?Id=' + ElectionMemberType+'&empList=' + EmpCodeList);
+            });
+        });
+    </script>
+}

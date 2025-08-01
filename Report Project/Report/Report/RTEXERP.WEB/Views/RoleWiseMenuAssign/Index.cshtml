@@ -1,0 +1,111 @@
+﻿@model RTEXERP.Contracts.BLModels.Hrm.ModuleWiseMenuTreeViewModel;
+@{
+    ViewData["Title"] = "Stock Report";
+    ViewData["pageTitle"] = "Stock Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<form asp-action="Index" asp-controller="RoleWiseMenuAssign" id="frmIndex" method="post">
+
+    <br />
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label asp-for="RoleId" class="label-ajt-sm required"></label>
+                <select asp-for="RoleId" asp-items="Model.RoleList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div id="moduleWiseMenuTree" style="max-height:500px;overflow-y:auto;">
+    </div>
+    <div class="row" id="divBtn" style="display:none;">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-success" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#RoleId").change(function () {
+                let roleId = $("#RoleId").val();
+                if (roleId != "" && roleId > 0) {
+                    $("#divBtn").show();
+                    $("#moduleWiseMenuTree").load("/RoleWiseMenuAssign/GetModuleMenuViewComponent", { viewName: "ModuleWiseMenuTree", roleId: roleId });
+                } else {
+                    $("#divBtn").hide();
+                    $("#moduleWiseMenuTree").html("");
+                }
+            });
+            $("#btnSave").click(function () {
+                debugger;
+                var roleWiseMenu = new Array();
+                let roleId = $("#RoleId").val();
+                $(".chkMenu").each(function () {
+                   
+                    var that = this;
+                    let isChecked = $(that).is(':checked');
+                    let hdnModuleMenuId = $(that).parent().find(".hdnModuleMenuId").val();
+                    let hdnRoleWiseModuleId = $(that).parent().find(".hdnRoleWiseModuleId").val();
+                    if (roleId != "" && (isChecked && hdnRoleWiseModuleId == 0) || (!isChecked && hdnRoleWiseModuleId > 0)) {
+                        let menu = {
+                            RoleWiseModuleId: hdnRoleWiseModuleId,
+                            RoleId: roleId,
+                            ModuleId: hdnModuleMenuId
+                        }
+                        roleWiseMenu.push(menu);
+                    }
+                    //else if (!isChecked && hdnRoleWiseModuleId > 0) {
+                    //}                    
+                });
+                
+                if (roleWiseMenu.length>0) {
+                    $("#AjaxLoader").show();
+                    $.ajax({
+                        type: 'POST',                        
+                        url: '/RoleWiseMenuAssign/RoleWiseMenuAssignSave',
+                        data: { "roleWiseMenuList": roleWiseMenu },                      
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.result = 1) {
+                                $("#AjaxLoader").hide();
+                                alert(data.message);                             
+                            } else {
+                                $("#AjaxLoader").hide();
+                                alert("No data found in given date duration");
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $("#AjaxLoader").hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+}
+
+
+
+

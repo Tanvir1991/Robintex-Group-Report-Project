@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="MaxcoDataSource">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=192.173.163.8;Initial Catalog=Maxco</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>3b5c77fe-00da-433d-a09f-652827f8afa8</DataSourceID>
+</RptDataSource>

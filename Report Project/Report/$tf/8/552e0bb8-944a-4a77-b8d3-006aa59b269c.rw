@@ -1,0 +1,8 @@
+﻿using System;
+
+namespace RTEXERP.Common
+{
+    public class Class1
+    {
+    }
+}

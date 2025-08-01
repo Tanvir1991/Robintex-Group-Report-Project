@@ -1,0 +1,265 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.Tbl_Cutting_Defect_LotViewModel
+@using RTEXERP.WEB.Helper
+@{
+    ViewData["Title"] = "Lot Cutting Defects";
+    ViewData["pageTitle"] = "Lot Cutting Defects";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var roleID = SessionData.Session_Role_ID;
+    var isSuperAdmin = SessionData.Session_User_IsSuperAdmin;
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="frmLotCutting" method="post">
+    <input type="hidden" asp-for="ID" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="LotID" class="label-ajt-sm required"></label>
+                <select asp-for="LotID" asp-items="Model.LotList" class="form-control form-control-sm select2Filter"></select>
+                <span asp-validation-for="LotID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="LotReceivedKG" class="label-ajt-sm required"></label>
+                        <input type="text" asp-for="LotReceivedKG" class="form-control form-control-sm" autocomplete="off" />
+                        <span asp-validation-for="LotReceivedKG" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ChallanNo" class="label-ajt-sm"></label>
+                        <input type="text" asp-for="ChallanNo" class="form-control form-control-sm" autocomplete="off" />
+                        <span asp-validation-for="ChallanNo" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="label-ajt-sm">&nbsp;</label>
+            <div class="form-group">
+
+                <button type="button" class="btn btn-sm btn-success" id="btnSave">Save</button>
+                <button type="reset" class="btn btn-sm btn-warning" id="btnReset">Clear</button>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<div class="card ">
+    <div class="card-header border pt-0 pb-0">
+        <h5>Lot Received Reject List</h5>
+    </div>
+    <div class="card-body pt-1">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label class="label-ajt-sm required">Search Date Duration</label>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control form-control-sm dateField" value="@DateTime.Now.ToString("dd-MMM-yyyy")" autocomplete="off" id="DateFrom" placeholder="dd/mm/yyyy" />
+                        </div>
+                        <div class="col-md-1 col-sm-1 col-lg-1">
+                            -
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control form-control-sm dateField" value="@DateTime.Now.ToString("dd-MMM-yyyy")" autocomplete="off" id="DateTo" placeholder="dd/mm/yyyy" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="label-ajt-sm">&nbsp;</label>
+                <div class="form-group">
+
+                    <button type="button" class="btn btn-sm btn-primary" id="btnSearch">Search</button>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped text-center text-sm" style="max-height:500px;overflow-y:auto;" id="tblLotDefect">
+                    <thead class="bg-dark">
+                        <tr>
+                            <td>SL</td>
+                            <td>Lot No</td>
+                            <td>Received Kg</td>
+                            <td>Challan No</td>
+                            <td>Received Date</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+            lotDefectList();
+
+           
+
+            $("#btnReset").click(function () {
+                $("#frmLotCutting").resetForm();
+                $('#LotID').val("").trigger('change');
+            });
+
+            $("#btnSave").click(function () {
+                const LotID = $("#LotID").val();
+                const LotReceivedKG = $("#LotReceivedKG").val();
+                const ID = $("#ID").val();
+                let ChallanNo = $("#ChallanNo").val();
+
+                if (LotID && LotReceivedKG) {
+                    const datamodel = { ID: ID, LotID: LotID, LotReceivedKG: LotReceivedKG, ChallanNo: ChallanNo };
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/FiniteScheduler/LotCutting/SaveCutting_Defect_Lot',
+                        data: datamodel,
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open("success", data.message);
+                                $("#btnReset").trigger("click");
+                                lotDefectList();
+                            } else {
+                                $.alert.open("warning", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $.alert.open('warning', 'Please Select Lot & Received Quantity');
+                }
+            });
+
+            $("#btnSearch").click(function () {
+                lotDefectList();
+            })
+        })
+
+
+        function lotDefectList() {
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var data = GetData("FiniteScheduler/LotCutting", "GetDefectLot", { dateFrom: dateFrom, dateTo: dateTo }, "");
+            var tblObject = "";
+            if (data != null && data.length > 0) {
+                let previousDate = '';
+                let dateWiseTotal = 0.0;
+                $.each(data, function (i, v) {
+                
+                    let currentDate = v.CreatedDateMsg;
+                    let action = '';
+                    if ('@roleID'=='1' || '@isSuperAdmin'=='True') {
+                        action = `<button type="button" class="btn btn-xs btn-primary" onclick="UpdateLotDelivery(${v.ID},${v.LotID},'${v.LotReceivedKG}','${v.ChallanNo}')">Update</button>
+                                         <button type="button" class="btn btn-xs btn-danger" onclick="deleteLotDelivery(${v.ID})">Del</button>`;
+                    }
+                    if (i != 0 && previousDate != currentDate) {
+                        tblObject += `<tr class="bg-cyan"><td colspan="2" class="font-weight-bold text-right">Total</td>
+                                        <td  class="font-weight-bold">${dateWiseTotal} Kg</td>
+                                        <td colspan="3"></td>
+                                  </tr>`;
+                        dateWiseTotal = 0.0;
+                    }
+                    tblObject += `<tr>
+                                        <td>${i + 1}</td><td>${v.LotNo}</td>
+                                        <td>${v.LotReceivedKG}</td>
+                                        <td>${v.ChallanNo == null ? '' : v.ChallanNo}</td>
+                                        <td>${v.CreatedDateMsg}</td>
+                                        <td>
+                                         ${action}
+                                        </td>
+                                  </tr>`;
+                    dateWiseTotal += v.LotReceivedKG;
+                    previousDate = v.CreatedDateMsg;
+                });
+                tblObject += `<tr  class="bg-cyan"><td colspan="2" class="font-weight-bold text-right" >Total</td>
+                                        <td class="font-weight-bold">${dateWiseTotal} Kg</td>
+                                        <td colspan="3"></td>
+                                  </tr>`;
+                dateWiseTotal = 0.0;
+                $("#tblLotDefect tbody").html(tblObject);
+            } else {
+                $("#tblLotDefect tbody").html("");
+            }
+        }
+
+        function deleteLotDelivery(id) {
+            if (id) {
+                $.alert.open('confirm', `Are you sure to delete this record?`, function (button) {
+                    debugger;
+                    if (button == 'yes') {
+                        $.ajax({
+                            type: "Post",
+                            data: { ID: id },
+                            url: '/FiniteScheduler/LotCutting/RemoveCutting_Defect_Lot',
+                            dataType: "json",
+                            async: false,
+                            success: function (data) {
+
+                                if (data != null && data.result == 1) {
+                                    lotDefectList();
+                                }
+                                else if (data != null && data.result == 0) {
+                                    $.alert.open("error", data.message);
+                                } else {
+                                    $.alert.open("error", "not found");
+                                }
+                            },
+                            failure: function (errMsg) {
+                                $.alert.open("error", errMsg);
+                                return false;
+                            }
+                        });
+                    } else if (button == 'ok' && !value) {
+                        $.alert.open("warning", 'Enter remarks.');
+                        return false;
+                    }
+                });
+
+            }
+        }
+        function UpdateLotDelivery(ID, LotID, LotReceivedKG, ChallanNo) {
+            debugger;
+            $("#ID").val(ID);
+           // $("#LotID").val(LotID);
+            //$('#LotID').select2('data', { id: LotID });
+            $('#LotID').val(LotID).trigger('change');
+            $("#LotReceivedKG").val(LotReceivedKG);
+            $("#ChallanNo").val(ChallanNo == 'null' ? "" : ChallanNo);   
+        }
+    </script>
+
+}
+
+

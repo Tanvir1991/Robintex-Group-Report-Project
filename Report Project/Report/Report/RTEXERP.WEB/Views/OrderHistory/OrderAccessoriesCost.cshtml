@@ -1,0 +1,179 @@
+﻿@model RTEXERP.Contracts.BLModels.EMS.SPModel.OrderAccessoriesCostVM
+@{
+    ViewData["Title"] = "Order Accessories Cost";
+    ViewData["pageTitle"] = "Order Accessories Cost";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .select2-selection__rendered {
+        padding-bottom: 0 !important;
+    }
+
+    .select2-selection__choice {
+        background-color: cornflowerblue !important;
+    }
+</style>
+<form asp-action="OrderAccessoriesCost" asp-controller="OrderHistory" id="AspNetRolesCreate" method="post">
+    <div class="row">
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label asp-for="BuyerID" class="label-ajt-sm required"></label>
+                <select asp-for="BuyerID" asp-items="Model.BuyerList" class="form-control form-control-sm select2Filter"></select>
+
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.OrderList" class="form-control form-control-sm" multiple></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateFrom" value="@Model.DateFrom" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm"></label>
+                <input type="text" asp-for="DateTo" value="@Model.DateTo" class="dateField form-control form-control-sm" />
+            </div>
+        </div>
+        <div class="col-md-1 text-left">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+    </div>
+    @*<div class="row">
+            <div class="table-responsive" id="divOrderWiseItemStock" style="max-height:500px;">
+
+            </div>
+        </div>*@
+
+</form>
+ 
+ 
+ 
+@section scripts{
+    <script type="text/javascript">
+        function GetBuyerWiseOrder() {
+
+            var BuyerID = $("#BuyerID").val();
+            var dateFrom = '@DateTime.Now.AddYears(-5).Date';
+            @*var dropDownOption = GenerateDropDownOptions("CommonDropDown", "DDLBuyerWiseOrder", { "BuyerID": BuyerID, "DateFrom": '@DateTime.Now.AddYears(-5)' }, "");
+            $("#OrderID").html(dropDownOption);*@
+
+        }
+        function GetOrderAccessoriesCostHistory(reportFormat) {
+
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+            var BuyerID = $("#BuyerID").val();
+            var OrderID = $("#OrderID").val();
+            if (!BuyerID) {
+                BuyerID=0
+            }
+            if (!OrderID) {
+                OrderID=0
+            }
+
+            window.open("/OrderHistory/OrderAccessoriesCostReportPrint?DateFrom=" + DateFrom + "&DateTo=" + DateTo + "&OrderID=" + OrderID + "&BuyerID=" + BuyerID + "&ReportFormat=" + reportFormat, "Order Accessories", "status=1,toolbar=0");
+
+        return false;
+        }
+    $(function () {
+        $("#clearDate").click(function () {
+            const dateFrom = $("#DateFrom").val();
+
+            if (!dateFrom) {
+                $("#DateFrom").val('@Model.DateFrom')
+                $("#DateTo").val('@Model.DateTo')
+            } else {
+                $("#DateFrom").val("")
+                $("#DateTo").val("")
+            }
+        })
+        $("#BuyerID").change(function () {
+            GetBuyerWiseOrder();
+        });
+
+        $('#OrderID').select2({
+            minimumInputLength: 0,
+            ajax: {
+                url: '/CommonDropDown/DDLBuyerWiseOrder',
+                dataType: 'json',
+                type: 'GET',
+                data: function (params) {
+                   
+                    let BuyerID = $("#BuyerID").val();
+                    let dateFrom = '@DateTime.Now.AddYears(-5).Date.ToShortDateString()';
+                    var queryParameters = {
+                        BuyerID: BuyerID,
+                        DateFrom: dateFrom,
+                        Predict: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                  
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Value, text: item.Text };
+                        })
+                    }
+                },
+                cache: true
+                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+            }
+        });
+        $("#btnPdf").click(function () {
+            GetOrderAccessoriesCostHistory("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+        $("#btnExcel").click(function () {
+            GetOrderAccessoriesCostHistory("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+        });
+
+
+        $('#category').select2({
+            ajax: {
+                url: 'https://jsonplaceholder.typicode.com/comments',
+                dataType: 'json',
+                data: function (params) {
+                    debugger;
+                    let userId = 1;
+
+                    var queryParameters = {
+                        postId: userId,
+                        search: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    console.log(data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.id, text: item.name };
+                        })
+                    };
+                }
+            },
+            minimumInputLength: 1
+        });
+    });
+
+
+    </script>
+}

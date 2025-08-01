@@ -1,0 +1,152 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.Mer_StyleMasterVM
+
+@{
+    ViewData["Title"] = "Report";
+    ViewData["pageTitle"] = "Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" enctype="multipart/form-data" asp-controller="MerchandisingOrder" name="frmCreate" id="frmCreate" asp-action="Create">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="ZoneID"></label>
+                <select class="form-control form-control-sm" required asp-for="ZoneID">
+                    @{
+                        foreach (var item in Model.ZoneList)
+                        {
+                            <option value="@item.Value" data-ZoneCode="@item.Custome1">@item.Text</option>
+                        }
+                    }
+
+                </select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="StyleNo"></label>
+                <input type="text" autocomplete="off" asp-for="StyleNo" class="form-control form-control-sm">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="DateFrom"></label>
+                <input type="text" autocomplete="off" asp-for="DateFrom" class="form-control form-control-sm dateField">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="DateTo"></label>
+                <input type="text" autocomplete="off" asp-for="DateTo" class="form-control form-control-sm dateField">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnSearch">Search</button>
+                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-warning" id="btnReport">Report</button>
+            </div>
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col-md-12">
+            <table class="table table-sm table-bordered table-striped" id="tblShipmentReport">
+                <thead class="bg-primary">
+                    <tr>
+                        <th class="text-center">SL.</th>
+                        <th class="text-center">Program</th>
+                        <th class="text-center">Style No</th>
+                        <th class="text-center">PO Number</th>
+                        <th class="text-center">Order No</th>
+                        <th class="text-center">Ex Factory Date</th>
+                        <th class="text-center">Order Quantity</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center"></tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+
+    function GenerateShipmentTable(data) {
+        debugger;
+        let tr = '';
+        let prevExportMonth = '';
+        let currentExportMonth = '';
+        let totalOrderQty = 0;
+        let grandTotalOrderQty = 0;
+        $.each(data, function (i, v) {
+            currentExportMonth = v.ExportMonth;
+            if (prevExportMonth != currentExportMonth) {
+                if (prevExportMonth != "") {
+                    tr = tr + '<tr><td colspan="6" class="text-right bg-warning">Total Order Quantity</td><td class="bg-warning">' + totalOrderQty + '</td></tr>';
+
+                    grandTotalOrderQty = grandTotalOrderQty + totalOrderQty;
+                    totalOrderQty = 0;
+                }
+                tr = tr + '<tr><td colspan="7" class="text-left"><b> Export Month : ' + v.ExportMonth + '</b></td></tr>';
+            }
+            tr = tr + '<tr><td>' + (i + 1) + '</td><td>' + v.Program + '</td><td>' + v.StyleNo + '</td><td>' + v.PONumber + '</td><td>' + v.OrderNo + '</td><td>' + v.ExFactoryDateMsg + '</td><td>' + v.OrderQuantity + '</td></tr>'
+            totalOrderQty = totalOrderQty + v.OrderQuantity;
+
+            if (data.length == (i + 1)) {
+                grandTotalOrderQty = grandTotalOrderQty + totalOrderQty;
+                tr = tr + '<tr><td colspan="6" class="text-right bg-warning">Total Order Quantity</td><td class="bg-warning">' + totalOrderQty + '</td></tr>';
+                tr = tr + '<tr><td colspan="6" class="text-right bg-danger">Grand Total Order Quantity</td><td class="bg-danger">' + grandTotalOrderQty + '</td></tr>';
+                grandTotalOrderQty = 0;
+            }
+
+            prevExportMonth = currentExportMonth
+        });
+        $("#tblShipmentReport tbody").html(tr);
+    }
+
+    $(function () {
+        $("#btnSearch").click(function () {
+            debugger;
+            let zoneID = $("#ZoneID").val();
+            let styleNo = $("#StyleNo").val();
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+            
+            if (zoneID > 0 || dateFrom != "" || dateTo != "") {
+                if (dateFrom == "" && dateTo != "") {
+                    dateFrom = dateTo;
+                }
+                $.ajax({
+                    type: 'GET',
+                    url: '/MerchandisingOrder/GetMerOrderShipment',
+                    data: { ZoneID: zoneID, StyleNo: styleNo, DateFrom: dateFrom, DateTo: dateTo },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data != null) {
+                            GenerateShipmentTable(data);
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+
+        });
+        $('#btnReport').click(function () {
+            let zoneID = $("#ZoneID").val();
+            let styleNo = $("#StyleNo").val();
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+            if (zoneID > 0 || styleNo != "" || dateFrom != "" || dateTo != "") {
+                if (dateFrom == "" && dateTo != "") {
+                    dateFrom = dateTo;
+                }
+                window.open("/MerchandisingOrder/PrintReport?ZoneID=" + zoneID + "&StyleNo=" + styleNo + "&DateFrom=" + dateFrom + "&DateTo=" + dateTo , "Order Shipment Report", "status=1,toolbar=0");
+            }
+        })
+    })
+</script>

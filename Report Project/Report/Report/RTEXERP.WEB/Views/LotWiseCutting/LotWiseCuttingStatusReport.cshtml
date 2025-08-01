@@ -1,0 +1,440 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingStatusViewModel
+@{
+    Layout = null;
+}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="Robintex OrderSheet">
+        <title>Lot wise cutting status report</title>
+        <meta name="theme-color" content="#563d7c">
+
+
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        @*<script src="~/lib/jquery/dist/3.4.1/jquery-3.4.1.slim.min.js"></script>*@
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        @*<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+        <style>
+            .txtAlignCenter {
+                text-align: center;
+            }
+
+            .bd-placeholder-img {
+                font-size: 1.125rem;
+                text-anchor: middle;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            table thead {
+                text-align: center;
+            }
+
+            table {
+                table-layout: fixed;
+            }
+
+            td {
+                word-wrap: break-word
+            }
+
+            table.table-bordered {
+                border: 1px solid #000;
+                margin-top: 20px;
+            }
+
+                table.table-bordered > thead > tr > th {
+                    border: 1px solid #000;
+                    padding: 1px;
+                }
+
+                table.table-bordered > tbody > tr > td {
+                    border: 1px solid #000;
+                    padding: 1px;
+                }
+
+                table.table-bordered > tfoot > tr > td {
+                    border: 1px solid #000;
+                    padding: 1px;
+                }
+
+            .vAlignMiddle {
+                vertical-align: middle;
+            }
+        </style>
+        <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+        <link href="~/css/landscapePrint.css" rel="stylesheet" />
+        <link href="~/css/printCommon.css" rel="stylesheet" />
+
+        <link href="~/lib/alert/css/alert.css" rel="stylesheet" />
+        <script src="~/lib/alert/js/alert.js"></script>
+        <link href="~/lib/alert/themes/default/theme.css" rel="stylesheet" />
+
+    </head>
+    <body>
+        <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">
+            <div class="row">
+                <div class="form-group" style="margin-bottom:0px;">
+                    <div class="col-md-4">
+                        <table class="table table-sm table-bordered" style="font-size: 12px;width: 300px;" id="tblOrderInfo">
+                            <thead><tr><th colspan="2" class="txtAlignCenter">Order Detail</th></tr></thead>
+                            <tbody>
+                                <tr><td>Order No</td><td><label id="lblOrderNo"></label></td></tr>
+                                <tr><td>Order Qty</td><td><label id="lblOrderQty"></label></td></tr>
+                                <tr><td>Color</td><td><label id="lblColor"></label></td></tr>
+                                <tr><td>Garment Style</td><td><label id="lblGarmentStyle"></label></td></tr>
+                                <tr><td>Required GSM</td><td><label id="lblRequiredGSM"></label></td></tr>
+                                <tr><td>Approved DIA</td><td><label id="lblApprovedDIA"></label></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0px;">
+                    <div class="col-md-4">
+                        <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 12px;width: 350px;" id="tblCalculationInfo">
+                            <thead><tr><th colspan="3" class="txtAlignCenter">Cutting Info</th></tr></thead>
+                            <tbody>
+                                <tr><td><span id="lblCuttingTarget">Cutting Target</span></td><td><span id="lblSewingInputTarget">Sewing Input Target</span></td><td>Total Cut Qty</td></tr>
+                                <tr><td><label id="lblCuttingTargetQty"></label></td><td><label id="lblSewingInputTargetQty"></label></td><td><label id="lblTotalCutQty"></label></td></tr>
+                                <tr><td>Cutting Cons</td><td>CAD Avg. Cons.</td><td>Cost Cons.</td></tr>
+                                <tr><td><label id="lblCuttingCons"></label></td><td><label id="lblCADAvg"></label></td><td><label id="lblCostCons"></label></td></tr>
+                                <tr><td>Panel Reject</td><td>Inspection</td><td>Cutting Bal. to Sewing Input</td></tr>
+                                <tr><td><label id="lblPanelReject"></label></td><td><label id="lblInspection"></label></td><td><label id="lblCuttingBalToSewing"></label></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0px;">
+                    <div class="col-md-4">
+                        <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 12px;width: 250px;" id="tblLastInfo">
+                            <thead><tr><th class="txtAlignCenter">Used Fabric Info</th></tr></thead>
+                            <tbody>
+                                <tr><td>Used Fabric</td></tr>
+                                <tr><td><label id="lblUsedFabric"></label></td></tr>
+                                <tr><td>Input Achieved(Before Inspection)</td></tr>
+                                <tr><td><label id="lblInputAchieved"></label></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-sm table-bordered" style="font-size: 12px;text-align:center;" id="tblMarkerDetail">
+                                <thead></thead>
+                                <tbody></tbody>
+                                <tfoot></tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+</main>
+        <div class="row d-print-none">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input type="button" class="btn btn-sm btn-success" id="btnPrint" value="Print" onclick="window.print()" />
+                        <input type="button" class="btn btn-sm btn-warning" id="btnExcel" value="Excel" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function fnHtmlToExcelCuttingReport(tableList) {
+                debugger;
+                let tab_text = '<table><tr>';
+                $.each(tableList, function (i, v) {
+                    if (v.Position == 'First' || v.Position == 'Side') {
+                        if (i > 0) {
+                            tab_text = tab_text + '<td></td>'
+                        }
+                        tab_text = tab_text + "<td>";
+                    }
+                    if (v.Position == 'Bottom') {
+                        tab_text = tab_text + '<table><tr><td>&nbsp;</td></tr></table>';
+                    }
+                    debugger;
+                    tab_text = tab_text + "<table border='2px'><tr bgcolor='#87AFC6'>";
+                    var textRange; var j = 0;
+                    let tab = document.getElementById(v.TableId); // id of table
+                    for (j = 0; j < tab.rows.length; j++) {
+                        tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                    }
+                    tab_text = tab_text + "</table>";
+                    if (v.Position == 'First' || v.Position == 'Side') {
+                        tab_text = tab_text + "</td>";
+                    }
+                });
+                tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+                tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+                tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+                var ua = window.navigator.userAgent;
+                var msie = ua.indexOf("MSIE ");
+
+                if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+                {
+                    txtArea1.document.open("txt/html", "replace");
+                    txtArea1.document.write(tab_text);
+                    txtArea1.document.close();
+                    txtArea1.focus();
+                    sa = txtArea1.document.execCommand("SaveAs", true, "CuttingMarkerStatus.xls");
+                }
+                else {
+                    //other browser not tested on IE 11
+                    let dt = new Date();
+                    let day = dt.getDate();
+                    let month = dt.getMonth() + 1;
+                    let year = dt.getFullYear();
+                    let hour = dt.getHours();
+                    let mins = dt.getMinutes();
+                    let sec = dt.getSeconds();
+                    let postfix = day + "." + month + "." + year + "_" + hour + "." + mins+"."+sec;
+
+                    // sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+                    let a = document.createElement('a');
+                    a.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
+                    a.download = 'CuttingMarkerStatus' + postfix + '.xls';
+                    a.click();
+                    //just in case, prevent default behaviour
+                    e.preventDefault();
+                }
+                //return (sa);
+            }
+
+            function DeleteLotInfo(orderId, pantoneNo, lotId, lotQuantity) {
+                $.alert.open('confirm', 'Are you sure to delete this data', function (button) {
+                    if (button == 'yes') {
+                        if (orderId != "" && pantoneNo != "" && lotId > 0) {
+
+                            $.ajax({
+                                type: 'GET',
+                                url: '/LotWiseCutting/DeleteLotInfo',
+                                data: { orderId: orderId, color: pantoneNo, lotId: lotId, lotQuantity: lotQuantity },
+                                dataType: 'json',
+                                async: false,
+                                success: function (data) {
+                                    if (data.result == 1) {
+                                        $.alert.open({
+                                            type: 'Success',
+                                            content: data.message,
+                                            callback: function () {                                              
+                                                    window.location.reload();                                                
+                                            }
+                                        });
+
+                                    } else {
+                                        $.alert.open('error', data.message);
+                                    }
+                                },
+                                error: function (request, status, error) {
+                                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                                }
+                            });
+                        } else {
+                            $.alert.open('warning', 'Error');
+                        }
+                    } 
+                 
+                });
+                
+
+
+            }
+
+
+            $(document).ready(function () {
+
+                debugger;
+                if ('@Model.OrderNo'!='' && '@Model.Color'!='') {
+
+                        $.ajax({
+                            type: 'GET',
+                            contentType: "application/json; charset=utf-8",
+                            url: '/LotWiseCutting/GetLotWiseCuttingStatus',
+                            data: { orderNo: '@Model.OrderNo', color: '@Model.Color', MarkerCuttingPlanMaster_ExcelID:'@Model.MarkerCuttingPlanMaster_ExcelID' },
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+
+                                if (data != null) {
+
+                                    $("#lblOrderNo").text(data.OrderNo);
+                                    $("#lblOrderQty").text((data.TotalQty + data.TotalPetitQty) + ' Pcs. ' + data.OrderQtyKg + ' Kg');
+                                    $("#lblColor").text(data.Color);
+                                    $("#lblGarmentStyle").text(data.StyleName);
+                                    $("#lblRequiredGSM").text(data.GSM);
+                                    $("#lblApprovedDIA").text(data.Dia);
+                                    $("#lblCADAvg").text(data.CADAvg + ' ' + data.CostedConsUnit)
+                                    $("#lblCostCons").text(data.CostedCons + ' ' + data.CostedConsUnit);
+
+                                    let totalLotQty = 0;
+                                    let totalActualCutQty = 0;
+                                    let sizeCount = 0;
+                                    let totalCutTarget = 0;
+                                    let totalSewingTarget = 0;
+
+                                    let tr = '';
+                                    let th = '<tr><th class="txtAlignCenter" rowspan="2" style="width:75px;  vertical-align: middle;">Report Date</th><th class="txtAlignCenter" rowspan="2" style="width:80px;  vertical-align: middle;">Batch No</th><th valign="middle" rowspan="2" style="width:50px;   vertical-align: middle;" class="txtAlignCenter">Qty</th><th rowspan="2" style="width:80px;   vertical-align: middle;" class="txtAlignCenter">Cutting Ratio</th>';
+                                    let thTdBottom = '';
+                                    let thTd = '';
+                                    let thTdShortCutting = '';
+                                    let shortCuttingDefaultTd = '';
+                                    let tFoot = '<tr><td><b>Total</b></td>';
+                                    $.each(data.LotWiseCuttingInfo, function (i, v) {
+                                        debugger;
+                                        $.each(v.LotWiseCuttingInfoMarkers, function (j, k) {
+                                            let sizeTd = '';
+                                            let totalPcs = 0;
+                                            $.each(k.LotWiseCuttingInfoMarkersSizes, function (l, m) {
+                                                if (i == 0 && j == 0) {
+                                                    sizeCount = k.LotWiseCuttingInfoMarkersSizes.length;
+                                                    thTd = '<th colspan=' + (sizeCount + 1) + ' class="txtAlignCenter" style="vertical-align: middle;">Size</th>';
+                                                    thTdShortCutting = '<th colspan=' + (sizeCount) + ' class="txtAlignCenter" style="vertical-align: middle;">Short Cutting</th>';
+                                                    thTdBottom = thTdBottom + '<th style="width:12px;" class="txtAlignCenter" >' + m.Size + '</th>';
+                                                    shortCuttingDefaultTd = shortCuttingDefaultTd + '<td></td>';
+                                                }
+                                                sizeTd = sizeTd + '<td>' + m.Quantity + '</td>';
+                                                totalPcs = totalPcs + m.Quantity;
+                                            });
+                                            sizeTd = sizeTd + '<td>' + totalPcs + '</td>';
+                                            let batchMarkerTd = '<td></td><td></td><td></td>';
+                                            if (j == 0) {
+                                                batchMarkerTd = '<td>' + v.CuttingReportingDateMsg + '</td><td>' + v.LotNo + '</td><td>' + v.LotQuantity + ' Kg </td>';
+                                                totalLotQty = totalLotQty + v.LotQuantity;
+                                            }
+                                            let shortCuttingQty = 0;
+                                            let diffColor = "";
+                                            if ((((k.CADMarkerLengthYard * 36) + k.CADMarkerLengthInch) - ((k.CuttingLengthYard * 36) + k.CuttingLengthInch)) < 0) {
+                                                diffColor = 'class="bg-danger"';
+                                            }
+                                            debugger;
+                                            tr = tr + '<tr>' + batchMarkerTd + '<td>' + k.MarkerName + '</td>' + sizeTd +
+                                                '<td>' + k.CADMarkerLengthYard + ' </td>' +
+                                                '<td>' + k.CADMarkerLengthInch + ' </td>' +
+                                                '<td>' + k.CuttingLengthYard + ' </td>' +
+                                                '<td>' + k.CuttingLengthInch + ' </td>' +
+                                                '<td ' + diffColor + '>' + (((k.CADMarkerLengthYard * 36) + k.CADMarkerLengthInch) - ((k.CuttingLengthYard * 36) + k.CuttingLengthInch)) + ' </td>' +
+                                                '<td>' + k.CuttingLayer + '</td>';
+                                            if (k.CuttingTargetValue > 0) { tr = tr + '<td>' + k.CuttingTargetValue + '</td>'; } else { tr = tr + '<td></td>'; }
+                                            if (k.SewingInputValue > 0) { tr = tr + '<td>' + k.SewingInputValue + '</td>'; } else { tr = tr + '<td></td>'; }
+                                            if (k.TargetAsCADCons > 0) { tr = tr + '<td>' + k.TargetAsCADCons + '</td>'; } else { tr = tr + '<td></td>'; }
+                                                  //'<td>' + k.CuttingTargetValue + '</td>' +
+                                                //'<td>' + k.SewingInputValue + '</td>' +
+                                                //'<td>' + k.TargetAsCADCons + '</td>' +
+                                            tr = tr +'<td>' + (totalPcs * k.CuttingLayer) + '</td>';
+                                            totalCutTarget = totalCutTarget + k.CuttingTargetValue;
+                                            totalSewingTarget = totalSewingTarget + k.SewingInputValue;
+
+                                            if (v.LotWiseShortCuttingInfo.length > 0) {
+                                                if (j == 0) {
+                                                    let shortCuttingTd = '';
+                                                    debugger;
+                                                    $.each(v.LotWiseShortCuttingInfo, function (d, e) {
+                                                        if (e.Quantity > 0) {
+                                                            shortCuttingTd = shortCuttingTd + '<td>' + e.Quantity + '</td>';
+                                                        } else {
+                                                            shortCuttingTd = shortCuttingTd + '<td></td>';
+                                                        }
+                                                        //shortCuttingTd = shortCuttingTd + '<td>' + e.Quantity + '</td>';
+                                                        shortCuttingQty = shortCuttingQty + e.Quantity;
+                                                    });
+                                                    tr = tr + shortCuttingTd + '<td>' + shortCuttingQty + '</td>';
+                                                } else {
+                                                    tr = tr + shortCuttingDefaultTd + '<td></td>';
+                                                }
+                                            } else {
+                                                tr = tr + shortCuttingDefaultTd + '<td></td>';
+                                            }
+                                            let action = "";
+                                            if (j == 0) {
+                                                action = '<input type="button" class="btn btn-sm btn-danger" onclick="DeleteLotInfo(' + v.OrderID + ',\''+v.PantoneNo+'\','+ v.LotID + ',' + v.LotQuantity+')" value="X"/>';
+                                            }
+                                            tr = tr + '<td>' + ((totalPcs * k.CuttingLayer) + shortCuttingQty) + '</td><td>' + k.ReceivedDIA + '</td><td class="d-print-none">' + action+'</td></tr>';
+
+                                            totalActualCutQty = totalActualCutQty + ((totalPcs * k.CuttingLayer) + shortCuttingQty);
+                                        });
+
+                                    });
+
+                                    thTd = thTd + '<th colspan="2" class="txtAlignCenter" style="vertical-align: middle;">CAD Length</th><th colspan="2" class="txtAlignCenter" style="vertical-align: middle;">Cutting Length</th><th rowspan="2" class="txtAlignCenter" style="vertical-align: middle;">Diff.</th><th rowspan="2" class="txtAlignCenter" style="vertical-align: middle;">Layer</th><th rowspan="2" width="5%" class="txtAlignCenter">Cutting Target +' + data.CuttingTargetPercentage + '%</th>' +
+                                        '<th rowspan="2"  width="5%" class="txtAlignCenter" style="vertical-align: middle;">Target for Sweing Input +' + data.SewingInputPercentage + '%</th><th rowspan="2" width="5%" class="txtAlignCenter" style="vertical-align: middle;">Target as CAD cons. (pcs)</th><th rowspan="2" class="txtAlignCenter" width="5%" style="vertical-align: middle;">Cut as Layer Qty. (pcs)</th>' + thTdShortCutting +
+                                        '<th rowspan="2" class="txtAlignCenter" width="5%" style="vertical-align: middle;">Total Short/ Cut Pcs.</th><th rowspan="2" class="txtAlignCenter" width="5%" style="vertical-align: middle;">Actual Cut Qty (Pcs)</th><th rowspan="2" class="txtAlignCenter" style="vertical-align: middle;">Rcv. DIA</th><th rowspan="2" class="txtAlignCenter d-print-none" style="vertical-align: middle;"></th></tr>';
+                                    thTdBottom = '<tr class="txtAlignCenter">' + thTdBottom + '<th style="width:30px;"class="txtAlignCenter">Total Pcs.</th><th style="width:30px;"class="txtAlignCenter">Yard</th><th style="width:30px;"class="txtAlignCenter">Inch</th><th style="width:30px;"class="txtAlignCenter">Yard</th><th style="width:30px;"class="txtAlignCenter">Inch</th>' + thTdBottom + '</tr>';
+                                    th = th + thTd;
+                                    tFoot = tFoot + '<td><b>' + totalLotQty + ' Kg</b></td><td colspan=' + ((sizeCount * 2) + 12) + '></td><td><b>Total</b></td><td class="text-left" colspan="2"><b>' + totalActualCutQty + '</b></td>';
+                                    $("#tblMarkerDetail thead").html(th + thTdBottom);
+                                    $("#tblMarkerDetail tbody").html(tr);
+                                    //$("#tblMarkerDetail tfoot").html(tFoot);
+
+
+                                    $("#lblCuttingTarget").text($("#lblCuttingTarget").text() + ' ' + data.CuttingTargetPercentage + '%+');
+                                    $("#lblSewingInputTarget").text($("#lblSewingInputTarget").text() + ' ' + data.SewingInputPercentage + '%+');
+                                    $("#lblCuttingTargetQty").text(totalCutTarget + ' Pcs.');
+                                    $("#lblSewingInputTargetQty").text(totalSewingTarget + ' Pcs.');
+                                    $("#lblTotalCutQty").text(totalActualCutQty + ' Pcs.')
+                                    $("#lblCuttingCons").text(((totalLotQty / totalActualCutQty) * 12).toFixed(3) + ' Kg/dz.');
+                                    $("#lblUsedFabric").text(totalLotQty + ' Kg ' + ((totalLotQty * 100) / data.OrderQtyKg).toFixed(0) + '%');
+
+                                    $("#lblCuttingBalToSewing").text((((data.TotalQty + data.TotalPetitQty) * (1 + (data.SewingInputPercentage / 100))) - (totalActualCutQty - data.PanelRejectPcs)).toFixed(0) + ' Pcs.');
+                                    $("#lblPanelReject").text(data.PanelRejectPcs + ' Pcs. ' + data.PanelRejectPercentage + '%');
+                                    $("#lblInspection").text(data.InspectionPcs + ' Pcs.');//totalActualCutQty   (data.TotalQty + data.TotalPetitQty)
+                                   // $("#lblInputAchieved").text(((data.InspectionPcs / ((data.TotalQty + data.TotalPetitQty) * (1 + (data.SewingInputPercentage / 100)))) * 100).toFixed(0) + '%');
+                                    $("#lblInputAchieved").text(((totalActualCutQty / ((data.TotalQty + data.TotalPetitQty) * (1 + (data.SewingInputPercentage / 100)))) * 100).toFixed(0) + '%');
+                                } else {
+                                    $("#lblOrderNo").text('');
+                                    $("#lblOrderQty").text('');
+                                    $("#lblColor").text('');
+                                    $("#lblGarmentStyle").text('');
+                                    $("#lblRequiredGSM").text('');
+                                    $("#lblApprovedDIA").text('');
+                                }
+                            },
+                            error: function (request, status, error) {
+                                alert(request.statusText + "/" + request.statusText + "/" + error);
+                            }
+                        });
+
+                }
+
+                $("#btnExcel").click(function () {
+                    let tableList = new Array();
+                    var excelTable1 = {
+                        TableId: "tblOrderInfo",
+                        Position: "First"
+                    }
+                    var excelTable2 = {
+                        TableId: "tblCalculationInfo",
+                        Position: "Side"
+                    }
+                    var excelTable3 = {
+                        TableId: "tblLastInfo",
+                        Position: "Side"
+                    }
+                    var excelTable4 = {
+                        TableId: "tblMarkerDetail",
+                        Position: "Bottom"
+                    }
+                    tableList.push(excelTable1);
+                    tableList.push(excelTable2);
+                    tableList.push(excelTable3);
+                    tableList.push(excelTable4);
+
+                    fnHtmlToExcelCuttingReport(tableList);
+                });
+            });
+        </script>
+    </body>
+</html>
+
+        
+

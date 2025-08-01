@@ -1,0 +1,282 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.MAC_OrderCostingListVM;
+@{
+    ViewData["Title"] = "Pre Assement Costing List";
+    ViewData["pageTitle"] = "Pre Assement Costing List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int RoleID = SessionData.Session_Role_ID;
+    bool IsSuperAdmin = SessionData.Session_User_IsSuperAdmin;
+}
+<style type="text/css">
+    table.table-bordered {
+        border: 1px solid #000;
+        margin-top: 20px;
+    }
+
+        table.table-bordered > thead > tr > th {
+            border: 1px solid #000;
+        }
+
+        table.table-bordered > tbody > tr > td {
+            border: 1px solid #000;
+        }
+
+        table.table-bordered > tfoot > tr > td {
+            border: 1px solid #000;
+        }
+</style>
+<form asp-action="Index" asp-controller="FCR_InvoiceOrderMapping" id="frmIndex" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="BuyerID" class="label-ajt-sm required"></label>
+                <select asp-for="BuyerID" asp-items="Model.DDLBuyer" class="form-control form-control-sm"></select>
+                <span asp-validation-for="BuyerID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="OrderNo" class="label-ajt-sm required"></label>
+                <select asp-for="OrderNo" asp-items="Model.DDLOrder" class="form-control form-control-sm"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="StyleName" class="label-ajt-sm required"></label>
+                @*<select asp-for="StyleName" asp-items="Model.DDLStyle" class="form-control form-control-sm"></select>*@
+                <input asp-for="StyleName" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label asp-for="FabricInfo" class="label-ajt-sm required"></label>
+                <input asp-for="FabricInfo" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFromSTR" class="label-ajt-sm required"></label>
+                <input asp-for="DateFromSTR" id="DateFrom" name="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateToSTR" class="label-ajt-sm required"></label>
+                <input asp-for="DateToSTR" id="DateTo" name="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-sm-12 text-center">
+            <button type="button" id="btnShow" class="btn btn-sm btn-primary">Show</button>
+        </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-hover table-striped text-sm">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Costing Date</th>
+                            <th>Buyer</th>
+                            <th>Order</th>
+                            <th>Style</th>
+                            <th>Order Price</th>
+                            <th>Offer Price</th>
+                            <th>Fabric Composition</th>
+                            <th>Efficiency</th>
+                            <th>CPM</th>
+                            <th>SMV</th>
+                            <th style="width:200px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblCostingBody"></tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <span id="fabricInfodata" style="display:none"></span>
+</form>
+
+
+@section scripts{
+    <script>
+        function GetBuyerOrder() {
+            var buyerID = $("#BuyerID").val();
+            if (!buyerID) {
+                buyerID = 0;
+            }
+
+            let orderData = GenerateDropDownOptions("MerchandisingOrderCosting", "DDLCostingOrder", { "BuyerID": buyerID },"");
+            $("#OrderNo").html(orderData).trigger("chosen:updated");
+            $("#StyleName").html("");
+        }
+        /*
+        function GetOrderStyle() {
+            var orderNo = $("#OrderNo").val();
+            if (!orderNo) {
+                orderNo = null;
+            }
+            GenerateDropDown("MerchandisingOrderCosting", "DDLCostingOrderStyle", { "OrderNo": orderNo }, "StyleName", "");
+        }*/
+        function GenerateListTable(tableobj) {
+            let sl = 1;
+            let tr = "";
+            $("#tblCostingBody").html("");
+            $.each(tableobj, function (i, v) {
+                
+                    tr += `<tr>`;
+                tr += `<td>${sl}</td>`
+                tr += `<td>${v.CostingDateSTR}</td>`;
+                tr += `<td>${v.BuyerName}</td>`;
+                tr += `<td>${v.OrderNo}</td>`;
+                tr += `<td>${v.StyleName}</td>`;
+                tr += `<td>${v.OrderPrice}</td>`;
+                tr += `<td>${v.OfferPrice}</td>`;
+                tr += `<td>${v.FabricInfo}</td >`;
+
+                //$("#).html(v.FabricInfo);
+
+                tr += `<td>${v.Efficiency == null ? "No Entry" : v.Efficiency}</td>`;
+                tr += `<td>${v.CPM == null?"No Entry":v.CPM}</td>`;
+                tr += `<td>${v.SMV}</td>`;
+                tr += `<td><button type="button" class="btn btn-sm" onClick='return CloneCosting(${v.ID});' title="Clone"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                        | <button type="button" class="btn btn-sm" onClick="return ShowReport(${v.ID});" title="Show Report" style="color:red;"><i class="fas fa-file-pdf"></i></button>`;
+                if (v.IsInsertedAlgo == 0 || ('@RoleID' === '1' && '@IsSuperAdmin' === 'True') || ('@User.Identity.Name'==="sharif")) {
+                            tr += `|<button type = "button" title ="Edit" class="btn btn-sm" onClick="return editOrderSheet(${v.ID});" style="color:red;"><i class="fa fa-edit" aria-hidden="true"></i></button>`;
+                            tr += `|<button type = "button" title="Delete" class="btn btn-sm" onClick="return deleteOrderSheet(${v.ID});" style="color:red;"><i class="fa fa-trash" aria-hidden="true"></i></button>`;
+
+                        }
+                tr += `<input type="hidden" value="${v.ID}" class="hdnOrderCostingID" /></td>`;
+
+                tr += `</tr>`;
+                sl = sl + 1;
+            });
+            $("#tblCostingBody").html(tr);
+
+        }
+
+
+        function deleteOrderSheet(id) {
+
+            if (id){
+                $.alert.open('prompt', `Enter Remarks (Merchandiser Delete Issue With Merchandiser name)`, function (button, value) {
+                    if (button == 'ok' && value) {
+
+                        $.ajax({
+                            type: "Post",
+                            data: { ID: id, Remarks: value },
+                            url: '/MerchandisingOrderCosting/RemoveCostingSheet',
+                            dataType: "json",
+                            async: false,
+                            success: function (data) {
+
+                                if (data != null && data.result == 1) {
+                                    MacOrderCostingList();
+                                }
+                                else if (data != null && data.result == 0) {
+                                    $.alert.open("error", data.message);
+                                } else {
+                                    $.alert.open("error", "not found");
+                                }
+                            },
+                            failure: function (errMsg) {
+                                $.alert.open("error", errMsg);
+                                return false;
+                            }
+                        });
+                    } else if (button == 'ok' && !value) {
+                        $.alert.open("warning", 'Enter remarks.');
+                        return false;
+                    }
+                });
+
+            }
+        }
+
+
+        function MacOrderCostingList() {
+            let BuyerID = $("#BuyerID").val();
+            let OrderNo = $("#OrderNo").val();
+            let OrderCostingID = 0;
+            let StyleName = $("#StyleName").val();
+            let FabricInfo = $("#FabricInfo").val();
+            let DateFrom = $("#DateFrom").val();
+            let DateTo = $("#DateTo").val();
+
+            var parmobj = { OrderCostingID: OrderCostingID, BuyerID: BuyerID, OrderNo: OrderNo, StyleName : StyleName, FabricInfo : FabricInfo, DateFrom : DateFrom, DateTo:DateTo };
+            $.ajax({
+                type: "GET",
+                data: parmobj,
+                url: '/MerchandisingOrderCosting/MAC_GetOrderCostingList',
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    if (data != null && data.length > 0) {
+                        GenerateListTable(data);
+                    }
+                    else {
+                        $("#tblCostingBody").html(`<tr><td colspan="9" style="color:danger;font-weight:bold;text-align:center;">No record found</td> </tr>`);
+                    }
+                },
+                failure: function (errMsg) {
+                    $.alert.open("error", errMsg);
+                    return false;
+                }
+            });
+        }
+
+        function ShowReport(id) {
+            if (id>0) {
+                var url = `/MerchandisingOrderCosting/OrderCostingReport?ID=${id}&ReportFormat=@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()&Removed=0`;
+                window.open(url, "Stock Report", "status=1,toolbar=0,width='+screen.width");
+            } else {
+                alert("Please provide all data");
+            }
+        }
+        function editOrderSheet(id) {
+            if (id > 0) {
+                var url = `/MerchandisingOrderCosting/CostingSheetEdit?ID=${id}`;
+                window.location.href = url;
+            } else {
+                alert("Please provide all data");
+            }
+        }
+
+        function CloneCosting(id) {
+        if (id>0) {
+            var url = `/MerchandisingOrderCosting/CloneCosting?ID=${id}`;
+            window.location.href = url;
+            } else {
+                alert("Please provide all data");
+            }
+        }
+
+
+        $(document).ready(function () {
+            $("#BuyerID").chosen();
+            $("#OrderNo").chosen();
+            MacOrderCostingList();
+
+            $("#BuyerID").change(function () {
+                GetBuyerOrder();
+            })
+            $("#OrderNo").change(function () {
+              //  GetOrderStyle();
+            })
+            $("#btnShow").click(function () {
+                MacOrderCostingList();
+            });
+        });
+    </script>
+}
+
+
+
+

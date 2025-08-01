@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Sp_Aop_Cost_Summary_DataSource">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=192.173.164.8;Initial Catalog=AOP</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>3e706129-d8da-4453-96a9-73539f8d18a1</DataSourceID>
+</RptDataSource>

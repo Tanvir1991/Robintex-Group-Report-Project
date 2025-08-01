@@ -1,0 +1,323 @@
+﻿@model RTEXERP.Contracts.BLModels.CMS.GarmentsProductionData
+@{
+    ViewData["Title"] = $"Oval Printing Report";
+    Layout = null;
+    int? grandTotalProduction = 0;
+    decimal grandTotalEarningUSD = 0;
+    decimal grandTotalEarningBDT = 0;
+    decimal grandTotalLineSalary = 0;
+    decimal grandTotalOT = 0;
+    decimal grandTotalSubContCost = 0;
+    decimal grandTotaSalary = 0;
+    decimal grandTotaCost = 0;
+    decimal grandTotaGross = 0;
+
+    var totalRowData = Model.InhouseGarmentsProductionList.Count() - 1;
+
+    //var LineListSummary = Model.InhouseGarmentsProductionList.GroupBy(g => new { g.ProductionDate, g.BuildingName, g.FloorName, g.LineName, g.LineSalary, g.Line_OT })
+    //    .Select(s => new
+    //    {
+    //        s.Key.ProductionDate,
+    //        s.Key.BuildingName,
+    //        s.Key.FloorName,
+    //        s.Key.LineName,
+    //        s.Key.LineSalary,
+    //        s.Key.Line_OT,
+    //        EarningUSD = s.Sum(b => b.TotalCMDol),
+    //        EarningTK = s.Sum(b => b.TotalCMTk)
+    //    }).ToList();
+
+    //var SubContractLineListSummary = Model.SubContractGarmentsProductionList
+    //     .GroupBy(g => new { g.ProductionDate, g.BuildingName, g.FloorName, g.LineName, g.LineSalary, g.Line_OT })
+    //   .Select(s => new
+    //   {
+    //       s.Key.ProductionDate,
+    //       s.Key.BuildingName,
+    //       s.Key.FloorName,
+    //       s.Key.LineName,
+    //       s.Key.LineSalary,
+    //       s.Key.Line_OT,
+    //       EarningUSD = s.Sum(b => b.TotalCMDol),
+    //       EarningTK = s.Sum(b => b.TotalCMTk),
+    //       StyleSubContractAmount = s.Sum(b => b.StyleSubContractAmount),
+    //       TotalSubContractCharge = s.Sum(b => b.StyleSubContractAmount) + s.Key.LineSalary + s.Key.Line_OT,// b.LineSalary + b.Line_OT),
+    //       LineProfit = s.Sum(b => b.TotalCMTk) - (s.Sum(b => b.StyleSubContractAmount) + s.Key.LineSalary + s.Key.Line_OT)
+
+    //   }).ToList();
+
+
+    string ReportName = Model.ReportFor == 2 ? "Production" : "Finishing";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Garments @ReportName Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    <!--<link rel="stylesheet" href="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">-->
+    @*<link href="https:/ /cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">*@
+    <!--<script src="https:/ /code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>-->
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow no-print noprint">
+        <div class="navbar-brand col-sm-12 col-md-12 mr-0">Garments @ReportName</div>
+    </nav>
+
+    <div class="container-fluid">
+        <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Garments @ReportName Report</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Date Duration @Model.DateFrom To @Model.DateTo</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered table-bordered2 text-center table-striped text-sm text-bold">
+                        <tbody>
+                            <tr class="font-weight-bold">
+                                <td rowspan="2" style="width:9%; vertical-align:middle;">Date</td>
+                                <td rowspan="2" style="width:9%">&nbsp;</td>
+                                <td rowspan="2" style="width:9%; vertical-align:middle;">Production<br />(Pcs.)</td>
+                                <td rowspan="2" style="width:10%; vertical-align:middle;">Earning<br />(USD)</td>
+                                <td rowspan="2" style="width:10%; vertical-align:middle;">Earning<br />(BDT @String.Format("{0:n2}", Model.InhouseGarmentsProductionList[0].DollerRate))</td>
+                                <td colspan="5" style="width:50%; vertical-align:middle;">Line Cost</td>
+                                <td rowspan="2" style="width:10%; vertical-align:middle;">Gross Profit</td>
+                            </tr>
+                            <tr class="font-weight-bold">
+                                @*<th>&nbsp;</th>*@
+                                <td style="width:20%">Line Salary</td>
+                                <td style="width:15%">OT</td>
+                                <td style="width:20%">Total Salary</td>
+                                <td style="width:15%">Sub.Cont. Cost</td>
+                                <td style="width:30%">Total Cost</td>
+
+                            </tr>
+                            @{ for (DateTime i = Convert.ToDateTime(Model.DateFrom); Convert.ToDateTime(Model.DateTo).CompareTo(i) >= 0; i = i.AddDays(1))
+                                {
+                                    int? totalProduction = 0;
+                                    decimal totalEarningUSD = 0;
+                                    decimal totalEarningBDT = 0;
+                                    decimal totalLineSalary = 0;
+                                    decimal totalOT = 0;
+                                    decimal totalSubContCost = 0;
+
+                                    int? rowProduction = 0;
+
+                                    string productionClass = "";
+                                    //decimal totalCost = 0;
+                                    //decimal totalGrossProfit = 0;
+
+
+                                    var production = Model.InhouseGarmentsProductionList.Where(x => Convert.ToDateTime(x.ProductionDate) == i).ToList();
+                                    var subContract = Model.SubContractGarmentsProductionList.Where(x => Convert.ToDateTime(x.ProductionDate) == i).ToList();
+                                    //if (production.Count > 0 && production.Sum(b => b.Ttl_Ok_Qty) > 0)
+                                    if (production.Count > 0)
+                                    {
+
+                                        rowProduction = production.Sum(b => b.Ttl_Ok_Qty);
+
+                                        totalProduction += rowProduction;
+                                        totalEarningUSD += production.Sum(b => b.TotalCMDol);
+                                        totalEarningBDT += production.Sum(b => b.TotalCMTk);
+                                        totalLineSalary += production.Sum(b => b.LineSalary);
+                                        totalOT += production.Sum(b => b.Line_OT);
+                                        totalSubContCost += 0;
+
+                                        productionClass = rowProduction == 0 ? "bg-warning" : "";
+                                        <tr>
+                                            @{
+                                                var profitLoss = (production.Sum(b => b.TotalCMTk) - production.Sum(b => b.LineSalary) - production.Sum(b => b.Line_OT));
+                                                var bgColor = profitLoss >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                            }
+                                            <td>@i.ToString("dd-MMM-yyyy")</td>
+                                            <td>In-House</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", production.Sum(b => b.Ttl_Ok_Qty))</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", production.Sum(b => b.TotalCMDol))</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", production.Sum(b => b.TotalCMTk))</td>
+                                            <td>@String.Format("{0:n2}", production.Sum(b => b.LineSalary))</td>
+                                            <td>@String.Format("{0:n2}", production.Sum(b => b.Line_OT))</td>
+                                            <td>@String.Format("{0:n0}", (production.Sum(b => b.LineSalary) + production.Sum(b => b.Line_OT)))</td>
+                                            <td>0</td>
+                                            <td>@String.Format("{0:n2}", (production.Sum(b => b.LineSalary) + production.Sum(b => b.Line_OT)))</td>
+                                            <td class="@bgColor">@String.Format("{0:n2}", (production.Sum(b => b.TotalCMTk) - production.Sum(b => b.LineSalary) - production.Sum(b => b.Line_OT)))</td>
+                                        </tr>
+
+                                    }
+                                    // if (subContract.Count > 0 && subContract.Sum(b => b.Ttl_Ok_Qty) > 0)
+                                    if (subContract.Count > 0)
+                                    {
+
+
+                                        rowProduction = subContract.Sum(b => b.Ttl_Ok_Qty);
+
+                                        totalProduction += rowProduction;
+                                        totalEarningUSD += subContract.Sum(b => b.TotalCMDol);
+                                        totalEarningBDT += subContract.Sum(b => b.TotalCMTk);
+
+                                        totalLineSalary += subContract.Sum(b => b.LineSalary);
+                                        totalOT += subContract.Sum(b => b.Line_OT);
+                                        totalSubContCost += subContract.Sum(b => b.StyleSubContractAmount);
+
+                                        productionClass = rowProduction == 0 ? "bg-warning" : "";
+
+                                        <tr>
+                                            @{
+                                                var profitLoss = (subContract.Sum(b => b.TotalCMTk) - subContract.Sum(b => b.LineSalary) - subContract.Sum(b => b.Line_OT) - subContract.Sum(b => b.StyleSubContractAmount));
+                                                var bgColor = profitLoss >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                            }
+                                            <td>@i.ToString("dd-MMM-yyyy")</td>
+                                            <td>Sub-Contract</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", subContract.Sum(b => b.Ttl_Ok_Qty))</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", subContract.Sum(b => b.TotalCMDol))</td>
+                                            <td class="@productionClass">@String.Format("{0:n0}", subContract.Sum(b => b.TotalCMTk))</td>
+                                            <td>@String.Format("{0:n2}", subContract.Sum(b => b.LineSalary))</td>
+                                            <td>@String.Format("{0:n2}", subContract.Sum(b => b.Line_OT))</td>
+                                            <td>@String.Format("{0:n2}", (subContract.Sum(b => b.LineSalary) + subContract.Sum(b => b.Line_OT)))</td>
+                                            <td>@String.Format("{0:n2}", subContract.Sum(b => b.StyleSubContractAmount))</td>
+                                            <td>
+                                                @String.Format("{0:n2}", (subContract.Sum(b => b.LineSalary) + subContract.Sum(b => b.Line_OT) + subContract.Sum(b => b.StyleSubContractAmount)))
+                                            </td>
+                                            <td class="@bgColor">
+                                                @String.Format("{0:n2}", (subContract.Sum(b => b.TotalCMTk) - subContract.Sum(b => b.LineSalary) - subContract.Sum(b => b.Line_OT) - subContract.Sum(b => b.StyleSubContractAmount)))
+                                            </td>
+                                        </tr>
+                                    }
+                                    if (totalProduction >= 0)
+                                    {
+
+                                        grandTotalProduction += totalProduction;
+                                        grandTotalEarningUSD += totalEarningUSD;
+                                        grandTotalEarningBDT += totalEarningBDT;
+                                        grandTotalLineSalary += totalLineSalary;
+                                        grandTotalOT += totalOT;
+                                        grandTotalSubContCost += totalSubContCost;
+                                        grandTotaSalary += (totalOT + totalLineSalary);
+                                        grandTotaCost += (totalLineSalary + totalOT + totalSubContCost);
+                                        grandTotaGross += (totalEarningBDT - totalLineSalary - totalOT - totalSubContCost);
+
+                                        <tr class="font-weight-bold">
+                                            <td></td>
+                                            <td>Total</td>
+                                            <td>@String.Format("{0:n0}", totalProduction)</td>
+                                            <td>@String.Format("{0:n0}", totalEarningUSD)</td>
+                                            <td>@String.Format("{0:n0}", totalEarningBDT)</td>
+                                            <td>
+                                                @String.Format("{0:n2}", totalLineSalary)
+                                            </td>
+                                            <td>
+                                                @String.Format("{0:n2}", totalOT)
+                                            </td>
+                                            <td>
+                                                @String.Format("{0:n2}", totalOT + totalLineSalary)
+                                            </td>
+                                            <td>@String.Format("{0:n2}", totalSubContCost)</td>
+                                            <td>
+                                                @String.Format("{0:n2}", totalLineSalary + totalOT + totalSubContCost)
+                                            </td>
+                                            <td>
+                                                @String.Format("{0:n2}", totalEarningBDT - totalLineSalary - totalOT - totalSubContCost)
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-weight-bold">
+                                <td colspan="2">Month Grand Total</td>
+                                <td>@String.Format("{0:n0}", grandTotalProduction)</td>
+                                <td>@String.Format("{0:n0}", grandTotalEarningUSD)</td>
+                                <td>@String.Format("{0:n0}", grandTotalEarningBDT)</td>
+                                <td>
+                                    @String.Format("{0:n2}", grandTotalLineSalary)
+                                </td>
+                                <td>
+                                    @String.Format("{0:n2}", grandTotalOT)
+                                </td>
+                                <td>
+                                    @String.Format("{0:n2}", grandTotaSalary)
+                                </td>
+                                <td>@String.Format("{0:n2}", grandTotalSubContCost)</td>
+                                <td>
+                                    @String.Format("{0:n2}", grandTotaCost)
+                                </td>
+                                <td>
+                                    @String.Format("{0:n2}", grandTotaGross)
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print" onClick="window.print()">
+        </div>
+    </div>
+
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @*<script src="https:/ /cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https:// stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>*@
+
+</body>
+</html>
+

@@ -1,0 +1,311 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.SPModel.BatchCosting.BatchCostingMap
+@{
+    ViewData["Title"] = $" Monthly Batch Production Cost{Model.CompanyName}";
+    Layout = null;
+
+    var StrColor = "";
+    double IntfabricQty = 0;
+    double IntChemCost = 0;
+    double IntDyeCost = 0;
+    double IntTotalCost = 0;
+    double TotalEarningUSD = 0;
+    double TotalToCalculateFinishFabricQty = 0;
+    double IntWastagTotalQty = 0;
+    double DblTotalMaterialCost = 0;
+    double DblGrossProfit = 0;
+    double TotalDblGrossProfit = 0;
+    double TotalDblTotalMaterialCostFC = 0;
+    DateTime CurrentDate = DateTime.Now;
+    //Model.CurrencyRate = 80;
+    double TOTALCOSTUSD = 0;
+    double IntProdCost = 0;
+    double IntShadeCost = 0;
+    double IntSampleCost = 0;
+    double IntMWCost = 0;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Robintex comptex">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Batch Production Cost::@Model.CompanyName</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    @*<link rel="stylesheet" href="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https:/ /code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > th {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+
+</head>
+<body>
+
+
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow noprint">
+        <div class="navbar-brand col-sm-12 col-md-12 mr-0">Batch Costing Report :: @Model.CompanyName</div>
+    </nav>
+
+    <style type="text/css" media="print">
+        .table {
+            background: inherit;
+        }
+    </style>
+    <div class="container-fluid printArea">
+        <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Comptex Dyeing Costing Summary</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">(Recipe Costing Based on Issuance of Dyes & Chemicals From @Model.StoreLocation)</span>
+                    <br />
+                    @*<span class="col-md-12" style="text-align:center;font-weight:bold;"> @Model[0].DateTo</span>*@
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;"> @Model.DateTo</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Doller Rate($) :BDT @Model.CurrencyRate</span>
+                </div>
+            </div>
+
+            <div class="row">
+                @*<div class="col-md-12">
+                        <table class="table table-sm table-bordered" style="font-size:14px;font-weight:bold;">
+                            <tr style="background:#aabbcc">
+                                <td style="width:165px">Doller Rate($) :BDT<span id="ExchangeRate"> @Model.CurrencyRate</span></td>
+                                <td>Earning : <span class="gtotalEarning">0</span></td>
+                                <td>Production Cost : <span class="gtotalProductionCost">0</span></td>
+                                <td>Salary : <span class="gperDaySalary">0</span></td>
+                                <td>Total Cost : <span class="gtotalCost">0</span></td>
+                                <td>Profit/Loss : <span class="gProfitLoss">0</span></td>
+
+                            </tr>
+                        </table>
+                        <table class="table table-striped table-bordered table-sm mdReport" id="tblSummary">
+                            <thead>
+                                <tr class="active" style="vertical-align:middle;">
+                                    <th style="vertical-align:middle;">TOTAL EARNINGS: </th>
+                                    <th id="totalEarning"></th>
+                                    <th style="vertical-align:middle;">Salary:</th>
+                                    <th style="vertical-align:middle;">BDT: @(String.Format("{0:n2}",Model.ComPerDayTotalSalary))</th>
+                                    <th style="vertical-align:middle;">SAMPLING COST:</th>
+                                    <th id="samplingCost"></th>
+                                    <th style="vertical-align:middle;">SHADE CORRECTION:</th>
+                                    <th id="ShadeCorrection"></th>
+                                </tr>
+                                <tr class="">
+                                    <th style="vertical-align:middle;">PRODUCTION COST:</th>
+                                    <th id="ProductionCost"></th>
+                                    <th style="vertical-align:middle;">MACHINE WASH:</th>
+                                    <th id="MachineWashCost"></th>
+                                    <th style="vertical-align:middle;">GROSS PROFIT:</th>
+                                    <th id="GrossProfit"></th>
+                                    <th style="vertical-align:middle;">Production Quantity:</th>
+                                    <th style="vertical-align:middle;" id="productionFabricQuantity"></th>
+                                </tr>
+                            </thead>
+
+                        </table>
+                    </div>*@
+                <div class="col-md-12" style="font-size:12px;">
+                    <table class="table table-striped table-bordered table-sm mdReport text-center" id="tblSummary">
+                        <thead>
+                            <tr style="vertical-align:middle;font-size:13px;">
+                                <th style="vertical-align:middle;" width="50">SL</th>
+                                <th style="vertical-align:middle;">Date</th>
+                                <th style="vertical-align:middle;">Production Qty</th>
+                                <th style="vertical-align:middle;">Production Cost<br />BDT</th>
+                                <th style="vertical-align:middle;">Sampling Cost<br />BDT</th>
+                                <th style="vertical-align:middle;">Machine Wash<br />BDT</th>
+                                <th style="vertical-align:middle;">Shade Correction<br />BDT</th>
+                                <th style="vertical-align:middle;">Total Production Cost BDT</th>
+                                <th style="vertical-align:middle;">Salary <br />BDT</th>
+                                <th style="vertical-align:middle;">Total Cost <br /> BDT</th>
+                                <th style="vertical-align:middle;">Total Earning <br /> BDT</th>
+                                <th style="vertical-align:middle;">Gross Profit <br /> BDT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var sl = 0;
+                                double gtfinishFabricDelQty = 0;
+                                double gtintProdCost = 0;
+                                double gtsamplingCost = 0;
+                                double gtmachineWashCost = 0;
+                                double gtshadeCorrectionCost = 0;
+                                double gttotalProdCost = 0;
+                                double gttotalEarning = 0;
+
+                                foreach (var item in Model.MonthlyCostSummary)
+                                {
+                                    /*
+                                    var finishFabricDelQty = item.BatchProduction.Sum(x => x.FinishFabricDelQty);
+                                    gtfinishFabricDelQty += finishFabricDelQty;
+                                    var intProdCost = (double)(item.BatchProduction.Sum(x => x.DyesCost) + item.BatchProduction.Sum(x => x.ChemicalCost));
+                                    gtintProdCost += intProdCost;
+                                    var samplingCost = (double)(item.SampleProductionCost.Sum(x => x.DyesCost) + item.SampleProductionCost.Sum(x => x.ChemicalCost));
+                                    gtsamplingCost += samplingCost;
+                                    var machineWashCost = (double)(item.MachineWashCost.Sum(x => x.DyesCost) + item.MachineWashCost.Sum(x => x.ChemicalCost));
+                                    gtmachineWashCost += machineWashCost;
+                                    var shadeCorrectionCost = (double)(item.ShadeProductionCost.Sum(x => x.DyesCost) + item.ShadeProductionCost.Sum(x => x.ChemicalCost));
+                                    gtshadeCorrectionCost += shadeCorrectionCost;
+                                    var totalProdCost = intProdCost + samplingCost + machineWashCost + shadeCorrectionCost;
+                                    gttotalProdCost += totalProdCost;
+                                    var totalEarning = (item.BatchProduction.Sum(x => x.FinishFabricDelQty * x.DyeingRate) * item.CurrencyRate);
+                                    gttotalEarning += totalEarning;
+                                    */
+                                    <tr style="font-size:11px;">
+                                        @*<td style="vertical-align:middle;">@(++sl)</td>
+                                            <td style="vertical-align:middle;">@(item.DateFrom)</td>
+                                            <td style="vertical-align:middle;">@String.Format("{0:n2}", finishFabricDelQty) Kg</td>
+                                            <td style="vertical-align:middle;">$ @(String.Format("{0:n2}",(intProdCost / item.CurrencyRate)))<br />(BDT: @(String.Format("{0:n2}", intProdCost)))</td>
+                                            <td style="vertical-align:middle;">$ @(String.Format("{0:n2}",(samplingCost / item.CurrencyRate)))<br />(BDT: @(String.Format("{0:n2}", samplingCost)))</td>
+                                            <td style="vertical-align:middle;">$ @(String.Format("{0:n2}",(machineWashCost / item.CurrencyRate)))<br />(BDT: @(String.Format("{0:n2}", machineWashCost)))</td>
+                                            <td style="vertical-align:middle;">$ @(String.Format("{0:n2}",(shadeCorrectionCost / item.CurrencyRate)))<br />(BDT: @(String.Format("{0:n2}", shadeCorrectionCost)))</td>
+                                            <td style="vertical-align:middle;">@(String.Format("{0:n2}",totalProdCost))</td>
+                                            <td style="vertical-align:middle;">@(String.Format("{0:n2}",item.ComPerDayTotalSalary))</td>
+                                            <td style="vertical-align:middle;">@(String.Format("{0:n2}", (double)item.ComPerDayTotalSalary+ totalProdCost))</td>
+                                            <td style="vertical-align:middle;">@(String.Format("{0:n2}", totalEarning)) </td>
+                                            <td style="vertical-align:middle;">@(String.Format("{0:n2}", totalEarning-((double)item.ComPerDayTotalSalary+ totalProdCost))) </td>*@
+                                        <td style="vertical-align:middle;">@(++sl)</td>
+                                        <td style="vertical-align:middle;">@(item.ReportDate.ToString("dd-MMM-yyyy"))</td>
+                                        <td style="vertical-align:middle;">@String.Format("{0:n2}", item.ProductionQuantity) Kg</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.ProductionCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.SamplingCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.MachineWashCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.ShadeCorrectionCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}",item.TotalProductionCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}",item.Salary))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.TotalCost))</td>
+                                        <td style="vertical-align:middle;">@(String.Format("{0:n2}", item.Earning)) </td>
+                                        @{
+                                            var bgColor = item.GrossProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                        }
+                                        <td class="@bgColor" style="vertical-align:middle;">@(String.Format("{0:n2}",item.GrossProfit)) </td>
+                                    </tr>
+                                }
+                                <tr class="font-weight-bold" style="font-size:10px;">
+                                    <td colspan="2">Total:</td>
+                                    <td>@String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.ProductionQuantity)) Kg</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.ProductionCost)))</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.SamplingCost)))</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.MachineWashCost)))</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.ShadeCorrectionCost)))</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.TotalProductionCost))) </td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.Salary)))</td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.TotalCost))) </td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.Earning))) </td>
+                                    <td>@(String.Format("{0:n2}", Model.MonthlyCostSummary.Sum(b => b.GrossProfit)))</td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+
+            <script>
+                $(document).ready(function () {
+
+                    @*var GrossProfitDol = '@String.Format("{0:n2}", (TotalEarningUSD - TOTALCOSTUSD))';
+                    var GrossProfitBDT = '@String.Format("{0:n2}", ((TotalEarningUSD - TOTALCOSTUSD)*Model.CurrencyRate))';
+
+                    const _samplingCost = '@(String.Format("{0:n2}",(IntSampleCost/Model.CurrencyRate)))';
+                    const _samplingCostBDT = '@(String.Format("{0:n2}", IntSampleCost))';
+
+                    const _MachineWaseCost = '@(String.Format("{0:n2}",(IntMWCost/Model.CurrencyRate)))';
+                    const _MachinseWashCostBDT = '@(String.Format("{0:n2}",(IntMWCost)))';
+
+                    const _ShadeCorrectionCost = "@(String.Format("{0:n2}",(IntShadeCost/Model.CurrencyRate)))";
+                    const _ShadeCorrectionCostBDT = "@(String.Format("{0:n2}",(IntShadeCost)))";;
+
+
+                    samplingCost.innerHTML = `$ ${_samplingCost} <br/>(BDT: ${_samplingCostBDT})) `;
+                    MachineWashCost.innerHTML = `$ ${_MachineWaseCost} <br/> (BDT: ${_MachinseWashCostBDT})`;
+                    GrossProfit.innerHTML = `$ ${GrossProfitDol} <br/>(BDT: ${GrossProfitBDT})`;
+                    ShadeCorrection.innerHTML = `$ ${_ShadeCorrectionCost} <br/>(BDT: ${_ShadeCorrectionCostBDT} )`;
+                    //Report Top
+                    debugger;
+                    let gtotalEarning = document.getElementsByClassName('gtotalEarning');
+                    gtotalEarning[0].innerHTML = '@(String.Format("{0:n2}",(TotalEarningUSD*Model.CurrencyRate)))';
+
+                    let gtotalProductionCost = document.getElementsByClassName('gtotalProductionCost');
+                    gtotalProductionCost[0].innerHTML = '@(String.Format("{0:n2}", IntProdCost + IntSampleCost + IntMWCost + IntShadeCost))';
+
+                    let gperDaySalary = document.getElementsByClassName('gperDaySalary');
+                    gperDaySalary[0].innerHTML = '@(String.Format("{0:n2}",Model.ComPerDayTotalSalary))';
+
+                    let gtotalCost = document.getElementsByClassName('gtotalCost');
+                    gtotalCost[0].innerHTML = '@(String.Format("{0:n2}", (double)Model.ComPerDayTotalSalary+ IntProdCost+ IntSampleCost + IntMWCost+ IntShadeCost))';
+
+                    let gProfitLoss = document.getElementsByClassName('gProfitLoss');
+                    gProfitLoss[0].innerHTML='@(String.Format("{0:n2}",((TotalEarningUSD*Model.CurrencyRate)- (double)Model.ComPerDayTotalSalary - IntProdCost - IntSampleCost - IntMWCost - IntShadeCost)))';*@
+                });
+
+
+            </script>
+        </main>
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+        </div>
+    </div>
+    @*<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>*@
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

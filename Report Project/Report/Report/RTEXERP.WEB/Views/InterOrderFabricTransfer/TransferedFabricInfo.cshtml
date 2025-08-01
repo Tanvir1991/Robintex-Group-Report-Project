@@ -1,0 +1,100 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.TransferedFabricInfoSearchVM
+@{
+    ViewData["Title"] = "Inter Order Fabric Transfer Info";
+    ViewData["pageTitle"] = "Inter Order Fabric Transfer Info";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="FabricAdjustmentTransferTypeID"></label>
+            <select class="form-control form-control-sm" asp-for="FabricAdjustmentTransferTypeID" asp-items="Model.DDLFabricAdjustmentTransfer"></select>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="ReceiveType"></label>
+            <select class="form-control form-control-sm" asp-for="ReceiveType" asp-items="Model.DDLReceiveType"></select>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="OrderID"></label>
+            <select class="form-control form-control-sm" asp-for="OrderID" asp-items="Model.DDLOrder"></select>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="DateFrom"></label>
+            <input type="text" class="form-control form-control-sm dateField" asp-for="DateFrom" value="@Model.DateFrom" readonly />
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="DateTo"></label>
+            <input type="text" class="form-control form-control-sm dateField" asp-for="DateTo" value="@Model.DateTo" readonly />
+        </div>
+    </div>
+    <div class="col-md-1 text-left d-none"">
+        <label>&nbsp;</label>
+        <div class="form-group">
+            <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center">
+        <div class="box-footer">
+            <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>
+            <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function DDLFabricTransferedFromToOrders() {    
+            let receiveType = $("#ReceiveType").val();
+            DropDownSelect2("GET", '/InterOrderFabricTransfer/DDLFabricTransferedFromToOrders', { receiveType: receiveType}, 'OrderID');
+        }
+        $(function () {
+            debugger
+            $("#OrderID").select2();
+            DDLFabricTransferedFromToOrders();
+            $("#clearDate").click(function () {
+                const dateFrom = $("#DateFrom").val();
+
+                if (!dateFrom) {
+                    $("#DateFrom").val('@Model.DateFrom')
+                    $("#DateTo").val('@Model.DateTo')
+                } else {
+                    $("#DateFrom").val("")
+                    $("#DateTo").val("")
+                }               
+            });
+            $("#ReceiveType").change(function () {
+                DDLFabricTransferedFromToOrders();
+            });
+
+            $("#btnPdf").click(function () {
+                 debugger
+                 ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            $("#btnExcel").click(function () {
+                ShowReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+        });
+
+        function ShowReport(reportFormat) {
+            let transferTypeID = $("#FabricAdjustmentTransferTypeID").val();
+            let receiveType = $("#ReceiveType").val();
+            let orderID = $("#OrderID").val();
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+            var url = `/InterOrderFabricTransfer/FabricGeneralAdjusted?receiveType=${receiveType}&transferTypeID=${transferTypeID}&orderID=${orderID}&ReportFormat=${reportFormat}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+            window.open(url);
+        }
+
+
+    </script>
+}

@@ -1,0 +1,59 @@
+﻿
+@model RTEXERP.Contracts.BLModels.CMS.SalaryAnalysisDataPageViewModel
+
+@{
+    ViewData["Title"] = "Month Wise Salary Analysis";
+    ViewData["pageTitle"] = "Month Wise Salary Analysis";
+    //Layout = "~/Views/Shared/_AnonymousReport.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="dd" method="post">
+    <div class="row">
+       
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Year" class="label-ajt-sm required"></label>
+                <select asp-for="Year" asp-items="Model.DDLYearList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+            </div>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script>
+
+            $(document).ready(function () {
+
+                $("#btnShow").click(function (e) {
+                    e.preventDefault();
+
+                  //  var MonthID = $("#MonthID").val();
+                    let Year = $("#Year").val();
+
+                    var url = `/CMS/ProductionCostAnalysis/YearlySalaryAnalysisReportPage?Year=${Year}`;
+
+                    window.open(url);
+
+
+                });
+            });
+
+
+
+
+
+    </script>
+
+}

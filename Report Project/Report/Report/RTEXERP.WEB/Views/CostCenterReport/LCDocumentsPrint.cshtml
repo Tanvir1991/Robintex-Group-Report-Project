@@ -1,0 +1,128 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.ViewModel.LC_CM_CASH_MASTERViewModel
+
+@{
+    ViewData["Title"] = "Yarn Lot";
+    ViewData["pageTitle"] = "Yarn Lot";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+    <script>
+       
+
+        function LCFormNo13(reportFormat) {
+            debugger;
+     
+            var LCM_CODE = $("#LCM_CODE").val();
+            if (!LCM_CODE) {
+                LCM_CODE = "";
+            }
+        
+            window.open("/CostCenterReport/LCFormNo_MF_FX_13?LCM_CODE=" + LCM_CODE+"&ReportFormat=" + reportFormat,"LC FORM 1","status=1,toolbar=0");
+        return false;
+
+        }
+        function LCFormNo_MF_FX_20_Orginal(reportFormat) {
+            debugger;
+     
+            var LCM_CODE = $("#LCM_CODE").val();
+            if (!LCM_CODE) {
+                LCM_CODE = "";
+            }
+        
+            window.open("/CostCenterReport/LCFormNo_MF_FX_20_Orginal?LCM_CODE=" + LCM_CODE+"&ReportFormat=" + reportFormat,"LC FORM 1","status=1,toolbar=0");
+        return false;
+
+        }
+        function LCFormNo_MF_FX_20_Duplicate(reportFormat) {
+            debugger;
+     
+            var LCM_CODE = $("#LCM_CODE").val();
+            if (!LCM_CODE) {
+                LCM_CODE = "";
+            }
+        
+            window.open("/CostCenterReport/LCFormNo_MF_FX_20_Duplicate?LCM_CODE=" + LCM_CODE+"&ReportFormat=" + reportFormat,"LC FORM 1","status=1,toolbar=0");
+        return false;
+
+        }
+        function LCAuthorisationForIndustrialConsumersFormNo_FX_IMP(reportFormat) {
+            debugger;
+     
+            var LCM_CODE = $("#LCM_CODE").val();
+            if (!LCM_CODE) {
+                LCM_CODE = "";
+            }
+        
+            window.open("/CostCenterReport/LCAuthorisationForIndustrialConsumersFormNo_FX_IMP?LCM_CODE=" + LCM_CODE+"&ReportFormat=" + reportFormat,"LC FORM 1","status=1,toolbar=0");
+        return false;
+
+        }
+        
+
+        $(document).ready(function () {
+
+            $("#LCM_CODE").chosen();
+          $("#btnForm13").click(function () {
+                LCFormNo13("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            $("#btnFormMFFx20First").click(function () {
+                LCFormNo_MF_FX_20_Orginal("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+              $("#btnFormMFFx20Duplicate").click(function () {
+                LCFormNo_MF_FX_20_Duplicate("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+
+                  $("#btnIMP").click(function () {
+                LCAuthorisationForIndustrialConsumersFormNo_FX_IMP("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+            
+        })
+
+
+
+
+    </script>
+
+}
+
+
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+      
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="LCM_CODE" class="label-ajt-sm required"></label>
+                <select asp-for="LCM_CODE" asp-items="Model.DDLLCNoList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="LCM_CODE" class="text-danger"></span>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btnForm13">Form MF(FX)-13</button>
+                <button type="button" class="btn btn-sm btn-primary" id="btnFormMFFx20First">Form MF(FX)-20 Orginal</button>
+                <button type="button" class="btn btn-sm btn-warning" id="btnFormMFFx20Duplicate">Form MF(FX)-20 Duplicate</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnIMP">Form IMP</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+

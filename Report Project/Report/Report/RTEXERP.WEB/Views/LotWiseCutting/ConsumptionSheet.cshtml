@@ -1,0 +1,389 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingStatusViewModel
+@{
+    ViewData["Title"] = "Lot wise Cutting Update";
+    ViewData["pageTitle"] = "Lot wise Cutting Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    .td-form-control-sm{
+        width:75px;
+        height:15px;
+        font-size:10px;
+    }
+
+    table thead {
+        text-align: center;
+    }
+
+    table {
+        table-layout: fixed;
+    }
+
+    td {
+        word-wrap: break-word
+    }
+
+    table.table-bordered {
+        border: 1px solid #000;
+        margin-top: 20px;
+    }
+        table.table-bordered > thead > tr > th {
+            border: 1px solid #000;
+            padding: 1px;
+        }
+        table.table-bordered > tbody > tr > td {
+            border: 1px solid #000;
+            padding: 1px;
+        }
+        table.table-bordered > tfoot > tr > td {
+            border: 1px solid #000;
+            padding: 1px;
+        }    
+</style>
+<form method="post" enctype="multipart/form-data" asp-controller="LotWiseCutting" name="frmIndex" id="frmIndex" asp-action="Index">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="Color"></label>
+                <select class="form-control form-control-sm" required asp-for="Color" asp-items="Model.ColorList"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 10px;" id="tblOrderShipping">
+                    <thead>
+                        <tr>
+                            <th colspan="4" class="txtAlignCenter">Fabric Requirement Plan</th>
+                            <th colspan="3" class="txtAlignCenter">Knitting Projection</th>
+                            <th colspan="3" class="txtAlignCenter">Dyeing/ AOP Protion</th>
+                        </tr>
+                        <tr>
+                            <th class="txtAlignCenter">Actual ODQ</th>
+                            <th class="txtAlignCenter" colspan="2">Export Date</th>
+                            <th class="txtAlignCenter">ALGO Qty</th>
+
+                            <th class="txtAlignCenter">Batch Delivery Req</th>
+                            <th class="txtAlignCenter">Delivery Qty</th>
+                            <th class="txtAlignCenter">Delivery Balance</th>
+
+                            <th class="txtAlignCenter">Req Finish Fabric</th>
+                            <th class="txtAlignCenter">Delivery Qty</th>
+                            <th class="txtAlignCenter">Delivery Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered txtAlignCenter" style="font-size: 10px;" id="tblOrderInfo">
+                    <thead>
+                        <tr>
+                            <th colspan="3" class="txtAlignCenter"></th>
+                            <th colspan="8" class="txtAlignCenter">Present Status</th>
+                            <th colspan="5" class="txtAlignCenter">Projection Status</th>
+                        </tr>
+                        <tr>
+                            <th class="txtAlignCenter">Order</th>
+                            <th class="txtAlignCenter">Color</th>
+                            <th class="txtAlignCenter">Fabric Composition</th>
+
+                            <th class="txtAlignCenter">ALGO Qty</th>
+                            <th class="txtAlignCenter">Order Qty(Finish)</th>
+                            <th class="txtAlignCenter">Yarn in KRS</th>
+                            <th class="txtAlignCenter">Batch Delivery</th>
+                            <th class="txtAlignCenter">Batch Balance</th>
+                            <th class="txtAlignCenter">Dyeing/ Print Qty</th>
+                            <th class="txtAlignCenter">Finish Qty</th>
+                            <th class="txtAlignCenter">Process Loss</th>
+
+                            <th class="txtAlignCenter">Dyeing Balance</th>
+                            <th class="txtAlignCenter">Finish Qty From Bal.</th>
+                            <th class="txtAlignCenter">Delivery Short</th>
+                            <th class="txtAlignCenter">Cutting Short</th>
+                            <th class="txtAlignCenter">Total Delivery will be</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-6">
+                <table class="table table-sm table-bordered" style="font-size: 10px;" id="tblOrderDetail">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="txtAlignCenter">Order Info Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>PO Sheet Order Qty=</td><td id="tdPOOrderQty"></td></tr>
+                        <tr><td>Sewing Input Req</td><td id="tdSewingInputReq"></td></tr>
+                        <tr><td>Cutting Qty</td><td id="tdCuttingQty"></td></tr>
+                        <tr><td>Panel Reject&nbsp;<input type="text" id="tdPanelRejectPercentage" class="td-form-control-sm">&nbsp;%</td><td><input type="text" id="tdPanelReject" class="td-form-control-sm" /> Pcs.</td></tr>
+                        <tr><td>Actual Cutting/Input</td><td id="tdActualCutting"></td></tr>
+                        <tr><td>Input Balance with Reject %</td><td id="tdInputBalWithRej"></td></tr>
+                        <tr><td>Total Cutting Req with Reject %</td><td id="tdCuttingReqWithRej"></td></tr>
+                        <tr><td>Cutting Progress</td><td id="tdCuttingProgress"></td></tr>
+                        <tr><td>Total Finish Fabric May Req</td><td><input type="text" class="td-form-control-sm" id="tdFinishFabReq" /> Kg</td>@*<td id="tdFinishFabReq"></td>*@</tr>
+                        <tr><td>Total batch Delivery Req</td><td id="tdBatchDeliveryReq"></td></tr>
+
+                        <tr><td>Costing consumption</td><td id="tdCostingCons"></td></tr>
+                        <tr><td>Booking consumption</td><td id="tdBookingCons"></td></tr>
+                        <tr><td>Cutting consumption</td><td id="tdCuttingCons"></td></tr>
+                        <tr><td>Final consumption</td><td id="tdFinalCons"></td></tr>
+
+                        
+                        <tr><td>Total ALGO OS Qty</td><td><input type="text" class="td-form-control-sm" id="tdTotalALGOOSQty" /> Kg</td></tr>
+                        <tr><td>Total Finish Fabric Used in This Order</td><td><input type="text" class="td-form-control-sm" id="tdTotalFinishFabricUsed" /> Kg</td></tr>
+                        <tr><td>Total Inspection Quantity</td><td><input type="text" class="td-form-control-sm" id="tdTotalInspectionQty" /> Pcs.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-6">
+                <table class="table table-sm table-bordered" style="font-size: 10px;" id="tblOrderRejectionBreakdown">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="txtAlignCenter">Order Rejection Breakdown</th>
+                        </tr>
+                        <tr>
+                            <th class="txtAlignCenter">Rejection Type</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-sm btn-success" id="btnSave" value="Save" />
+            </div>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script type="text/javascript">
+        function clearForm() {
+            $("#OrderID").val('').trigger('chosen:updated');
+            ClearDropDown("Color", "Please Select");
+            $("#InspectionPcs").val(0);
+            $("#PanelRejectPcs").val(0);
+        }
+        $(function () {
+            $("#OrderID").chosen();
+            $("#OrderID").change(function () {
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                if (orderID != "") {
+                    GenerateDropDownCustome("LotWiseCutting", "DDLOrderWiseColorCustome", { orderNo: orderNo }, "Color", "");
+                } else {
+                    ClearDropDown("Color", "Please Select");
+                }
+            });
+            $("#Color").change(function () {
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                let color = $("#Color").val();
+                let MarkerCuttingPlanMasterExcel_ID = $("#Color").find(':selected').attr('data-custome1');
+
+                if (orderID != "" && color != "") {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '/LotWiseCutting/GetConsumptionSheetInfo',
+                        data: { orderID: orderID, orderNo: orderNo, color: color, MarkerCuttingPlanMasterExcel_ID: MarkerCuttingPlanMasterExcel_ID },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            let shippingTr = '';
+                            let orderDetailTr = '';
+                            if (data != null) {
+                                let totalActualODQ = 0;
+                                let totalAlgoQty = 0;
+                                let totalBatchDeliveryQty = 0;
+                                let totalKnittingDeliveryQty = 0;
+                                let totalKnittingDeliveryBalance = 0;
+                                let totalReqFinishFabric = 0;
+                                let totalDyeingDeliveryQty = 0;
+                                let totalDyeingDeliveryBalance = 0;
+                                $.each(data.OrderShippingInfo, function (i, v) {
+                                    shippingTr = shippingTr +
+                                        '<tr>' +
+                                        '<td>' + v.ActualODQ + ' Pcs.</td><td>' + v.ExportDate + '</td><td>' + v.ExportWeek + '</td><td>' + v.AlgoQty + '</td>' +
+                                        '<td>' + v.BatchDeliveryQty + '</td><td>' + v.KnittingDeliveryQty + '</td><td>' + v.KnittingDeliveryBalance + '</td>' +
+                                        '<td>' + v.ReqFinishFabric + '</td><td>' + v.DyeingDeliveryQty + '</td><td>' + v.DyeingDeliveryBalance+'</td>' +
+                                        '</tr>';
+                                    totalActualODQ = totalActualODQ + v.ActualODQ ;
+                                    totalAlgoQty = totalAlgoQty + v.AlgoQty;
+                                    totalBatchDeliveryQty = totalBatchDeliveryQty + v.BatchDeliveryQty;
+                                    totalKnittingDeliveryQty = totalKnittingDeliveryQty + v.KnittingDeliveryQty;
+                                    totalKnittingDeliveryBalance = totalKnittingDeliveryBalance + v.KnittingDeliveryBalance;
+                                    totalReqFinishFabric = totalReqFinishFabric + v.ReqFinishFabric;
+                                    totalDyeingDeliveryQty = totalDyeingDeliveryQty + v.DyeingDeliveryQty;
+                                    totalDyeingDeliveryBalance = totalDyeingDeliveryBalance+v.DyeingDeliveryBalance;
+                                });
+                                orderDetailTr = '<tr><td>' + data.OrderNo + '</td><td>' + data.Color + '</td><td>' + data.FabricComposition + '</td><td>' + data.AlgoQty + ' Pcs.</td><td>' + data.OrderQty + ' Kg</td><td>' + data.YarnInKRS + ' Kg @@' + data.YarnInKRSPercentage+'%</td>' +
+                                    '<td>' + data.BatchDelivery + ' Kg</td><td>' + data.BatchBalance + ' Kg</td><td>' + data.DyeingPrintQty + ' Kg</td><td>' + data.FinishQty + ' Kg</td><td>' + data.ProcessLoss + '%</td><td>' + data.DyeingBalance + ' Kg</td><td>' + data.FinishQtyFromBalance+ ' Kg</td>' +
+                                    '<td>' + data.DeliveryShort + ' Kg</td><td>' + data.CuttingShort + ' Pcs.</td><td>' + data.TotalDeliveryWillBe+' Kg</td>'+
+                                    '</tr>';
+                               
+                                $("#tblOrderShipping tbody").html(shippingTr);
+                                $("#tblOrderShipping tfoot").html('<tr><td>' + totalActualODQ + ' Pcs.</td><td></td><td>Total</td><td>' + totalAlgoQty + ' Pcs.</td><td>' + totalBatchDeliveryQty + ' Kg</td><td>' + totalKnittingDeliveryQty + ' Kg</td><td>' + totalKnittingDeliveryBalance + ' Kg</td><td>' + totalReqFinishFabric + ' Kg</td><td>' + totalDyeingDeliveryQty + ' Kg</td><td>' + totalDyeingDeliveryBalance+' Kg</td></tr>');
+                                $("#tblOrderInfo tbody").html(orderDetailTr);
+                                
+                                $("#tdPOOrderQty").html(data.AlgoQty+' Pcs.');
+                                $("#tdSewingInputReq").html(data.SewingInputValue + ' Pcs.');
+                                $("#tdCuttingQty").html(data.CuttingQty + ' Pcs.');
+                                $("#tdPanelReject").val(data.PanelRejectPcs);
+                                $("#tdPanelRejectPercentage").val(data.PanelRejectPercentage);
+                                $("#tdTotalInspectionQty").val(data.InspectionPcs);
+                                $("#tdActualCutting").html(data.ActualCuttingInput + ' Pcs.');
+                                $("#tdInputBalWithRej").html(data.InputBalanceWithReject + ' Pcs.');
+                                $("#tdCuttingReqWithRej").html(data.TotalCuttingReqWithReject + ' Pcs.');
+                                $("#tdCuttingProgress").html(data.CuttingProgress + ' Kg.');
+                                $("#tdFinishFabReq").val(data.TotalFinishFabricMayRequired);
+                                $("#tdBatchDeliveryReq").html(data.TotalBatchDeliveryRequired + ' Kg');
+                                                            
+                                $("#tdTotalFinishFabricUsed").val(data.TotalFinishFabricUsed);
+                                $("#tdTotalALGOOSQty").val(data.ALGOOSQty);
+                                
+                                $("#tdCostingCons").html(data.CostingConsumptionPerPiece + ' Kg/Pcs.');
+                                $("#tdBookingCons").html(data.BookingConsumptionPerPiece +' Kg/Pcs.');
+                                $("#tdCuttingCons").html(data.CuttingConsumptionPerPiece + ' Kg/Pcs.');
+                                $("#tdFinalCons").html(data.FinalConsumptionPerPiece + ' Kg/Pcs.');
+
+                                let rejectionTr = '';
+                                let grandTotalDefectQty = 0;
+                                $.each(data.OrderColorWiseRejectionBreakdown_Report, function (l, m) {
+                                    rejectionTr = rejectionTr + '<tr><td>' + m.DefectName +
+                                        '<input type="hidden" class="tdBreakdownID" value=' + m.BreakdownID + '>' +                                        
+                                        '<input type="hidden" class="tdDefectID" value=' + m.DefectID + '>' +
+                                        '<input type="hidden" class="tdDefectName" value="' + m.DefectName + '">' +
+                                        '</td>' +
+                                        '<td><input type="text" class="td-form-control-sm tdTotalDefectQty"  value=' + m.TotalDefectQty + ' /> Pcs.</td></tr>';
+                                    grandTotalDefectQty = grandTotalDefectQty + m.TotalDefectQty;
+                                });
+
+                                $("#tblOrderRejectionBreakdown tbody").html(rejectionTr);
+                                $("#tblOrderRejectionBreakdown tfoot").html('<tr><td>Total</td><td>' + grandTotalDefectQty + ' Pcs. (' + ((grandTotalDefectQty * 100) / data.InspectionPcs).toFixed(2) + ' %)</td></tr>');
+
+
+                            } else {
+                               
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    //clearForm();
+
+                }
+            });
+            $("#btnSave").click(function () {
+
+                let orderID = $("#OrderID").val();
+                let orderNo = $("#OrderID option:selected").text();
+                let pantoneNo = $("#Color").val();
+                let inspectionPcs = $("#tdTotalInspectionQty").val();
+                let panelRejectPcs = $("#tdPanelReject").val();
+                let panelRejectPercentage = $("#tdPanelRejectPercentage").val();
+                let totalFinishFabricUsed = $("#tdTotalFinishFabricUsed").val();
+                let totalFinishFabricMayReq = $("#tdFinishFabReq").val();
+                let algoOSQty = $("#tdTotalALGOOSQty").val();
+                let userInput = {
+                    OrderID: orderID,
+                    OrderNo: orderNo,
+                    PantoneNo: pantoneNo,
+                    InspectionPcs: inspectionPcs,
+                    PanelRejectPcs: panelRejectPcs,
+                    PanelRejectPercentage: panelRejectPercentage,
+                    TotalFinishFabricMayReq: totalFinishFabricMayReq,
+                    TotalFinishFabricUsed: totalFinishFabricUsed,
+                    ALGOOSQty: algoOSQty
+                }
+
+                let rejectBreakdown = new Array();
+                debugger;
+                $("#tblOrderRejectionBreakdown tbody tr").each(function () {
+                    let that = $(this);
+                    let breakdownID = that.find('.tdBreakdownID').val(); 
+                    let defectID = that.find('.tdDefectID').val();
+                    let defectName = that.find('.tdDefectName').val();
+                    let totalDefectQty = that.find('.tdTotalDefectQty').val();  
+                    let reject = {
+                        BreakdownID: breakdownID,
+                        OrderID: orderID,
+                        OrderNo: orderNo,
+                        PantoneNo: pantoneNo,
+                        DefectID: defectID,
+                        DefectName: defectName,
+                        TotalDefectQty: totalDefectQty
+                    }
+                    rejectBreakdown.push(reject);
+                });
+
+                let updateModel = {
+                    ConsumptionSheetUserInputs: userInput,
+                    OrderColorWiseRejectionBreakdown_Report: rejectBreakdown
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/LotWiseCutting/LotWiseCuttingInfoUpdate',
+                    data: { updateModel: updateModel },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open('success', data.message);
+                            clearForm();
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            });
+        });
+    </script>
+
+}

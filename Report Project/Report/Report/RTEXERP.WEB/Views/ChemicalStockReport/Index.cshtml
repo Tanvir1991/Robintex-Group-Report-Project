@@ -1,0 +1,221 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.StockModel.ChemicalStockReport;
+@{
+    ViewData["Title"] = "Stock Report";
+    ViewData["pageTitle"] = "Stock Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <style type="text/css">
+        .tableFixHead {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+            .tableFixHead thead {
+                position: sticky;
+                top: 0;
+                background: #eee;
+            }
+
+        /* Just common table stuff. Really. */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            /*padding: 8px 16px;*/
+        }
+
+        th {
+        }
+
+
+        .txtAlignCenter {
+            text-align: center;
+        }
+    </style>
+    <form asp-action="Index" asp-controller="ChemicalStockReport" id="frmIndex" method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                    <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="ReportType" class="label-ajt-sm required"></label>
+                    <select asp-for="ReportType" asp-items="Model.ReportTypeList" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="DateFrom" value="@Model.DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                    <input type="text" asp-for="DateTo" value="@Model.DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-sm"></label>
+                    <input type="checkbox" asp-for="WithAllTransaction" /> With All Transaction
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnView">View</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="btnPDF">PDF</button>
+                    <button type="button" class="btn btn-sm btn-danger" id="btnExcel">Excel</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="table-responsive tableFixHead" id="divChemicalStock" style="display:none; max-height:500px;">
+                <table class="table">
+                    <thead style="font-size: 12px;">
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>                        
+                            <th colspan="2" class="txtAlignCenter">Opening</th>
+                            <th colspan="2" class="txtAlignCenter">Receive</th>
+                            <th colspan="2" class="txtAlignCenter">Issue</th>
+                            <th colspan="2" class="txtAlignCenter">Closing</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th class="txtAlignCenter">SL</th>
+                            <th class="txtAlignCenter">Supplier Name</th>                           
+                            <th class="txtAlignCenter">Item</th>
+                            <th class="txtAlignCenter">Unit</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Quantity</th>
+                            <th class="txtAlignCenter">Value</th>
+                            <th class="txtAlignCenter">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBodyChemicalStock" style="font-size: 11px;">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+
+@section scripts{
+    <script>
+        function ClearTableData() {
+            $("#tBodyChemicalStock").html("");
+            $("#divChemicalStock").hide();
+        }
+
+        function ChemicalStockReport(reportFormat) {
+            debugger;
+            let companyId = $("#CompanyID").val();
+            let reportType = $("#ReportType").val().replace('&','_');
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+
+            let withAllTransaction = 0;
+            if ($('#WithAllTransaction').is(":checked")) {
+                withAllTransaction = 1;
+            }
+            if (companyId != "" && reportType != "" && dateFrom != "" && dateTo != "") {
+                var url = `/ChemicalStockReport/StockReport?CompanyId=${companyId}&ReportType=${reportType}&DateFrom=${dateFrom}&DateTo=${dateTo}&WithAllTransaction=${withAllTransaction}&ReportFormat=${reportFormat}`;
+                window.open(url, "Stock Report", "status=1,toolbar=0,width='+screen.width");
+            } else {
+                alert("Please provide all data");
+            }
+            
+        }
+
+        $(document).ready(function () {
+            $("#Company,#ReportType").change(function () {
+                ClearTableData();
+            });
+            $("#DateFrom,#DateTo").change(function () {
+                ClearTableData();
+            });
+            $("#btnPDF").click(function () {
+                 ChemicalStockReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+            });
+            $("#btnExcel").click(function () {
+                ChemicalStockReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+            });
+            $("#btnView").click(function () {
+                debugger;
+                let companyId = $("#CompanyID").val();
+                let reportType = $("#ReportType").val().replace('&', '_');
+                let dateFrom = $("#DateFrom").val();
+                let dateTo = $("#DateTo").val();
+
+                let withAllTransaction = 0;
+                if ($('#WithAllTransaction').is(":checked")) {
+                    withAllTransaction = 1;
+                }
+                if (DateFrom != "" && DateTo != "") {
+                    $.ajax({
+                        type: 'GET',
+                        //contentType: "application/json; charset=utf-8",
+                        url: '/ChemicalStockReport/GetChemicalStock',
+                        data: { "CompanyId": companyId, "ReportType": reportType, "DateFrom": dateFrom, "DateTo": dateTo, "WithAllTransaction": withAllTransaction },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            debugger;
+                            if (data.length > 0) {
+                                $.each(data, function (i, v) {
+                                    $("#tBodyChemicalStock").append(
+                                        '<tr>' +
+                                        '<td class="txtAlignCenter">' + (i + 1) + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.SupplierName.replace(',', ",<br/>") + '</td>' +
+                                        '<td class="txtAlignCenter"><a target="_blank" href="/ChemicalStockReport/ChemicalItemDetails?CompanyID=' + companyId + '&ItemID=' + v.ItemID + '&UnitID=' + v.UnitID + '&DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&ReportItemType=' + reportType + '&WithAllTransaction=' + withAllTransaction+'" title="Details">' + v.ItemName + '</a></td>' +
+                                        '<td class="txtAlignCenter">' + v.UnitName + '</td>' +                                        
+                                        '<td class="txtAlignCenter">' + v.OpQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.OpValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.RCVQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.RCVValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.IssueQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.IssueValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.ClosingQuantity + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.ClosingValue + '</td>' +
+                                        '<td class="txtAlignCenter">' + v.Rate + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                $("#divChemicalStock").show();
+                            } else {
+                                alert("No data found in given date duration");
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $("#tBodyChemicalStock").html("");
+                    $("#divChemicalStock").hide();
+                }
+            });
+        });
+
+    </script>
+}
+
+
+
+

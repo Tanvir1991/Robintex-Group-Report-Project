@@ -1,0 +1,250 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.POSearchViewModel
+@{
+    ViewData["Title"] = "PO Search";
+    ViewData["pageTitle"] = "PO Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<form id="frmPOSearch" method="post">
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="from-group">
+                <label class="label-ajt-sm required">Date Duration</label>
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm dateField" autocomplete="off" id="DateFrom" />
+                    </div>
+                    <div class="col-md-1">-</div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm dateField" autocomplete="off" id="DateTo" />
+                    </div>
+                    <div class="col-md-1 pl-0 ml-0 text-left">
+                    <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="OrderID" class="label-ajt-sm required"></label>
+                <select asp-for="OrderID" asp-items="Model.DDDLOrder" class="form-control form-control-sm"></select>
+                <span asp-validation-for="OrderID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="POID" class="label-ajt-sm required"></label>
+                <select asp-for="POID" asp-items="Model.DDLPO" class="form-control form-control-sm"></select>
+                <span asp-validation-for="POID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="StatusID" class="label-ajt-sm required"></label>
+                <select asp-for="StatusID" asp-items="Model.DDLStatus" class="form-control form-control-sm"></select>
+                <span asp-validation-for="StatusID" class="text-danger"></span>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="row">
+        
+        
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-success" id="btnSearch" style="margin-top:15px;">Show</button>
+                <button type="reset" class="btn btn-sm btn-warning" id="btnReset" style="margin-top:15px;">Clear</button>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<div class="card ">
+    <div class="card-header border pb-0 box-shadow">
+        <h6>PO List</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-sm table-bordered table-striped" id="tblPOList">
+                    <thead class="text-center">
+                        <tr>
+                            <td>SL</td>
+                            <td>PO No</td>
+                            <td>Order No</td>
+                            <td>Supplier</td>
+                            <td>Created By</td>
+                            <td>Created Date</td>
+                            <td>Status</td>
+                            <td>Show</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+ 
+
+
+
+
+
+@section scripts{
+    <script>
+        function dateWiseOrder()
+        {
+            const dateFrom = $("#DateFrom").val();
+            const dateTo = $("#DateTo").val();
+            if (dateFrom && dateTo) {
+                var data = GenerateDropDownOptions('CommonDropDown', 'DDLBuyerWiseOrder', { BuyerID: 0, DateFrom: dateFrom, DateTo: dateTo }, "");
+     
+                $("#OrderID").chosen("destroy")
+                $("#OrderID").html(data);
+                $("#OrderID").chosen();
+            }
+        }
+        function orderWisePurchaseOrder() {
+            const dateFrom = $("#DateFrom").val();
+            const dateTo = $("#DateTo").val();
+            let orderID = $("#OrderID").val();
+            if (!orderID) {
+                orderID = 0;
+            }
+                var data = GenerateDropDownOptions('CommonDropDown', 'DDLOrderWisePurchaseOrder', { OrderID: orderID, DateFrom: dateFrom, DateTo: dateTo }, "");
+            $("#POID").chosen("destroy")
+            $("#POID").html(data);
+                $("#POID").chosen();
+ 
+        }
+
+        function purchaseOrderList() {
+            let DateFrom = $("#DateFrom").val();
+            let DateTo = $("#DateTo").val(); 
+            let OrderID = $("#OrderID").val(); 
+            let POID = $("#POID").val(); 
+            let StatusID = $("#StatusID").val();
+
+            if (!OrderID) {
+                OrderID = 0
+            }
+            if (!POID) {
+                POID = 0
+            }
+            if (!StatusID) {
+                StatusID = 0
+            }
+            var data = GetData("MaterialsManagement/POSearch", "GetOrderPOList", { OrderID: OrderID, POID: POID, DateFrom: DateFrom, DateTo: DateTo, StatusID: StatusID }, "");
+
+            var tr = ``;
+            for (var i = 0; i < data.length; i++) {
+                tr += `<tr>
+                      <td>${i+1} </td>
+                      <td>${data[i].PurchaseOrderNo}</td>
+                      <td>${data[i].OrderNo}</td>
+                      <td>${data[i].MName}</td>
+                      <td>${data[i].UserName}</td>
+                      <td>${data[i].CreationDateSTR}</td>
+                      <td>${data[i].StatusDescription}</td>
+                      <td><a target="_blank" href="/MaterialsManagement/POSearch/ShowPO?POID=${data[i].POID}&IsShowStyleSizeWiseQuantity=0">Show</a> 
+                           | <a target="_blank" href="/MaterialsManagement/POSearch/ShowPO?POID=${data[i].POID}&IsShowStyleSizeWiseQuantity=1">Show Style Wise</a> </td>
+                      </tr>`;
+                
+            }
+            $("#tblPOList tbody").html(tr);
+
+        }
+
+        $(document).ready(function () {
+          
+
+            $("#OrderID").chosen();
+            $("#POID").chosen();
+
+            $("#btnReset").click(function () {
+                $("#frmLotDelivery").resetForm();
+                $("#LotID").chosen("destroy")
+                $("#LotID").val("");
+                $("#LotID").chosen();
+                $("#divRemarks").hide();
+            })
+
+            $("#btnSave").click(function () {
+                const LotID = $("#LotID").val();
+                const LotConfirmDate = $("#LotConfirmDate").val();
+                const ID = $("#ID").val();
+                let Remarks = "";
+
+                if ($('#divRemarks:visible').length > 0) {
+                    Remarks = $("#Remarks").val();
+                }
+
+
+                if (LotID && LotConfirmDate) {
+                    const datamodel = { ID: ID, LotID: LotID, LotConfirmDate: LotConfirmDate, Remarks: Remarks, UIDeleted:false };
+                    $.ajax({
+                        type: 'POST',
+                        // contentType: "application/json; charset=utf-8",
+                        url: '/FiniteScheduler/DFS_LotDyeingDelivery/SaveLotDyeing',
+                        data: datamodel,
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $.alert.open("success", data.message);
+                                $("#divRemarks").hide();
+                                $("#btnReset").trigger("click");
+                                lotDeliveryList();
+                            } else {
+                                $.alert.open("warning", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+            });
+
+            $("#DateFrom, #DateTo").change(function () {
+                dateWiseOrder();
+                orderWisePurchaseOrder();
+            })
+            $("#OrderID").change(function () {
+                orderWisePurchaseOrder();
+            })
+
+            $("#clearDate").click(function () {
+                const dateFrom = $("#DateFrom").val();
+                
+                if (!dateFrom) {
+                    $("#DateFrom").val(@Model.POCreatetionDateFromSTR)
+                    $("#DateTo").val(@Model.POCreatetionDateToSTR)
+                } else {
+                      $("#DateFrom").val("")
+                    $("#DateTo").val("")
+                }
+            })
+
+            $("#btnSearch").click(function () {
+                purchaseOrderList();
+            });
+        })
+         
+        
+    </script>
+
+}
+

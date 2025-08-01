@@ -1,0 +1,167 @@
+﻿
+@model RTEXERP.Contracts.BLModels.CMS.SalaryAnalysisDataPageViewModel
+
+@{
+    Layout = null;
+    var sl = 1;
+
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Month Wise Salary Analysis  Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+            font-size: calc(11px + (28 - 11) * ((100vw - 300px) / (1600 - 300)));
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow no-print noprint">
+        <div class="navbar-brand col-sm-12 col-md-12 mr-0">Monthly Salary Analysis</div>
+
+    </nav>
+
+    <div class="container-fluid">
+        <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">Month Wise Salary Analysis</span>
+                    <br />
+                    <span class="col-md-12" style="text-align:center;font-weight:bold;">@Model.DateDuration</span>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+
+
+                <div class="col-md-12 col-xl-12">
+                    <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0">
+                        <thead>
+                            <tr class="table-head-fixed text-center">
+                                <th style="vertical-align:middle;font-size:12px">SL</th>
+                                <th style="vertical-align:middle;font-size:12px">Section</th>
+                                <th style="vertical-align:middle;font-size:12px">Earning (BDT)</th>
+                                <th style="vertical-align:middle;font-size:12px">Cost (BDT)</th>
+                                <th style="vertical-align:middle;font-size:12px">Profit/Loss (BDT)</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+
+                            @foreach (var productionCost in Model.MonthlyProductionCostAnalysisDetails)
+                            {
+                                var profitLose = productionCost.Earning - productionCost.SalaryCost;
+                                var bgColor = profitLose >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                <tr class="font-weight-bold note-fontsize-10">
+                                    <td class="text-center">@sl</td>
+                                    @*<td class="text-center">@productionCost.ReportName</td>*@
+                                    @if (productionCost.ReportName == RTEXERP.Contracts.Common.MDReportName.BatchCosting)
+                                    {
+                                        <td class="text-center"> <a class="nav-link" href="/ALLReports/MonthlyBatchReportPage?MonthID=@Model.MonthID&Year=@Model.Year&CompanyId=20183&CurrencyRate=83&OrderID=0" target="_blank">Comptex Dyeing Costing Summary @*@productionCost.ReportName*@ </a></td>
+
+                                    }
+                                    else if (productionCost.ReportName == RTEXERP.Contracts.Common.MDReportName.AOPCosting)
+                                    {
+                                        <td class="text-center"> <a class="nav-link" href="/ALLReports/MonthlyAOPCostingReportPage?MonthID=@Model.MonthID&Year=@Model.Year" target="_blank">@productionCost.ReportName </a></td>
+                                    }
+                                    else if (productionCost.ReportName == RTEXERP.Contracts.Common.MDReportName.OvalCosting)
+                                    {
+                                        <td class="text-center"> <a class="nav-link" href="/ALLReports/MonthlyOvalPrintingReportPage?MonthID=@Model.MonthID&Year=@Model.Year" target="_blank">@productionCost.ReportName </a></td>
+                                    }
+                                    else if (productionCost.ReportName == RTEXERP.Contracts.Common.MDReportName.KnittingCosting)
+                                    {
+                                        <td class="text-center"> <a class="nav-link" href="/ALLReports/MonthlyKnittingProductionReportPage?MonthID=@Model.MonthID&Year=@Model.Year" target="_blank">@productionCost.ReportName </a></td>
+                                    }
+                                    else if (productionCost.ReportName == RTEXERP.Contracts.Common.MDReportName.GarmentsProduction)
+                                    {
+                                        <td class="text-center"> <a class="nav-link" href="/ALLReports/MonthlyGarmentsProductionReportPage?MonthID=@Model.MonthID&Year=@Model.Year&ReportFor=2" target="_blank">@productionCost.ReportName </a></td>
+                                    }
+
+                                    <td style="text-align:center">@String.Format("{0:n2}", productionCost.Earning)</td>
+                                    <td style="text-align:center;">@String.Format("{0:n2}", productionCost.SalaryCost)</td>
+                                    <td class="@bgColor" style="text-align:center;">@String.Format("{0:n2}", productionCost.Earning - productionCost.SalaryCost)</td>
+
+                                </tr>
+                                sl = sl + 1;
+
+                            }
+
+                            <tr class="font-weight-bold note-fontsize-10">
+                                <td class="font-weight-bold text-right" colspan="2">Total</td>
+                                <td style="text-align:center;">@String.Format("{0:n2}", Model.MonthlyProductionCostAnalysisDetails.Sum(b => b.Earning))</td>
+                                <td style="text-align:center;">@String.Format("{0:n2}", Model.MonthlyProductionCostAnalysisDetails.Sum(b => b.SalaryCost))</td>
+                                <td style="text-align:center;">@String.Format("{0:n2}", Model.MonthlyProductionCostAnalysisDetails.Sum(b => b.Earning - b.SalaryCost))</td>
+                            </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print" onClick="window.print()">
+        </div>
+    </div>
+</body>
+</html>

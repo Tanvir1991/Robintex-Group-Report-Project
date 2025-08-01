@@ -1,0 +1,197 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.KnittingNiddleViewModel
+
+@{
+    ViewData["Title"] = "Knitting Needle ";
+    ViewData["pageTitle"] = "Knitting Needle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["btnClass"] = "btn-success";
+    ViewData["btnText"] = "Create";
+    ViewData["btnLink"] = "/MaterialsManagement/KnittingNiddle/CreateKnittingNeedle";
+    var sl = 1;
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+            <select asp-for="CompanyID" asp-items="Model.CompanyList" class="form-control form-control-sm"></select>
+            <span asp-validation-for="CompanyID" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="MachineNo" class="label-ajt-sm required"></label>
+            <select asp-for="MachineNo" asp-items="Model.MachineNoList" class="form-control form-control-sm select2Filter"></select>
+            <span asp-validation-for="MachineNo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+            <input type="text" asp-for="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+            <span asp-validation-for="DateFrom" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="DateTo" class="label-ajt-sm required"></label>
+            <input type="text" asp-for="DateTo"  class="form-control form-control-sm dateField" autocomplete="off" />
+            <span asp-validation-for="DateTo" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box-footer" style="text-align:center">
+            <button type="button" class="btn btn-sm btn-success" id="btnSearch">Search</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" id="btnPdfAll">Show All Production & Costing (pdf)</button>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-sm table-bordered mt-0 pt-0 text-xs text-center">
+            <thead class="bg-dark">
+                <tr class="table-head-fixed">
+                    <th>SL</th>
+                    <th>Needle No</th>
+                    <th>Company</th>
+                    <th>Machine No</th>
+                    <th>Dia</th>
+                    <th>Brand</th>
+                    <th>Quantity</th>
+                    <th>Value</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="knittingNeedleConsumption">
+                @*@foreach (var item in Model.KnittingNeedleConsumption)
+                {
+                    <tr class="knittingNeedleConsumptionDetails">
+                        <td>@sl</td>
+                        <td>KN-@item.ID</td>
+                        <td>@item.Companyname</td>
+                        <td>@item.MachineNo</td>
+                        <td>@item.DIA</td>
+                        <td>@item.BRAND</td>
+                        <td>@String.Format("{0:n2}", item.Quantity) </td>
+                        <td>@item.ConsumptionDate</td>
+                        <td>
+                            <a href="/MaterialsManagement/KnittingNiddle/EditKnittingNeedle?ID=@item.ID"><input type="button" class="btn btn-xs btn btn-danger" value="Edit" /></a>
+                            <a><input onclick="ViewKnittingNeedleReposrt(@item.MachineNo,@item.CompanyID, item.ConsumptionDate)" type="button" class="btn btn-xs btn-warning" value="PDF" /></a>
+                        </td>
+                    </tr>
+                    sl++;
+                }*@
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetKnittingDataList();
+        $("#CompanyID").change(function () {
+            debugger;
+            var CompanyId = RtnNumber($("#CompanyID").val());
+            if (CompanyId != "") {
+                GenerateDropDown("MaterialsManagement/KnittingNiddle", "GetCompanyWiseMachineNo", { "companyID": CompanyId }, "MachineNo", "");
+            } else {
+                ClearDropDown("MachineNo", "Please Select");
+                //$('#MachineNo').val(null).trigger('change');
+            }
+        });
+
+        $("#btnSearch").click(function () {
+            GetKnittingDataList();
+
+        });
+
+
+        $("#btnPdfAll").click(function () {
+            let dateFrom = $("#DateFrom").val();
+            let dateTo = $("#DateTo").val();
+            let companyId = RtnNumber($("#CompanyID").val()) > 0 ? RtnNumber($("#CompanyID").val()) : 0
+            let machineno = RtnNumber($("#MachineNo").val()) > 0 ? RtnNumber($("#MachineNo").val()) : -1
+            if (!dateFrom) {
+                dateFrom = @DateTime.Now.ToShortDateString();
+            }
+            if (!dateTo) {
+                dateTo = @DateTime.Now.ToShortDateString();
+            }
+            let reportFormat = ("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            var url = `/MaterialsManagement/KnittingNiddle/KnittingNeedleReportPage?DateFrom=${dateFrom}&DateTo=${dateTo}&CompanyId=${companyId}&MachineNo=${machineno}&ReportFormat=${reportFormat}`
+
+            window.open(url);
+        });
+
+
+
+    });
+
+    function ViewKnittingNeedleReposrt(machineNo, companyID,DateDuration) {
+
+        let dateFrom = DateDuration;
+        let companyId =RtnNumber(companyID) > 0 ? RtnNumber(companyID) : 0
+        let machineno = RtnNumber(machineNo) > 0 ? RtnNumber(machineNo) : -1
+        if (!dateFrom) {
+            dateFrom = @DateTime.Now.ToShortDateString();
+            }
+        let reportFormat = ("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+        var url = `/MaterialsManagement/KnittingNiddle/KnittingNeedleReportPage?DateFrom=${dateFrom}&DateTo=${dateFrom}&CompanyId=${companyId}&MachineNo=${machineno}&ReportFormat=${reportFormat}`
+
+        window.open(url);
+
+    }
+    function GetKnittingDataList() {
+        let companyID = RtnNumber($("#CompanyID").val());
+        let machineNo = RtnNumber($("#MachineNo").val());
+        let dateFrom = $("#DateFrom").val();
+        let dateTo = $("#DateTo").val();
+
+        $.ajax({
+            type: 'GET',
+            url: '/MaterialsManagement/KnittingNiddle/GetKnittingNeedleMasterDataByCompanyIDAndMachineNo',
+            data: { dateFrom: dateFrom, dateTo: dateTo, companyId: companyID, machineNo: machineNo },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                debugger
+                let sl = 1;
+                if (data != null) {
+                    debugger
+                    let tr = ``;
+                    $(".knittingNeedleConsumption").html(``);
+                    $.each(data, function (i, v) {
+                        debugger
+                        tr += ` <tr class="knittingNeedleConsumptionDetails">
+                        <td>${sl}</td>
+                        <td>KN-${v.ID}</td>
+                        <td>${v.Companyname}</td>
+                        <td>${v.MachineNo}</td>
+                        <td>${v.DIA}</td>
+                        <td>${v.BRAND}</td>
+                        <td>${v.Quantity}</td>
+                        <td>${v.TotalValue}</td>
+                        <td>${v.ConsumptionDate}</td>
+                        <td>
+<a href="/MaterialsManagement/KnittingNiddle/EditKnittingNeedle?ID=${v.ID}"><input type="button" class="btn btn-xs btn-danger" value="Edit" /></a>
+<a><input onclick="ViewKnittingNeedleReposrt(${v.MachineNo},${v.CompanyID},'${v.ConsumptionDate}')" type="button" class="btn btn-xs btn-warning" value="PDF" /></a>
+</td>
+                    </tr>`
+                        sl++;
+                    })
+                    $(".knittingNeedleConsumption").html(tr);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+</script>

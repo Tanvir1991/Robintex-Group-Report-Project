@@ -1,0 +1,101 @@
+﻿@model RTEXERP.Contracts.BLModels.Hrm.ElectionMemberList
+@{
+    ViewData["Title"] = "Election Identity";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+<style type="text/css">
+    /*.table {
+        border: 2px solid #000 !important;
+    }*/
+    .txtAlignCenter {
+        text-align: center !important;
+    }
+    .zeroPadding{
+        padding:3px 0px 3px 10px !important;
+    }
+ 
+</style>
+ 
+
+<form id="frmElectionIdentity" method="post" asp-area="HRM" asp-controller="FactoryElection" asp-action="ElectionIdentity">
+    <div class="row">
+       
+        <div class="cols-sm-12 col-md-12 col-lg-12" id="printableArea">
+
+
+            @while (Model.ElectionMembers.Count > i)
+                        {
+            <table style="height:49%;">
+                <tbody>
+
+
+                    <tr>
+                        <td style="border:2px solid #000;width:47%">
+                            <table class="table">
+                                <tbody>
+                                    <tr class="txtAlignCenter"><td class=""><b>অংশগ্রহণকারী কমিটি নির্বাচন @Html.Raw(Model.ElectionMembers[0].ElectionYear) ইং</b></td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><b>@Html.Raw(Model.ElectionMembers[i].CompanyNameBN)</b></td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding">ভূলতা,রূপগঞ্জ,নারায়নগঞ্জ</td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><b><u>@Model.MemberGroup</u></b></td></tr>
+
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><img height="160" width="140" src="http://192.173.163.10/hrms/img/@(Model.ElectionMembers[i].Emp_Cd).jpg" /></td></tr>
+
+                                    <tr><td class="zeroPadding">নামঃ- @Html.Raw(Model.ElectionMembers[i].Emp_Bname)</td></tr>
+                                    <tr><td class="zeroPadding">আইডি নংঃ- @Html.Raw(Model.ElectionMembers[i].Emp_oldNoBN)</td></tr>
+                                    <tr><td class="zeroPadding">পদবীঃ- @Html.Raw(Model.ElectionMembers[i].Designation_Bname)</td></tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        <td style="width:2%">&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</td>
+
+                        @{ i = i + 1;}
+                        @if (Model.ElectionMembers.Count > i)
+                                {
+                        <td style="border:2px solid #000;width:47%">
+                            <table class="table">
+
+                                <tbody>
+                                    <tr class="txtAlignCenter"><td class=""><b>অংশগ্রহণকারী কমিটি নির্বাচন @Html.Raw(Model.ElectionMembers[0].ElectionYear) ইং</b></td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><b>@Html.Raw(Model.ElectionMembers[i].CompanyNameBN)</b></td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding">ভূলতা,রূপগঞ্জ,নারায়নগঞ্জ</td></tr>
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><b><u>@Model.MemberGroup</u></b></td></tr>
+
+                                    <tr class="txtAlignCenter"><td class="zeroPadding"><img height="160" width="140" src="http://192.173.163.10/hrms/img/@(Model.ElectionMembers[i].Emp_Cd).jpg" /></td></tr>
+
+                                    <tr><td class="zeroPadding">নামঃ- @Html.Raw(Model.ElectionMembers[i].Emp_Bname)</td></tr>
+                                    <tr><td class="zeroPadding">আইডি নংঃ- @Html.Raw(Model.ElectionMembers[i].Emp_oldNoBN)</td></tr>
+                                    <tr><td class="zeroPadding">পদবীঃ- @Html.Raw(Model.ElectionMembers[i].Designation_Bname)</td></tr>
+                                </tbody>
+                                @{ i = i + 1;}
+
+
+                            </table>
+                        </td>
+                                }else{
+                        <td style="border:0px solid #000;width:47%">&nbsp;</td>
+                                }
+
+                    </tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                    <tr><td colspan="1"><br /></td><td colspan="1"><br /></td></tr>
+                </tbody>
+            </table>
+                  }
+
+
+        </div>
+    </div>
+
+</form>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+    </script>
+}

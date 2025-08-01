@@ -1,0 +1,116 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.KnittingProductionReportPageModel
+
+@{
+    ViewData["Title"] = "Greige Production";
+    ViewData["pageTitle"] = "Greige Production";
+    Layout = "~/Views/Shared/_AnonymousReport.cshtml";
+
+}
+<script src="~/script/customFunctions/generalizedFunctions.js"></script>
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+<form id="AspNetRolesCreate" method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="DateTo" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="DateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="CompanyID" class="label-ajt-sm required"></label>
+                <select asp-for="CompanyID" asp-items="Model.DDLMachineCompany" class="form-control form-control-sm"></select>
+                <span asp-validation-for="CompanyID" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="MachineID" class="label-ajt-sm required"></label>
+                <select asp-for="MachineID" asp-items="Model.DDLMachine" class="form-control form-control-sm"></select>
+                <span asp-validation-for="MachineID" class="text-danger"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+
+        $(document).ready(function () {
+            $("#CompanyID").change(function () {
+
+                var companyID = $("#CompanyID").val();
+                if (companyID > 0) {
+                    GenerateDropDown("FiniteScheduler/Tbl_KnittingMachines", "GetDDLMachine", { CompanyID: companyID }, "MachineID", "");
+                }
+                else {
+                    $("#MachineID").html("<option Value='-1'>Please Select</option>")
+                }
+            })
+
+
+
+            $("#btnShow").click(function (e) {
+                e.preventDefault();
+
+              var DateFrom = $("#DateFrom").val();
+              var DateTo = $("#DateTo").val();
+                var CompanyId = $("#CompanyID").val();
+              var MachineID = $("#MachineID").val();
+            if (!DateFrom) {
+                DateFrom = @DateTime.Now.ToShortDateString();
+            }
+               if (!DateTo) {
+                DateTo = @DateTime.Now.ToShortDateString();
+                }
+                var data = {
+                    DateFrom: DateFrom, DateTo: DateTo, CompanyID: MachineID, MachineID
+                }
+                var url = `/ALLReports/KnittingProductionReportPage?DateFrom=${DateFrom}&DateTo=${DateTo}&CompanyID=${CompanyId}&MachineID=${MachineID}`
+
+                window.open(url);
+
+
+            });
+        })
+
+
+
+
+
+    </script>
+
+}

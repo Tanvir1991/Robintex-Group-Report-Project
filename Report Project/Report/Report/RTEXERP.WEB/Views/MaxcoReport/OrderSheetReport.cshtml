@@ -1,0 +1,1461 @@
+﻿@model RTEXERP.Contracts.BLModels.Maxco.SPModel.OrderSheetReport
+@{
+    ViewData["Title"] = "Order Sheet";
+    Layout = null;
+    int sl = 0;
+    string oldTrimDescription ="";
+    string currentTrimDescription = "";
+    decimal TotalOrderCost_Current = 0;
+    decimal TotalOrderCost_Previous = 0;
+    decimal CM_Current = 0;
+    decimal CM_Previous = 0;
+    double? TotalTrimAssemtionCosting_Current = 0;
+    double? TotalTrimAssemtionCosting_Previous = 0;
+
+    decimal? TotalManufacturingCost_Current = 0;
+    decimal? TotalManufacturingCost_Previous = 0;
+    int HasOldVersion = string.IsNullOrEmpty(Model.OSFinalSummary.VersionNo_R) == true ? 0 : 1;
+    int? orderQuantityDifference = 0;
+    double? totalCostingDifference = 0;
+    decimal? fabricDifference = 0;
+    decimal? trimDifference = 0;
+    decimal? printDifference = 0;
+    decimal? EmbroiderybDifference = 0;
+    decimal? directCostDifference = 0;
+    decimal? buyingCommissionDifference = 0;
+    decimal? commercialCostDifference = 0;
+    decimal? smvCMDifference = 0;
+    decimal? otherIfDifference = 0;
+    decimal? InderictCostDifference = 0;
+    decimal? totalManufacturingDifference = 0;
+    decimal? negotiatedPriceDifference = 0;
+    decimal? profitDifference = 0;
+    decimal? CmPerDzn_Current = 0;
+    decimal? CmPerDzn_Previous = 0;
+    decimal? FabricConsumption_Current = 0;
+    decimal? FabricConsumption_Previous = 0;
+    decimal buyerCommission_Previous = 0;
+    decimal CMasPerSMV =0;
+    decimal TotalCostWithManufacturing_previous = 0;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Robintex OrderSheet">
+    @*<meta name="generator" content="Jekyll v3.8.6">*@
+    <title>Order Sheet</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+            color: #000;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table tr.shade-color {
+            background-color: #d1d0d0 !important;
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+                vertical-align: middle;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+                vertical-align: middle;
+            }
+
+            table.table-bordered > tbody > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td.no-border {
+                border: 0px solid #000 !important;
+                /*        -webkit-print-color-adjust: exact !important;*/
+                /* print-color-adjust: exact;*/
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+
+        table.table-bordered2 {
+            border: 2px solid #000;
+        }
+
+        .shade-color {
+            font-size: 14px;
+            background-color: #d1d0d0 !important;
+        }
+
+        .FOBPriceOffer {
+            font-size: 13px;
+            background-color: #d1d0d0 !important;
+        }
+    </style>
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+
+
+</head>
+<body>
+    <div class="row d-print-none bg-danger">
+        <div class=" col-md-12 text-center"> Order Sheet Report</div>
+    </div>
+
+
+    <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 ">
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td style="width:20%;">
+                            <img src="~/siteImage/CompanyLogo/logo_forReport.gif" width="150" style="margin-left:0px;" /> <br />
+                            <p style="padding:0px;margin:0px;font-size:10px;">Robintex Group</p>
+                            <p style="padding:0px;margin:0px;font-size:10px;">Vulta, Rupgonj, Narayangonj</p>
+                            <p style="padding:0px;margin:0px;font-size:10px;">Bangladesh</p>
+                        </td>
+                        <td style="width:60%;text-align:center;font-weight:bold;font-size:20px;">
+                            Order Sheet NO : @Model.OSFinalSummary.SheetNo <br />
+                            Version No : @Model.OSFinalSummary.VersionNo
+                        </td>
+                        <td style="width:20%;">&nbsp;</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <style type="text/css" media="print">
+            td.bg-danger {
+                background-color: red;
+                -webkit-print-color-adjust: exact;
+            }
+
+            td.bg-success {
+                background-color: #28a745 !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            td.shade-color {
+                background-color: #d1d0d0 !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            td.FOBPriceOffer {
+                font-size: 13px;
+                background-color: #d1d0d0 !important;
+            }
+
+            table tr th {
+                overflow-wrap: break-word;
+            }
+        </style>
+
+        <div class="row" style="margin-top:5px;">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <table class="table table-sm table-bordered table-bordered2  table-striped" style="font-weight:bold;font-size:12px;margin-top:0px;padding-top:0px;">
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="text-align:center;">
+                                Reference: @Model.OSFinalSummary.RefString
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                Buyer
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.BuyerString
+                            </td>
+                            <td class="text-right">
+                                Programme
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.OrderString
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                PO
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.StyleString
+                            </td>
+                            <td class="text-right">
+                                Final Sheet Generation Date
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.CreationDate.Value.ToString("dd-MMM-yyyy")
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                Programme Quantity
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.TotalOrderQty
+                            </td>
+                            <td class="text-right">
+                                Shipment Date
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                LC #
+                            </td>
+                            <td>
+                                @Model.OSFinalSummary.LCString
+                            </td>
+                            <td class="text-right">
+                                LC Pos
+                            </td>
+                            <td>
+                                Open
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @{
+            sl = 1;
+        }
+        @*Fabric Info*@
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <h5 style="background:#d1d0d0;text-align:center">Style Fabric Details</h5>
+                <table class="table table-sm table-bordered table-bordered2 table-striped table-hover" style="width:100% !important;margin-top:0px;">
+
+                    <thead style="text-align:center;vertical-align:middle;">
+
+                        <tr style="font-size: 12px;">
+                            <th width="3%">S. No</th>
+                            <th width="8%">Fabric<br /> Quality</th>
+                            <th width="11%">Color</th>
+                            <th width="3%">GSM</th>
+                            <th width="4%">Width</th>
+                            <th width="18%">Composition</th>
+                            <th width="7%">Consumption</th>
+                            <th width="4%">Unit</th>
+                            <th width="6%">Rate</th>
+                            <th width="5%">Wastage<br />(%)</th>
+                            <th width="7%">Req.Qty</th>
+                            <th width="5%">Amount</th>
+                            <th width="5%">Quantity</th>
+                            <th width="5%">Amount</th>
+                            <th width="6%">Amount</th>
+                        </tr>
+                        <tr class="shade-color" style=" font-size:12px;">
+                            <th colspan="10">Style Fabric Details</th>
+                            <th colspan="2">Algo Amount</th>
+                            <th colspan="2">Quotation</th>
+                            <th colspan="1" style="text">Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var fab in Model.OSFabricPart)
+                            {
+                        <tr style="font-size:12px;">
+                            <td style="text-align:center;" scope="row">@sl</td>
+                            <td style="text-align:center;">@fab.FabricQuality</td>
+                            <td style="text-align:center;">@fab.PantoneNo</td>
+                            <td style="text-align:center;">@fab.GSM</td>
+                            <td style="text-align:center;">@fab.FinishedWidth</td>
+                            <td style="text-align:center;">@fab.FabricComposition</td>
+                            <td style="text-align:right">@String.Format("{0:n5}", fab.UnitConsumption)</td>
+                            <td style="text-align:center;">@fab.ProcurementUnit</td>
+                            <td style="text-align:right">@fab.SKUCost</td>
+                            <td style="text-align:right">@fab.WastagePercent</td>
+                            <td style="text-align:right">
+                                @if (fab.ProcurementUnitID == 6)
+                                {
+                                    @String.Format("{0:n2}", fab.RequiredQty)
+                                }
+                                @if (fab.ProcurementUnitID == 7)
+                                {
+                                    @String.Format("{0:n2}", fab.FabricPCToKG)
+                                    <br/>
+                                  <b style="color:#ff6a00"> @String.Format("({0:n0}", fab.RequiredQty) Pcs)
+                                  </b>
+                                            }
+                            </td>
+                            <td style="text-align:right">
+                                @String.Format("{0:n2}", fab.RequiredQty * fab.SKUCost)
+                            </td>
+                            @if (sl == 1)
+                                    {
+                            <td rowspan="@Model.OSFabricPart.Count" style="text-align:right;vertical-align:middle;">@String.Format("{0:n2}", fab.MAC_ConsumptionPcs * Model.OSFinalSummary.TotalOrderQty)</td>
+                            <td rowspan="@Model.OSFabricPart.Count" style="text-align:right;vertical-align:middle;">@String.Format("{0:n2}", fab.MAC_FabricPcsAmount * Model.OSFinalSummary.TotalOrderQty)</td>
+                            <td rowspan="@(Model.OSFabricPart.Count+1)" style="text-align:right;vertical-align:middle;">@String.Format("{0:n2}", ((fab.MAC_FabricPcsAmount * Model.OSFinalSummary.TotalOrderQty) - Model.OSFabricPart.Sum(b => b.RequiredQty * b.SKUCost)))</td>
+                                    }
+                        </tr>
+                                sl = sl + 1;
+                            }
+                        <tr style="font-weight:bold;font-size:10px;text-align:right;">
+                            <td colspan="10">Total</td>
+                            <td>@String.Format("{0:n2}", Model.OSFinalSummary.RequiredFabric)</td>
+                            <td>@String.Format("{0:n2}", Model.OSFabricPart.Sum(b => b.RequiredQty * b.SKUCost))</td>
+                            <td colspan="2"></td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @{
+            sl = 1;
+        }
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <h5 style="background:#d1d0d0;text-align:center">Style Accessories Details</h5>
+                <table class="table table-sm table-bordered table-bordered2 table-striped table-hover" style="width:100% !important;margin-top:0px;">
+                    <thead class="" style="text-align:center;">
+                        <tr style="font-size:11px;">
+                            <th width="5%">S.No</th>
+                            <th style="width:8%;">Name</th>
+                            <th width="8%">Image</th>
+                            <th width="10%">Measurement</th>
+                            <th>User Code</th>
+                            <th style="width:12%;">Supplier</th>
+                            <th width="8%">Consumption</th>
+                            <th>Wastage<br />(%)</th>
+                            <th>Unit Price($)</th>
+                            <th>Gross Qty</th>
+                            <th width="6%">Unit</th>
+                            <th>Algo <br /> Amount</th>
+                            <th>Algo <br />Price Group</th>
+                            <th>Costing Unit <br> Price($)</th>
+                            <th>Total Cost($)</th>
+                            <th width="6%">Amount </th>
+                        </tr>
+                        <tr class="shade-color" style="font-size: 12px;">
+                            <th colspan="11">Accessories Details</th>
+                            <th colspan="2">Algo Price</th>
+                            <th colspan="2">Quotation</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var trim in Model.OSTrimPart)
+                        {
+                        //   A.MRPItemCode,A.MName,A.TrimFilterCondition,A.UserCode,A.TrimDescription
+                            currentTrimDescription = $"{trim.TrimDescription}{trim.TrimFilterCondition}{trim.UserCode}";
+                        <tr style="font-size:12px;" class="@(trim.MRPItemCode==0?"text-danger":"")">
+                            <td class="text-center">@sl</td>
+                            <td class="text-center">@trim.TrimDescription</td>
+                            @if (trim.ImageName != "N/A")
+                                {
+                                    if (trim.MRPItemName == "Tape")
+                                    {
+                            <td align="center" nowrap><img src="http://192.173.163.8/erp/TrimImages/@trim.MRPItemName/@trim.ImageName" width="60" height="30" border="0" /><br>@trim.ColorCode>[@trim.ColorName]</td>
+                                    }
+                                    else
+                                    {
+                            <td align="center" nowrap><img src="http://192.173.163.8/erp/TrimImages/@trim.MRPItemName/@trim.ImageName" width="60" height="30" border="0" /></td>
+                                    }
+                                }
+                                else
+                                {
+                                    if (trim.MRPItemName == "Sewing Thread")
+                                    {
+                            <td align="center" nowrap>@trim.ColorCode><br>[@trim.ColorName]</td>
+                                    }
+                                    else
+                                    {
+                            <td align="center" nowrap> N/A</td>
+                                    }
+                                }
+
+
+                            <td class="text-center">@trim.Measurement</td>
+                            <td class="text-center">@trim.UserCode</td>
+                            <td class="text-center">@trim.SupplierName</td>
+                            <td class="text-right">@trim.Consumption</td>
+                            <td class="text-center">
+                                @if (trim.WastagePercent.HasValue == true)
+                                    {
+                                @(trim.WastagePercent*100)
+                                    }
+                                    else
+                                    {
+                                @:N/A
+                                    }
+                            </td>
+                            <td class="text-right">@trim.UnitCost</td>
+                            <td class="text-right">@trim.Gross</td>
+                            <td class="text-center">@trim.GrossUnit</td>
+                            <td class="text-right">@String.Format("{0:n2}", trim.Gross * trim.UnitCost)</td>
+                            @if (currentTrimDescription != oldTrimDescription)
+                                {
+                            <td rowspan="@trim.MaterialTypeCount" class="text-right" style="vertical-align:middle">@trim.MaterialTypeAmount</td>
+                                }
+
+                            @if (currentTrimDescription != oldTrimDescription)
+                                {
+                            <td rowspan="@trim.MaterialTypeCount" class="text-right" style="vertical-align:middle">@trim.MCA_UnitCost</td>
+                                }
+                            @if (currentTrimDescription != oldTrimDescription)
+                                {
+                                    TotalTrimAssemtionCosting_Current += trim.MCA_UnitCost == null ? 0 : trim.MCA_UnitCost * Model.OSFinalSummary.TotalOrderQty;
+                            <td rowspan="@trim.MaterialTypeCount" class="text-right" style="vertical-align:middle">@String.Format("{0:n2}", (trim.MCA_UnitCost * Model.OSFinalSummary.TotalOrderQty))</td>
+                                }
+                            @if (currentTrimDescription != oldTrimDescription)
+                                {
+                                    totalCostingDifference += ((trim.MCA_UnitCost.Value * Model.OSFinalSummary.TotalOrderQty.Value) - trim.MaterialTypeAmount.Value);
+                            <td rowspan="@trim.MaterialTypeCount" class="text-right" style="vertical-align:middle">@String.Format("{0:n2}", ((trim.MCA_UnitCost * Model.OSFinalSummary.TotalOrderQty) - trim.MaterialTypeAmount))</td>
+                                }
+
+                        </tr>
+                            sl = sl + 1;
+                            oldTrimDescription = $"{trim.TrimDescription}{trim.TrimFilterCondition}{trim.UserCode}";
+
+                        }
+                        <tr style="font-size:10px;font-weight:bold;">
+                            <td colspan="11" class="text-right">Total</td>
+                            <td class="text-right">@String.Format("{0:n2}", Model.OSTrimPart.Sum(b => b.Gross * b.UnitCost))</td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">@String.Format("{0:n2}", TotalTrimAssemtionCosting_Current)</td>
+                            <td class="text-right">@String.Format("{0:n2}", totalCostingDifference)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @{
+            #region Current
+            if (Model.MerchandisingAssessmentFabricCost.Count > 0)
+            {
+                decimal _SMV = Model.MerchandisingAssessmentFabricCost[0].SMV.HasValue == true ? Model.MerchandisingAssessmentFabricCost[0].SMV.Value : 0;
+                decimal _CPM = Model.MerchandisingAssessmentFabricCost[0].CPM.HasValue == true ? Model.MerchandisingAssessmentFabricCost[0].CPM.Value : 0;
+                decimal _Effiency = Model.MerchandisingAssessmentFabricCost[0].Efficiency.HasValue == true ? Model.MerchandisingAssessmentFabricCost[0].Efficiency.Value : 0;
+               if(_Effiency>0)
+                 {
+                    CMasPerSMV = (_SMV * _CPM * 100) /_Effiency;
+                 }
+            }
+            directCostDifference = (Model.OSFinalSummary.TotalFabricCost / Model.OSFinalSummary.TotalOrderQty)
+                                                 + (Model.OSFinalSummary.TotalTrimCost / Model.OSFinalSummary.TotalOrderQty)
+                                                 + (Model.OSFinalSummary.TotalPrintCost / Model.OSFinalSummary.TotalOrderQty)
+                                                 + (Model.OSFinalSummary.TotalWashingCost / Model.OSFinalSummary.TotalOrderQty)
+                                                 + (Model.OSFinalSummary.TotalEmbroCost / Model.OSFinalSummary.TotalOrderQty)
+                                                 + (Model.OSFinalSummary.TotalInterCost / Model.OSFinalSummary.TotalOrderQty);
+            directCostDifference = directCostDifference * (-1);
+
+            decimal buyerCommission_current = 0;
+            TotalOrderCost_Current = (Model.OSFinalSummary.TotalFabricCost.Value
+                                      + Model.OSFinalSummary.TotalTrimCost.Value
+                                      + Model.OSFinalSummary.TotalInterCost.Value
+                                      + Model.OSFinalSummary.TotalEmbroCost.Value
+                                      + Model.OSFinalSummary.TotalPrintCost.Value
+                                      + Model.OSFinalSummary.TotalWashingCost.Value
+                                      + Model.OSFinalSummary.TotalAllowanceCost.Value);
+            decimal totalLCValue_Current = Model.OSFinalSummary.AvgNegotiatedPrice.Value * Model.OSFinalSummary.TotalOrderQty.Value;
+            decimal cmProfit_current = totalLCValue_Current - TotalOrderCost_Current;
+            decimal cmPer_current = cmProfit_current / Model.OSFinalSummary.TotalOrderQty.Value;
+
+            if (Model.OSFinalSummary.ComissionPer.Value > 0)
+            {
+                buyerCommission_current = ((TotalOrderCost_Current + cmProfit_current) * Model.OSFinalSummary.ComissionPer.Value / 100);
+            }
+            decimal TotalCostWithManufacturing_Current = (TotalOrderCost_Current + cmProfit_current) - (TotalOrderCost_Current + buyerCommission_current);
+            buyingCommissionDifference = (buyerCommission_current / Model.OSFinalSummary.TotalOrderQty) * (-1);
+
+            InderictCostDifference = (buyerCommission_current / Model.OSFinalSummary.TotalOrderQty
+                                                               + Model.OSFinalSummary.TotalAllowanceCost / Model.OSFinalSummary.TotalOrderQty
+                                                               + CMasPerSMV) * (-1);  // Model.OSFinalSummary.TotalSMVCost / Model.OSFinalSummary.TotalOrderQty
+
+            TotalManufacturingCost_Current = buyerCommission_current / Model.OSFinalSummary.TotalOrderQty
+                                        + Model.OSFinalSummary.TotalAllowanceCost / Model.OSFinalSummary.TotalOrderQty
+                                        + CMasPerSMV //Model.OSFinalSummary.TotalSMVCost / Model.OSFinalSummary.TotalOrderQty
+                                        + (Model.OSFinalSummary.TotalFabricCost / Model.OSFinalSummary.TotalOrderQty)
+                                        + (Model.OSFinalSummary.TotalTrimCost / Model.OSFinalSummary.TotalOrderQty)
+                                        + (Model.OSFinalSummary.TotalPrintCost / Model.OSFinalSummary.TotalOrderQty)
+                                        + (Model.OSFinalSummary.TotalWashingCost / Model.OSFinalSummary.TotalOrderQty)
+                                        + (Model.OSFinalSummary.TotalEmbroCost / Model.OSFinalSummary.TotalOrderQty)
+                                        + (Model.OSFinalSummary.TotalInterCost / Model.OSFinalSummary.TotalOrderQty);
+
+            CmPerDzn_Current = ((Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current)
+                          + CMasPerSMV //(Model.OSFinalSummary.TotalSMVCost / Model.OSFinalSummary.TotalOrderQty)
+                          + (Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current)) * 12;
+
+            FabricConsumption_Current = Model.OSFinalSummary.RequiredFabric / Model.OSFinalSummary.TotalOrderQty;
+
+
+            #endregion
+
+            #region Previous
+            if (HasOldVersion == 1)
+            {
+                directCostDifference += (Model.OSFinalSummary.TotalFabricCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                               + (Model.OSFinalSummary.TotalTrimCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                               + (Model.OSFinalSummary.TotalPrintCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                               + (Model.OSFinalSummary.TotalWashingCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                               + (Model.OSFinalSummary.TotalEmbroCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                               + (Model.OSFinalSummary.TotalInterCost_R / Model.OSFinalSummary.TotalOrderQty_R);
+
+
+                TotalOrderCost_Previous = (Model.OSFinalSummary.TotalFabricCost_R.Value
+                                          + Model.OSFinalSummary.TotalTrimCost_R.Value
+                                          + Model.OSFinalSummary.TotalInterCost_R.Value
+                                          + Model.OSFinalSummary.TotalEmbroCost_R.Value
+                                          + Model.OSFinalSummary.TotalPrintCost_R.Value
+                                          + Model.OSFinalSummary.TotalWashingCost_R.Value
+                                          + Model.OSFinalSummary.TotalAllowanceCost_R.Value);
+                decimal totalLCValue_previous = Model.OSFinalSummary.AvgNegotiatedPrice_R.Value * Model.OSFinalSummary.TotalOrderQty_R.Value;
+                decimal cmProfit_previous = totalLCValue_previous - TotalOrderCost_Previous;
+                decimal cmPer_previous = cmProfit_previous / Model.OSFinalSummary.TotalOrderQty_R.Value;
+
+                if (Model.OSFinalSummary.ComissionPer_R.Value > 0)
+                {
+                    buyerCommission_Previous = ((TotalOrderCost_Previous + cmProfit_previous) * Model.OSFinalSummary.ComissionPer_R.Value / 100);
+                }
+                 TotalCostWithManufacturing_previous = (TotalOrderCost_Previous + cmProfit_previous) - (TotalOrderCost_Previous + buyerCommission_Previous);
+                buyingCommissionDifference += (buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R);
+
+                InderictCostDifference += (buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R
+                                    + Model.OSFinalSummary.TotalAllowanceCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                    + CMasPerSMV//Model.OSFinalSummary.TotalSMVCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                    );
+
+                TotalManufacturingCost_Previous = buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R
+                                       + Model.OSFinalSummary.TotalAllowanceCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                       + CMasPerSMV //Model.OSFinalSummary.TotalSMVCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                       + (Model.OSFinalSummary.TotalFabricCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.TotalTrimCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.TotalPrintCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.TotalWashingCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.TotalEmbroCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.TotalInterCost_R / Model.OSFinalSummary.TotalOrderQty_R);
+
+                CmPerDzn_Previous = ((Model.OSFinalSummary.AvgNegotiatedPrice_R - TotalManufacturingCost_Previous)
+                                       + CMasPerSMV //(Model.OSFinalSummary.TotalSMVCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                       + (Model.OSFinalSummary.AvgNegotiatedPrice_R - TotalManufacturingCost_Previous)) * 12;
+
+                FabricConsumption_Previous = Model.OSFinalSummary.RequiredFabric_Previous / Model.OSFinalSummary.TotalOrderQty_R;
+            }
+            #endregion
+        }
+
+        @*Previous Algo Summary*@
+        <div class="row">
+            <div class="col-md-12">
+                <h5 style="background:#d1d0d0;text-align:center">Order Cost Summary</h5>
+                <table class="table table-sm table-bordered table-bordered2 table-striped" style="margin-top:0px;padding-top:0px;">
+                    <tbody style="font-weight:bold;font-size:12px;">
+
+                        <tr>
+                            <td class="text-right">Costing Price ($)</td>
+                            @*<td> @Math.Round(Model.OSFinalSummary.AvgCostingPrice.Value, 3)/Pc  || @Math.Round(Model.OSFinalSummary.AvgCostingPrice.Value * 12, 3)/Dzn</td>*@
+                            <td> @Math.Round(TotalManufacturingCost_Current.Value, 3)/Pc  || @Math.Round(TotalManufacturingCost_Current.Value * 12, 3)/Dzn</td>
+                            <td class="text-right">Negotiated Price ($)</td>
+                            <td> @Math.Round(Model.OSFinalSummary.AvgNegotiatedPrice.Value, 3)/Pc  || @Math.Round(Model.OSFinalSummary.AvgNegotiatedPrice.Value * 12, 3)/Dzn  </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Programme Quantity</td>
+                            <td> @Model.OSFinalSummary.TotalOrderQty pcs</td>
+                            <td class="text-right">Total LC Value ($)</td>
+                            <td>@Model.OSFinalSummary.AvgNegotiatedPrice x @Model.OSFinalSummary.TotalOrderQty = @Math.Round(Model.OSFinalSummary.AvgNegotiatedPrice.Value * Model.OSFinalSummary.TotalOrderQty.Value, 3)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="font-size:13px" class="text-center">Cost Breakdown</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Fabric Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalFabricCost</td>
+                            <td class="text-right">Total Accessories Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalTrimCost</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Printing Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalPrintCost</td>
+                            <td class="text-right">Total Embroidery  Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalEmbroCost</td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Total Washing  Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalWashingCost</td>
+                            <td class="text-right">Total Interlinning  Cost($)</td>
+                            <td>@Model.OSFinalSummary.TotalInterCost</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Safety Buffer Cost/Buyer Commission($) </td>
+                            <td>@String.Format("{0:n3}", buyerCommission_current)</td>
+                            <td class="text-right">Other Allowance($)</td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalAllowanceCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Programme Cost($)</td>
+                            <td>@String.Format("{0:n3}", TotalOrderCost_Current)</td>
+                            <td class="text-right">Total Cost of Manufacturing (With Profit)($)</td>
+                            <td>@String.Format("{0:n3}", TotalCostWithManufacturing_Current)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Programme Fabric Consumption</td>
+
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.RequiredFabric / Model.OSFinalSummary.TotalOrderQty) x 12 = @String.Format("{0:n3}", Math.Round(Model.OSFinalSummary.RequiredFabric / Model.OSFinalSummary.TotalOrderQty.Value, 4) * 12) Kg</td>
+                            <td class="text-right"> CM Per Dozen (With Profit) ($)</td>
+                            <td>
+                                @String.Format("{0:n3}", (TotalCostWithManufacturing_Current / Model.OSFinalSummary.TotalOrderQty)) x 12 =@String.Format("{0:n3}", (TotalCostWithManufacturing_Current / Model.OSFinalSummary.TotalOrderQty) * 12)
+                                
+                                @if (HasOldVersion == 1)
+                                {
+                                <span class="text-primary pl-3"><br />(First Created: @String.Format("{0:n3}", (TotalCostWithManufacturing_previous / Model.OSFinalSummary.TotalOrderQty_R)) x 12 =@String.Format("{0:n3}", (TotalCostWithManufacturing_previous / Model.OSFinalSummary.TotalOrderQty_R) * 12))</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @*Order Sheet Segration*@
+
+        <div class="row">
+            <div class="text-center @(HasOldVersion==1?"col-sm-12 col-md-12 col-lg-12":"col-sm-7 col-md-7 col-lg-7 col-xl-7")">
+                <h5 style="background:#d1d0d0;text-align:center">Order Cost Details</h5>
+            </div>
+        </div>
+
+
+        <div class="row" style="margin-top:0px;">
+            <div class="mr-0 pr-0 @(HasOldVersion==1?"col-sm-5 col-md-5 col-lg-5":"col-sm-7 col-md-7 col-lg-7 col-xl-7")">
+
+                <table class="table table-sm table-bordered table-bordered2 table-striped" style="margin-top:2px;">
+                    <tbody style="font-weight:bold;font-size:12px;">
+                        <tr>
+                            @*<td colspan="3">Current Version, Date :  </td>*@
+                            <td width="44%" class="text-center">Current Version</td>
+                            <td width="39%" class="text-center">Date</td>
+                            <td width="26%" class="text-center">@Model.OSFinalSummary.CreationDate.Value.ToString("dd-MMM-yyyy")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="2">Order Quantity</td>
+                            <td>@Model.OSFinalSummary.TotalOrderQty</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">Name</td>
+                            <td class="text-center">Unit Price($)</td>
+                            <td class="text-center">Algo Value($)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-left shade-color" style="font-size:13px;">Direct Cost:</td>
+
+                        </tr>
+                        <tr>
+                            <td class="text-right">Fabric</td>
+
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalFabricCost / Model.OSFinalSummary.TotalOrderQty))/Pcs||@(Math.Round(Model.OSFinalSummary.TotalFabricCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3) * 12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalFabricCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Accessories</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalTrimCost / Model.OSFinalSummary.TotalOrderQty))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalTrimCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalTrimCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Print</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalPrintCost / Model.OSFinalSummary.TotalOrderQty))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalPrintCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalPrintCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Washing Cost</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalWashingCost / Model.OSFinalSummary.TotalOrderQty))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalWashingCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalWashingCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Embroidery</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalEmbroCost / Model.OSFinalSummary.TotalOrderQty))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalEmbroCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalEmbroCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Interlinning</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalInterCost / Model.OSFinalSummary.TotalOrderQty))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalInterCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalInterCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Direct</td>
+                            <td>
+                                @{
+                                    decimal? totalDirectCostPerPcs_Current = ((Model.OSFinalSummary.TotalFabricCost / Model.OSFinalSummary.TotalOrderQty)
+                                                              + (Model.OSFinalSummary.TotalTrimCost / Model.OSFinalSummary.TotalOrderQty)
+                                                              + (Model.OSFinalSummary.TotalPrintCost / Model.OSFinalSummary.TotalOrderQty)
+                                                              + (Model.OSFinalSummary.TotalWashingCost / Model.OSFinalSummary.TotalOrderQty)
+                                                              + (Model.OSFinalSummary.TotalEmbroCost / Model.OSFinalSummary.TotalOrderQty)
+                                                              + (Model.OSFinalSummary.TotalInterCost / Model.OSFinalSummary.TotalOrderQty));
+                                }
+                                @String.Format("{0:n3}", totalDirectCostPerPcs_Current)/Pcs||@(Math.Round(totalDirectCostPerPcs_Current.Value,3)*12)/Dzn
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr class="invisible">
+                            <td colspan="3">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="shade-color" colspan="3" style="font-size:13px;">Indirect Cost:</td>
+                        </tr>
+                        <tr>
+                            <td width="35%" class="text-right">Commission</td>
+                            <td width="45%">
+
+                                @String.Format("{0:n3}", buyerCommission_current / Model.OSFinalSummary.TotalOrderQty)/Pcs
+                                ||@(Math.Round(buyerCommission_current / Model.OSFinalSummary.TotalOrderQty.Value)*12)/Dzn
+                            </td>
+                            <td width="25%">@String.Format("{0:n3}", buyerCommission_current)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Commercial</td>
+                            <td>
+                                @String.Format("{0:n3}", Model.OSFinalSummary.TotalAllowanceCost / Model.OSFinalSummary.TotalOrderQty)/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalAllowanceCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalAllowanceCost)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">CM As Per SMV</td>
+                            <td>
+                                @String.Format("{0:n3}", CMasPerSMV)/Pcs||@(Math.Round(CMasPerSMV, 3)*12)/Dzn
+                                @*@String.Format("{0:n3}", Model.OSFinalSummary.TotalSMVCost / Model.OSFinalSummary.TotalOrderQty)/Pcs
+                                    ||@(Math.Round(Model.OSFinalSummary.TotalSMVCost.Value / Model.OSFinalSummary.TotalOrderQty.Value,3)*12)/Dzn*@
+                            </td>
+                            <td>@String.Format("{0:n3}", CMasPerSMV*Model.OSFinalSummary.TotalOrderQty /*Model.OSFinalSummary.TotalSMVCost*/ )</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Discount Value</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Air Shipment </td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Other (If Any)</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Indirect</td>
+                            <td>
+                                @{
+                                    decimal? totalInderictCostPerPcs_Current = (buyerCommission_current / Model.OSFinalSummary.TotalOrderQty
+                                        + Model.OSFinalSummary.TotalAllowanceCost / Model.OSFinalSummary.TotalOrderQty
+                                        + CMasPerSMV //Model.OSFinalSummary.TotalSMVCost / Model.OSFinalSummary.TotalOrderQty
+                                        );
+                                }
+                                @Math.Round(totalInderictCostPerPcs_Current.Value, 3)/Pcs
+                                ||@(Math.Round(totalInderictCostPerPcs_Current.Value, 3)*12)/Dzn
+                            </td>
+                            <td>0.00</td>
+                        </tr>
+
+                        <tr class="invisible">
+                            <td colspan="3">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Negotiated Price</td>
+                            <td colspan="2">
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.AvgNegotiatedPrice))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.AvgNegotiatedPrice.Value,3)*12)/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Program (Dir+Ind) Cost</td>
+                            <td colspan="2">
+
+                                @String.Format("{0:n3}", TotalManufacturingCost_Current)/Pcs
+                                ||@(Math.Round((TotalManufacturingCost_Current.Value*12),3))/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Profit</td>
+                            <td colspan="2" class="@((Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current)>0?"bg-success":"bg-danger")">
+
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current))/Pcs
+                                ||@(Math.Round((Model.OSFinalSummary.AvgNegotiatedPrice.Value - TotalManufacturingCost_Current.Value),3)*12)/Dzn
+                                @*@String.Format("{0:n5}", ((Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current) * 12)) /Dzns*@
+                            </td>
+
+                        </tr>
+
+
+                        @*<tr>
+                                <td>CM</td>
+                                <td>
+                                    @(Math.Round(Math.Round(CmPerDzn_Current.Value,3)/12,3))/Pcs
+                                    ||@String.Format("{0:n3}", CmPerDzn_Current)/Dzn
+                                </td>
+                                <td></td>
+
+                            </tr>*@
+                    </tbody>
+                </table>
+
+                <table class="table table-bordered table-bordered2 table-sm table-striped col-sm-9">
+                    <tbody style="font-weight:bold;font-size:12px;">
+                        <tr>
+                            <td class="text-right">Quotation CM</td>
+                            <td>
+                                @Math.Round(Model.OSFinalSummary.CostingCM / 12, 3)/Pcs
+                                ||@Model.OSFinalSummary.CostingCM/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Costing cons./Pcs</td>
+                            <td>
+                                @Math.Round(Model.OSFinalSummary.Mac_FabricConsumption, 3)/Pcs
+                                ||@Math.Round(Model.OSFinalSummary.Mac_FabricConsumption * 12, 3)/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Final Consum.</td>
+
+                            <td>
+                                @String.Format("{0:n3}", FabricConsumption_Current)/Pcs
+                                ||@(Math.Round(FabricConsumption_Current.Value*12,3))/Dzn
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            @if (HasOldVersion == 1)
+            {
+                <!--Older Version -->
+            <div class="col-sm-5 col-md-5 col-lg-5 mr-0 pr-0">
+                <table class="table table-sm table-bordered table-bordered2 table-striped" style="margin-top:2px;">
+                    <tbody style="font-weight:bold;font-size:12px;">
+                        <tr>
+
+                            <td width="45%" class="text-center">First Created</td>
+                            <td width="40%" class="text-center">Date</td>
+                            <td width="25%" class="text-center">@Model.OSFinalSummary.CreationDate_R.Value.ToString("dd-MMM-yyyy")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="2">Order Quantity</td>
+                            <td>@Model.OSFinalSummary.TotalOrderQty_R</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Name</td>
+                            <td class="text-center">Unit Price($)</td>
+                            <td class="text-center"> Algo Value($)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class=" shade-color text-left" style="font-size:13px;">Direct Cost:</td>
+
+                        </tr>
+                        <tr>
+                            <td class="text-right">Fabric</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalFabricCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalFabricCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalFabricCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Accessories</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalTrimCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalTrimCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalTrimCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Print</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalPrintCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                || @(Math.Round(Model.OSFinalSummary.TotalPrintCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalPrintCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Washing</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalWashingCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalWashingCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalWashingCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Embroidery</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalEmbroCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalEmbroCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalEmbroCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Interlinning</td>
+                            <td>
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.TotalInterCost_R / Model.OSFinalSummary.TotalOrderQty_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalInterCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)
+                            </td>
+                            <td>@String.Format("{0:n3}", Model.OSFinalSummary.TotalInterCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Total Direct</td>
+                            @{
+                                    decimal? totalDirectCostPerPcs_previous = ((Model.OSFinalSummary.TotalFabricCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                 + (Model.OSFinalSummary.TotalTrimCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                 + (Model.OSFinalSummary.TotalPrintCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                 + (Model.OSFinalSummary.TotalWashingCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                 + (Model.OSFinalSummary.TotalEmbroCost_R / Model.OSFinalSummary.TotalOrderQty_R)
+                                 + (Model.OSFinalSummary.TotalInterCost_R / Model.OSFinalSummary.TotalOrderQty_R));
+                            }
+                            <td>
+                                @String.Format("{0:n3}", totalDirectCostPerPcs_previous)/Pcs
+                                ||@(Math.Round(totalDirectCostPerPcs_previous.Value,3)*12)/Dzn
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr class="invisible">
+                            <td colspan="3">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="shade-color" colspan="3" style="font-size:13px;">Indirect Cost: </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Commission</td>
+                            <td>
+                                @String.Format("{0:n3}", buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R)/Pcs
+                                ||@(Math.Round(buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+
+                            </td>
+                            <td>@String.Format("{0:n3}", buyerCommission_Previous)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Commercial</td>
+                            <td>
+                                @String.Format("{0:n3}", Model.OSFinalSummary.TotalAllowanceCost_R / Model.OSFinalSummary.TotalOrderQty_R)/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.TotalAllowanceCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn
+                            </td>
+                            <td>@String.Format("{0:n2}", Model.OSFinalSummary.TotalAllowanceCost_R)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">CM As Per SMV</td>
+                            <td>
+                                @String.Format("{0:n3}", CMasPerSMV)/Pcs||@(Math.Round(CMasPerSMV, 3)*12)/Dzn
+                                @*@String.Format("{0:n3}", Model.OSFinalSummary.TotalSMVCost_R / Model.OSFinalSummary.TotalOrderQty_R)/Pcs
+                                    ||@(Math.Round(Model.OSFinalSummary.TotalSMVCost_R.Value / Model.OSFinalSummary.TotalOrderQty_R.Value,3)*12)/Dzn*@
+                            </td>
+                            <td>@String.Format("{0:n2}",CMasPerSMV*Model.OSFinalSummary.TotalOrderQty /*Model.OSFinalSummary.TotalSMVCost_R*/)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Discount Value</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Air Shipment</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Other (If Any)</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">Total Indirect </td>
+                            <td>
+                                @{
+                                        decimal? totalInderictPerPics_Previous = (buyerCommission_Previous / Model.OSFinalSummary.TotalOrderQty_R
+                                 + Model.OSFinalSummary.TotalAllowanceCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                 + CMasPerSMV //Model.OSFinalSummary.TotalSMVCost_R / Model.OSFinalSummary.TotalOrderQty_R
+                                 );
+                                }
+                                @Math.Round(totalInderictPerPics_Previous.Value, 3)/Pcs
+                                || @(Math.Round(totalInderictPerPics_Previous.Value, 3)*12)/Dzn
+                            </td>
+                            <td>0.000</td>
+                        </tr>
+                        <tr class="invisible">
+                            <td colspan="3">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Negotiated Price</td>
+                            <td colspan="2">
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.AvgNegotiatedPrice_R))/Pcs
+                                ||@(Math.Round(Model.OSFinalSummary.AvgNegotiatedPrice_R.Value,3)*12)/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Program (Dir+Ind) Cost</td>
+                            <td colspan="2">
+                                @String.Format("{0:n3}", TotalManufacturingCost_Previous)/Pcs
+                                @(Math.Round(TotalManufacturingCost_Previous.Value,3)*12)/Dzn
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td class="text-right">Profit</td>
+                            <td colspan="2" class="@((Model.OSFinalSummary.AvgNegotiatedPrice_R - TotalManufacturingCost_Previous)>0?"bg-success":"bg-danger")">
+                                @String.Format("{0:n3}", (Model.OSFinalSummary.AvgNegotiatedPrice_R - TotalManufacturingCost_Previous))/Pcs
+                                ||@(Math.Round((Model.OSFinalSummary.AvgNegotiatedPrice_R.Value - TotalManufacturingCost_Previous.Value),3)*12)/Dzn
+                                @*@String.Format("{0:n5}", ((Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current) * 12)) /Dzns*@
+                            </td>
+
+                        </tr>
+
+                        @*<tr>
+                                <td>CM</td>
+                                <td>
+                                    @Math.Round(CmPerDzn_Previous.Value/12,3)/Pcs
+                                    ||@(Math.Round(CmPerDzn_Previous.Value,3))/Dzn
+                                </td>
+                                <td></td>
+                            </tr>*@
+
+                    </tbody>
+                </table>
+                @*<table class="table table-sm table-striped table-bordered table-bordered2 col-sm-9">
+                        <tbody style="font-weight:bold;font-size:12px;">
+                            <tr>
+                                <td class="text-right">Costing CM</td>
+                                <td>
+                                    @Math.Round(Model.OSFinalSummary.CostingCM / 12, 3)/Pcs
+                                    ||@Math.Round(Model.OSFinalSummary.CostingCM, 3)/Dzn
+                                </td>
+
+                            </tr>
+
+                            <tr>
+                                <td class="text-right">Costing cons./Pcs</td>
+                                <td>
+                                    @Math.Round(Model.OSFinalSummary.Mac_FabricConsumption, 3)/Pcs
+                                    ||@Math.Round(Model.OSFinalSummary.Mac_FabricConsumption * 12, 3)/Dzn
+                                </td>
+
+                            </tr>
+
+                            <tr>
+                                <td class="text-right">Final Cons.</td>
+                                <td>
+                                    @Math.Round(FabricConsumption_Previous.Value, 3)/Pcs
+                                    ||@Math.Round(FabricConsumption_Previous.Value * 12, 3)/Dzn
+
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>*@
+            </div>
+
+ <!--Version Difference -->
+            <div class="ml-1 pl-1" style="width:120px !important; float:left;">
+                <table class="table table-sm table-bordered table-bordered2" style="margin-top:2px;">
+                    <tbody style="font-weight:bold; font-size:12px;">
+                        <tr>
+                            <td colspan="1" class="text-center"> Difference ($)  </td>
+                            @*<td width="35%">Status</td>*@
+                        </tr>
+                        <tr>
+                            @*<td style="width:75%">Quantity</td>*@
+                            @{
+                                    orderQuantityDifference = Model.OSFinalSummary.TotalOrderQty_R - Model.OSFinalSummary.TotalOrderQty;
+                            }
+                            <td colspan="1" class='text-right @(orderQuantityDifference < 0 ? "bg-danger" : (orderQuantityDifference == 0? "":"bg-success"))'>
+                                @(Model.OSFinalSummary.TotalOrderQty== Model.OSFinalSummary.TotalOrderQty_R?"-": String.Format("{0:n0}",(Model.OSFinalSummary.TotalOrderQty_R.Value - Model.OSFinalSummary.TotalOrderQty.Value)))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td colspan="1">Name</td>*@
+                            <td colspan="1">Value</td>
+                        </tr>
+                        <tr>
+
+                            <td class="shade-color" colspan="1" style="font-size:13px;">Direct Cost:</td>
+                        </tr>
+                        <tr>
+                            @*<td>Fabric</td>*@
+                            @{
+                                    fabricDifference = Model.OSFinalSummary.TotalFabricCost_R - Model.OSFinalSummary.TotalFabricCost;
+                            }
+                            <td colspan="1" class='text-right @(fabricDifference < 0 ? "bg-danger" : (fabricDifference == 0? "":"bg-success"))'>
+                                @(Model.OSFinalSummary.TotalFabricCost_R== Model.OSFinalSummary.TotalFabricCost ? "-": String.Format("{0:n2}",(Model.OSFinalSummary.TotalFabricCost_R.Value - Model.OSFinalSummary.TotalFabricCost.Value)))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>Accessories</td>*@
+                            @{
+                                    trimDifference = Model.OSFinalSummary.TotalTrimCost_R - Model.OSFinalSummary.TotalTrimCost;
+                            }
+                            <td colspan="1" class='text-right @(trimDifference < 0 ? "bg-danger" : (trimDifference == 0? "":"bg-success"))'>
+                                @(Model.OSFinalSummary.TotalTrimCost== Model.OSFinalSummary.TotalTrimCost_R ? "-": String.Format("{0:n2}",(Model.OSFinalSummary.TotalTrimCost_R.Value - Model.OSFinalSummary.TotalTrimCost.Value)))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>Print</td>*@
+                            @{
+                                    printDifference = Model.OSFinalSummary.TotalPrintCost_R - Model.OSFinalSummary.TotalPrintCost;
+                            }
+                            <td colspan="1" class='text-right @(printDifference < 0 ? "bg-danger" : (printDifference == 0? "":"bg-success"))'>
+                                @(Model.OSFinalSummary.TotalPrintCost_R == Model.OSFinalSummary.TotalPrintCost ? "-": String.Format("{0:n2}",(Model.OSFinalSummary.TotalPrintCost_R.Value - Model.OSFinalSummary.TotalPrintCost.Value)))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>Washing</td>*@
+
+                            <td colspan="1" class="text-right">@String.Format("{0:n3}", Model.OSFinalSummary.TotalWashingCost_R)</td>
+                        </tr>
+                        <tr>
+                            @*<td>Embroidery</td>*@
+                            @{
+                                    EmbroiderybDifference = Model.OSFinalSummary.TotalEmbroCost_R - Model.OSFinalSummary.TotalEmbroCost;
+                            }
+                            <td colspan="1" class='text-right @(EmbroiderybDifference < 0 ? "bg-danger" : (EmbroiderybDifference == 0? "":"bg-success"))'>
+                                @(EmbroiderybDifference==0 ? "-": String.Format("{0:n2}",EmbroiderybDifference.Value))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>Interlinning</td>*@
+
+                            <td colspan="1" class="text-right">@String.Format("{0:n3}", Model.OSFinalSummary.TotalInterCost_R)</td>
+                        </tr>
+                        <tr>
+                            @*<td>Total Direct</td>*@
+                            @{
+                                    directCostDifference = Math.Round(directCostDifference.Value, 3);
+                            }
+                            <td colspan="1" class='text-right @(directCostDifference < 0 ? "bg-danger" : (directCostDifference == 0? "":"bg-success"))'>
+                                @(directCostDifference == 0 ? "-": String.Format("{0:n2}",directCostDifference.Value))
+                            </td>
+
+                        </tr>
+                        <tr class="invisible">
+                            <td colspan="1">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="shade-color" style="font-size:13px;" colspan="1">Indirect Cost:   </td>
+                        </tr>
+                        <tr>
+                            @*<td>Commission</td>*@
+
+                            <td colspan="1" class='text-right @(buyingCommissionDifference < 0 ? "bg-danger" : (buyingCommissionDifference == 0? "":"bg-success"))'>
+                                @(buyingCommissionDifference == 0 ? "-": String.Format("{0:n2}",buyingCommissionDifference.Value))
+                            </td>
+                            @*<td>$@String.Format("{0:n2}", buyerCommission_Previous)</td>*@
+                        </tr>
+                        <tr>
+                            @*<td>Commercial</td>*@
+                            @{
+                                    commercialCostDifference = Model.OSFinalSummary.TotalAllowanceCost_R - Model.OSFinalSummary.TotalAllowanceCost_R;
+                            }
+                            <td colspan="1" class='text-right @(commercialCostDifference < 0 ? "bg-danger" : (commercialCostDifference == 0? "":"bg-success"))'>
+                                @(commercialCostDifference == 0 ? "-": String.Format("{0:n2}",commercialCostDifference.Value))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>CM As Per SMV</td>*@
+                            @{
+                                    smvCMDifference = 0; //Model.OSFinalSummary.TotalSMVCost_R - Model.OSFinalSummary.TotalSMVCost;
+                            }
+                            <td colspan="1" class='text-right @(smvCMDifference < 0 ? "bg-danger" : (smvCMDifference == 0? "":"bg-success"))'>
+                                @(smvCMDifference == 0 ? "-": String.Format("{0:n2}",smvCMDifference.Value))
+                            </td>
+                        </tr>
+                        <tr>
+                            @*<td>Discount Value</td>*@
+                            <td colspan="1" class="text-right">-</td>
+                        </tr>
+                        <tr>
+                            @*<td>Air Shipment </td>*@
+
+                            <td colspan="1" class="text-right">-</td>
+                        </tr>
+                        <tr>
+                            @*<td>Other (If Any)</td>*@
+
+                            <td colspan="1" class="text-right">-</td>
+                        </tr>
+                        <tr>
+                            @*<td>Total Indirect </td>*@
+
+                            <td colspan="1" class='text-right @(InderictCostDifference < 0 ? "bg-danger" : (InderictCostDifference == 0? "":"bg-success"))'>
+                                @(InderictCostDifference == 0 ? "-": String.Format("{0:n2}",InderictCostDifference.Value))
+                            </td>
+
+                        </tr>
+                        <tr class="invisible">
+                            <td colspan="1">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            @*<td>Neg. Price</td>*@
+                            @{
+                                    negotiatedPriceDifference = Math.Round((Model.OSFinalSummary.AvgNegotiatedPrice_R.Value - Model.OSFinalSummary.AvgNegotiatedPrice.Value),3);
+                            }
+                            <td colspan="1" class='text-right @(negotiatedPriceDifference < 0 ? "bg-danger" : (negotiatedPriceDifference == 0? "":"bg-success"))'>
+                                @(negotiatedPriceDifference == 0 ? "-": String.Format("{0:n2}",negotiatedPriceDifference.Value))
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            @*<td>Program Cost</td>*@
+                            @{
+                                    totalManufacturingDifference =Math.Round(TotalManufacturingCost_Previous.Value - TotalManufacturingCost_Current.Value,3);
+
+                            }
+                            <td colspan="1" class='text-right @(totalManufacturingDifference < 0 ? "bg-danger" : (totalManufacturingDifference == 0? "":"bg-success"))'>
+                                @(totalManufacturingDifference == 0 ? "-": String.Format("{0:n2}",totalManufacturingDifference.Value))
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            @*<td>Profit</td>*@
+                            @{
+                                    profitDifference = (Model.OSFinalSummary.AvgNegotiatedPrice_R - TotalManufacturingCost_Previous) - (Model.OSFinalSummary.AvgNegotiatedPrice - TotalManufacturingCost_Current);
+                                    profitDifference = Math.Round(profitDifference.Value,3);
+                            }
+
+                            <td colspan="1" class='text-right @(profitDifference < 0 ? "bg-danger" : (profitDifference == 0? "":"bg-success"))'>
+
+                                @(profitDifference == 0 ? "-": String.Format("{0:n2}",profitDifference.Value))
+
+                            </td>
+
+                        </tr>
+
+                        @*<tr>
+                                <td>CM/Dzn (Diff)</td>
+                                @{
+                                    CmPerDzn_Current = CmPerDzn_Previous - CmPerDzn_Current;
+                                }
+                                <td class='text-right @(CmPerDzn_Current < 0 ? "bg-danger" : (CmPerDzn_Current == 0? "":"bg-success"))'>
+                                    @(CmPerDzn_Current == 0 ? "-": String.Format("{0:n2}", CmPerDzn_Current.Value))
+
+                                </td>
+                            </tr>*@
+
+                    </tbody>
+                </table>
+                @*<table class="table table-sm table-bordered table-bordered2 table-striped">
+                        <tbody style="font-weight:bold; font-size:12px;">
+                            <tr>
+                                <td>Costing CM</td>
+                                <td>0</td>
+
+                            </tr>
+
+                            <tr>
+                                <td>Cos.Cons./Pcs</td>
+                                <td>0</td>
+
+                            </tr>
+
+                            <tr>
+                                <td>Final Cons./Pcs</td>
+                                @{
+                                    FabricConsumption_Current = Math.Round(FabricConsumption_Previous.Value - FabricConsumption_Current.Value, 3);
+                                }
+                                <td class='text-right @(FabricConsumption_Current < 0 ? "bg-danger" : (FabricConsumption_Current == 0? "":"bg-success"))'>
+                                    @(FabricConsumption_Current == 0 ? "-": String.Format("{0:n3}", FabricConsumption_Current.Value))
+
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>*@
+            </div>
+            }
+        </div>
+
+
+        @if (Model.MerchandisingAssessmentFabricCost.Count > 0)
+        {
+        <div class="row">
+            <div class="col-md-12">
+                <h5 style="background:#d1d0d0;text-align:center"> Price Quotation Sheet</h5>
+                <table class="table table-sm table-bordered table-bordered2 table-bordered2">
+                    <tbody style="font-weight:bold;font-size:12px;">
+
+
+                        <tr>
+                            <td style="width:15%" class="text-left">Costing Entry Date : @Model.MerchandisingAssessmentFabricCost[0].CostingDate.Value.ToString("dd-MMM-yyyy")</td>
+                            <td style="width:5%;" class="text-left">SMV : @String.Format("{0:n3}", Model.MerchandisingAssessmentFabricCost[0].SMV)</td>
+                            <td style="width:10%" class="text-left">
+                                Efficiency(%) :
+                                @if (Model.MerchandisingAssessmentFabricCost[0].Efficiency != null && Model.MerchandisingAssessmentFabricCost[0].Efficiency.Value > 0)
+                                    {
+                                @String.Format("{0:n0}", Model.MerchandisingAssessmentFabricCost[0].Efficiency)
+                                    }
+                                    else
+                                    {
+                                <span class="text-danger">No Entry</span>
+                                    }
+
+                            </td>
+                            <td style="width:5%" class="text-left">
+                                CPM :
+                                @if (Model.MerchandisingAssessmentFabricCost[0].CPM != null && Model.MerchandisingAssessmentFabricCost[0].CPM.Value > 0)
+                                    {
+                                @String.Format("{0:n3}", Model.MerchandisingAssessmentFabricCost[0].CPM)
+                                    }
+                                    else
+                                    {
+                                <span class="text-danger">No Entry</span>
+                                    }
+
+                            </td>
+                            <td style="width:15%" class="text-left">Costing Cons./Dzn : @String.Format("{0:n3}", Model.MerchandisingAssessmentFabricCost[0].FabricConsumptionPerDzn) Kg.</td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h5 style="text-align:center;margin:0 auto;"> Fabric Info</h5>
+                <table class="table table-sm table-bordered2 table-striped table-bordered" style="margin-top:1px;">
+                    <tbody style="font-weight:bold;font-size:12px;">
+                        <tr class="text-center">
+                            <td style="width:18%;">Composition</td>
+                            <td style="width:10%;">Quality</td>
+                            <td style="width:4%;">GSM</td>
+                            <td style="width:4%;">Lycra</td>
+                            <td style="width:4%;">Yarn</td>
+                            <td style="width:7%;">Knitting</td>
+                            <td style="width:9%;">Knitting  Wastage(%)</td>
+                            <td width="5%">Dyeing</td>
+                            <td width="9%">Dyeing Wastage(%)</td>
+                            <td width="5%">Total</td>
+                            <td width="6%">Leverage(%)</td>
+                            <td width="7%">Contribution</td>
+                        </tr>
+                        @foreach (var fa in Model.MerchandisingAssessmentFabricCost)
+                            {
+                        <tr class="text-center">
+                            <td>@fa.FabricCompisition</td>
+                            <td>@fa.FabricQuality</td>
+                            <td>@fa.GSM</td>
+                            <td>@String.Format("{0:n3}", fa.LycraCost)</td>
+                            <td>@String.Format("{0:n3}", fa.YarnPrice)</td>
+                            <td>@String.Format("{0:n3}", fa.KnittingCost)</td>
+                            <td>@String.Format("{0:n3}", fa.KnittingWastagePer)</td>
+                            <td>@String.Format("{0:n3}", fa.DeyingCostSolid)</td>
+                            <td>@String.Format("{0:n3}", fa.DeyingWastagePer)</td>
+                            <td>@String.Format("{0:n3}", fa.Totalcost)</td>
+                            <td>@String.Format("{0:n3}", fa.LeveragePercent)</td>
+                            <td>@String.Format("{0:n3}", fa.Contribution)</td>
+                        </tr>
+                            }
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <table class="table table-sm table-striped table-bordered table-bordered2">
+                    <tbody style="font-size:12px;">
+                        <tr class="text-center">
+                            <th style="">Item Description</th>
+                            <th style="width:35%;">Price (Per Dzn)</th>
+                        </tr>
+                        @foreach (var trm in Model.MerchandisingAssessmentIndirectCost)
+                            {
+                        <tr class="">
+                            <td class="text-right @trm.CssClass" style="color:#000">@Html.Raw(trm.CostingFor)</td>
+
+                            <td style="font-weight:bold;" class="text-left @trm.CssClass">@String.Format("{0:n3}", trm.CostingRate)</td>
+
+                        </tr>
+                            }
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h6 class="text-danger">Price Quotation Entry not found</h6>
+            </div>
+        </div>
+        }
+
+
+    </main>
+
+    <div class="row  text-center d-print-none" ;>
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>

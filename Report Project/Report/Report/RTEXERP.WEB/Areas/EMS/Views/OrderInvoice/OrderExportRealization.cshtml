@@ -1,0 +1,109 @@
+﻿@model RTEXERP.Contracts.BLModels.EMS.OrderInvoiceExfectoryViewModel
+
+@{
+    ViewData["Title"] = "Order Export Realization";
+    ViewData["pageTitle"] = "Order Export Realization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="frmOrderEfficiency">
+
+    <div class="row">
+        <div class="col-sm-4 col-md-4 col-lg-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm" required asp-for="BuyerID" asp-items="Model.DDLBuyer"></select>
+                <span asp-validation-for="BuyerID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4 col-lg-4">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.DDLOrder"></select>
+                <span asp-validation-for="OrderID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4 col-lg-4" style="display:none;">
+            <div class="from-group">
+                <label class="label-ajt-sm required">Date Duration</label>
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm DateFrom dateField" autocomplete="off" id="DateFrom" />
+                    </div>
+                    <div class="col-md-1">-</div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm DateTo dateField" autocomplete="off" id="DateTo" />
+                    </div>
+                    <div class="col-md-1 pl-0 ml-0 text-left">
+                        <button type="button" class="btn btn-xs btn-danger" id="clearDate">CD</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <input type="button" class="btn btn-sm btn-danger" value="PDF" id="btnPDF" />
+                <input type="button" class="btn btn-sm btn-primary" value="Excel" id="btnExcel" />
+            </div>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script type="text/javascript">
+
+        function showReport(reportFormat) {
+             let OrderId = RtnNumber($("#OrderID").val())
+              let BuyerID = RtnNumber($("#BuyerID").val())
+
+              //let dateFrom = $("#DateFrom").val();
+              //  let dateTo = $("#DateTo").val();
+
+
+        //int BuyerID=0,int OrderID=0,DateTime? DateFrom=null, DateTime? DateTo=null, string ReportFormat="PDF"
+            var url = `/EMS/OrderInvoice/OrderExportRealizationReport?BuyerID=${BuyerID}&OrderID=${OrderId}&ReportFormat=${reportFormat}`;
+            var windowFeatures = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=yes";
+            window.open(url, windowFeatures);
+        }
+
+        $(function () {
+        $('#OrderID').select2();
+        $("#BuyerID").change(function () {
+            var buyerID = $("#BuyerID").val();
+            DropDownSelect2('GET', '/CommonDropDown/DDLBuyerWiseOrder', { BuyerID: buyerID,DateFrom: '@DateTime.Now.AddYears(-4).Date.ToShortDateString()'}, 'OrderID', false);
+
+        });
+        $("#clearDate").click(function () {
+                const dateFrom = $("#DateFrom").val();
+
+                if (!dateFrom) {
+                    $(".DateFrom").val('@Model.DateFrom')
+                    $(".DateTo").val('@Model.DateTo')
+                } else {
+                    $("#DateFrom").val("")
+                    $("#DateTo").val("")
+                }
+        });
+
+            $("#btnPDF").click(function () {
+                let reportFormat = ("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+                showReport(reportFormat)
+            });
+
+            $("#btnExcel").click(function () {
+                let reportFormat = ("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+                showReport(reportFormat)
+            })
+
+    })
+
+
+    </script>
+}

@@ -1,0 +1,348 @@
+﻿@model RTEXERP.Contracts.BLModels.AOP.ReportModel.AOPCostingSPData
+@{
+    ViewData["Title"] = $"AOP Costing Report";
+    Layout = null;
+    int sl = 0;
+    string bgColor = "";
+    string textColor = "";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>AOP Costing Report</title>
+
+
+    <meta name="theme-color" content="#563d7c">
+
+    @*<link rel="stylesheet" href="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https:/ /code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>*@
+    <link href="~/AdminLTE-3.1.0-rc/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script src="~/AdminLTE-3.1.0-rc/plugins/jquery/jquery.min.js"></script>
+
+    <style>
+        table.floatThead-table {
+            border-top: none;
+            border-bottom: none;
+            background-color: #fff;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        table thead {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        table {
+            table-layout: fixed;
+        }
+
+        td {
+            word-wrap: break-word
+        }
+
+        table.table-bordered {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+
+            table.table-bordered > thead > tr > th {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tbody > tr > td {
+                border: 1px solid #000;
+            }
+
+            table.table-bordered > tfoot > tr > td {
+                border: 1px solid #000;
+            }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="~/css/printCommon.css" rel="stylesheet" />
+    <link href="~/css/BatchReportCss.css" rel="stylesheet" />
+    <link href="~/css/landscapePrint.css" rel="stylesheet" />
+</head>
+<body>
+    @*<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+            <div class="navbar-brand col-sm-12 col-md-12 mr-0">AOp Costing Report</div>
+        </nav>*@
+
+    <div class="container-fluid printArea">
+        @*<main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4 printArea">*@
+        <div class="row">
+            <div class="col-md-5 col-lg-5 col-sm-5">
+                <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                    <thead>
+                        <tr class="table-thead" style="font-size:12px;">
+                            <th style="width:30%">LOT Type</th>
+                            <th class="text-center">Earining</th>
+                            <th class="text-center">Dyes/Chemical Cost</th>
+                            <th class="text-center">Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            bgColor = Model.AOPProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                        }
+                        <tr class="table-thead">
+                            <td class="text-center">AOP</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.AOPEarnings)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.AOPCosting)</td>
+                            <td class="text-right table-body @bgColor">@String.Format("{0:n2}", Model.AOPProfit)</td>
+
+                        </tr>
+                        @{
+                            bgColor = Model.CPBProfit >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                        }
+                        <tr class="table-thead">
+                            <td class="text-center">CBP</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CPBEarnings)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CPBCosting)</td>
+                            <td class="text-right table-body @bgColor">@String.Format("{0:n2}", Model.CPBProfit)</td>
+
+                        </tr>
+
+
+                        <tr class="table-thead">
+                            <td class="text-center">Total $</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalEarnings)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalCosting)</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalProfit)</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-size:12px;font-weight:bold;">
+                    <tr class="table-thead">
+                        <td rowspan="2" style="vertical-align:middle;" class="text-center">Doller Rate <br> BDT:@Model.doller_rate </td>
+                        <td class="text-center">Earning</td>
+                        <td class="text-center">Material Cost</td>
+                        <td class="text-center">Salary</td>
+                        <td class="text-center">Total Cost</td>
+                        <td class="text-center">Profit/Loss</td>
+                    </tr>
+                    @{
+                        bgColor = ((Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)) - (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)) - Model.AopPerDayTotalSalary) >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                    }
+                    <tr class="table-thead">
+                        <td class="text-center">@(String.Format("{0:n2}", Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)))</td>
+                        <td class="text-center">@(String.Format("{0:n2}", Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)))</td>
+                        <td class="text-center">@(String.Format("{0:n2}",Model.AopPerDayTotalSalary))</td>
+                        <td class="text-center">@(String.Format("{0:n2}", (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate))+ Model.AopPerDayTotalSalary))</td>
+                        <td class="text-center @bgColor">
+                            @String.Format("{0:n2}", ((Model.TotalEarnings * Convert.ToDecimal(Model.doller_rate)) - (Model.TotalCosting * Convert.ToDecimal(Model.doller_rate)) - Model.AopPerDayTotalSalary))
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="col-md-4 col-lg-4 col-sm-4" style="text-align:center;">
+                <span class="col-md-12" style="text-align:center;font-weight:bold;">Robintex Group Bangladesh</span>
+                <br />
+                <span class="col-md-12" style="text-align:center;font-weight:bold;">AOP Costing Summary</span>
+                <br />
+                <span class="col-md-12" style="text-align:center;font-weight:bold;">Date Duration @Model.DateFrom To @Model.DateTo</span>
+            </div>
+            <div class="col-md-3 col-lg-3 col-sm-3">
+                <table class="table table-sm table-lg table-bordered mdReport mt-0" style="font-weight:bold;">
+                    <tbody>
+                        <tr class="table-thead">
+                            <td colspan="2" style="text-align:center;">Production (KG)</td>
+
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">AOP</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.AOPProduction)</td>
+
+
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">CBP</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.CPBProduction)</td>
+
+
+                        </tr>
+                        <tr class="table-thead">
+                            <td class="text-center">Total</td>
+                            <td class="text-right table-body">@String.Format("{0:n2}", Model.TotalProduction)</td>
+
+
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm table-bordered borderColor mdReport mt-0 pt-0 sticky-header">
+                        <thead style="font-size:12px;">
+                            <tr class="table-thead">
+                                <th valign="middle">SL</th>
+                                <th valign="middle" class="th-md th-lg">Lot No</th>
+                                <th class="th-md th-lg">Order<br /> No</th>
+                                <th valign="middle" class="th-md th-lg">Color</th>
+                                <th class="th-md th-lg">Issued<br /> Qty</th>
+                                <th class="th-md th-lg">Delivered<br />Qty</th>
+                                <th class="th-md th-lg">Price<br /> KG($)</th>
+                                <th class="th-md th-lg">Cost<br /> KG($)</th>
+                                <th class="th-md th-lg">Profit<br /> KG($)</th>
+                                <th class="th-md th-lg">Total<br />Earning ($)</th>
+                                <th class="th-md th-lg">Total <br />Cost ($)</th>
+                                <th class="th-md th-lg">Total <br />Profit ($)</th>
+                                <th class="th-md th-lg">Total <br />Earning (TK)</th>
+                                <th class="th-md th-lg">Total <br />Cost (TK)</th>
+                                <th class="th-md th-lg">Total <br />Profit (TK)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-body">
+                            <tr class="table-thead">
+                                <td style="font-weight:bold;" colspan="15">AOP</td>
+                            </tr>
+                            @{
+
+                                foreach (var aop in Model.AOPList)
+                                {
+                                    sl = sl + 1;
+
+                                    bgColor = aop.Profit_BDT >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                    textColor = aop.Price_per_KG_Order == 0 ? "bg-warning" : "";
+                                    //http://192.173.163.8/aoperp/Full_lot_cost_print.aspx?id=90969
+                                    <tr>
+                                        <td>@sl</td>
+                                        <td><a href="http://192.173.164.8/aoperp/Full_lot_cost_print.aspx?id=@aop.LotID" target="_blank">@aop.LotNo</a></td>
+                                        <td>@aop.OrderNo</td>
+                                        <td style="text-align:center">@aop.PantoneNo</td>
+                                        <td style="text-align:right;">@aop.Issued_Qty</td>
+                                        <td style="text-align:right;">@aop.Delivered_Qty</td>
+                                        <td class="@textColor" style="text-align:center;font-weight:bold">@aop.Price_per_KG_Order</td>
+                                        <td style="text-align:right;">@aop.Cost_KG_dol</td>
+                                        <td style="text-align:right;">@aop.Profit_per_KG_Dol</td>
+                                        <td style="text-align:right;">@aop.Total_Price_order_dol</td>
+                                        <td style="text-align:right;">@(Math.Round((aop.Total_COst_BDT / Convert.ToDecimal(aop.doller_rate)), 2))</td>
+                                        <td style="text-align:right;">@aop.Lot_Income_Dol</td>
+                                        <td style="text-align:right;">@(aop.Total_Price_order_dol * Convert.ToDecimal(aop.doller_rate))</td>
+                                        <td style="text-align:right;">@aop.Total_COst_BDT</td>
+                                        <td class="@bgColor" style="text-align:right;">@aop.Profit_BDT</td>
+                                    </tr>
+
+                                }
+                                <tr class="table-thead">
+                                    <td colspan="4" style="text-align:right;font-weight:bold">AOP Total</td>
+
+                                    <td style="text-align:right;font-weight:bold">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Issued_Qty))</td>
+                                    <td style="text-align:right;font-weight:bold">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Delivered_Qty))</td>
+                                    <td colspan="3"></td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Total_Price_order_dol))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", ((Model.AOPList.Sum(b => b.Total_COst_BDT / Convert.ToDecimal(b.doller_rate)))))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Lot_Income_Dol))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Total_Price_order_dol * Convert.ToDecimal(b.doller_rate)))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Total_COst_BDT))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.AOPList.Sum(b => b.Profit_BDT))</td>
+                                </tr>
+                                <tr class="table-thead">
+                                    <td colspan="15" style="font-weight:bold">CPB</td>
+                                </tr>
+
+                                sl = 0;
+                                foreach (var cpb in Model.CPBList)
+                                {
+                                    sl = sl + 1;
+                                    bgColor = cpb.Profit_BDT >= 0 ? "text-light bg-success" : "text-light bg-danger";
+                                    textColor = cpb.Price_per_KG_Order == 0 ? "text-warning" : "";
+                                    <tr>
+                                        <td>@sl</td>
+                                        <td><a href="http://192.173.163.8/aoperp/Full_lot_cost_print.aspx?id=@cpb.LotID" target="_blank">@cpb.LotNo</a></td>
+                                        <td>@cpb.OrderNo</td>
+                                        <td style="text-align:center">@cpb.PantoneNo</td>
+                                        <td style="text-align:right;">@cpb.Issued_Qty</td>
+                                        <td style="text-align:right;">@cpb.Delivered_Qty</td>
+                                        <td class="@textColor" style="text-align:center;font-weight:bold">@cpb.Price_per_KG_Order</td>
+                                        <td style="text-align:right;">@cpb.Cost_KG_dol</td>
+                                        <td style="text-align:right;">@cpb.Profit_per_KG_Dol</td>
+                                        <td style="text-align:right;">@cpb.Total_Price_order_dol</td>
+                                        <td style="text-align:right;">@(Math.Round((cpb.Total_COst_BDT / Convert.ToDecimal(cpb.doller_rate)), 2))</td>
+                                        <td style="text-align:right;">@cpb.Lot_Income_Dol</td>
+                                        <td style="text-align:right;">@(cpb.Total_Price_order_dol * Convert.ToDecimal(cpb.doller_rate))</td>
+                                        <td style="text-align:right;">@cpb.Total_COst_BDT</td>
+                                        <td class="@bgColor" style="text-align:right;">@cpb.Profit_BDT</td>
+                                    </tr>
+
+                                }
+                                <tr class="table-thead">
+                                    <td colspan="4" style="text-align:right;font-weight:bold;">CPB Total</td>
+
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Issued_Qty))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Delivered_Qty))</td>
+                                    <td colspan="3"></td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Total_Price_order_dol))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", ((Model.CPBList.Sum(b => b.Total_COst_BDT / Convert.ToDecimal(b.doller_rate)))))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Lot_Income_Dol))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Total_Price_order_dol * Convert.ToDecimal(b.doller_rate)))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Total_COst_BDT))</td>
+                                    <td style="text-align:right;font-weight:bold;">@String.Format("{0:n2}", Model.CPBList.Sum(b => b.Profit_BDT))</td>
+                                </tr>
+                            }
+
+                            <tr class="table-thead" style="font-weight:bold;">
+                                <td colspan="4" style="text-align:right"> Total</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Issued_Qty))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Delivered_Qty))</td>
+                                <td colspan="3"></td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Total_Price_order_dol))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", ((Model.AOPCostingReport.Sum(b => b.Total_COst_BDT / Convert.ToDecimal(b.doller_rate)))))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Lot_Income_Dol))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Total_Price_order_dol * Convert.ToDecimal(b.doller_rate)))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Total_COst_BDT))</td>
+                                <td style="text-align:right;">@String.Format("{0:n2}", Model.AOPCostingReport.Sum(b => b.Profit_BDT))</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+        @*</main>*@
+    </div>
+    <div class="row noprint no-print text-center">
+        <div class="col-md-12">
+            <input type="button" class="btn btn-danger" value="Print this page" onClick="window.print()">
+        </div>
+    </div>
+    <script src="~/AdminLTE-3.1.0-rc/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @*<script src="https:/ /cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https:/ /stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>*@
+    <script src="~/lib/floatThead/floatThead.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(".sticky-header").floatThead({ scrollingTop: 50 });
+
+        });
+    </script>
+</body>
+</html>
+

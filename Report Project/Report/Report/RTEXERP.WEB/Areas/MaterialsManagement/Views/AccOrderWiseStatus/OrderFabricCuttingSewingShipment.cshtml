@@ -1,0 +1,83 @@
+﻿@model RTEXERP.Contracts.BLModels.MaterialsManagement.OrderFabricCuttingSewingShipmentViewModel
+@{
+    ViewData["Title"] = "Order Material Movement";
+    ViewData["pageTitle"] = "Order Material Movement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .select2-selection__choice {
+        background-color: #007bff !important;
+        margin-top: 3px !important;
+        font-size: 13px !important;
+    }
+
+    .select2-results__option {
+        font-size: 13px !important;
+    }
+
+    .select2-selection__rendered {
+        padding-left: 2px !important;
+    }
+
+    .select2-search__field {
+        margin-top: 2px !important;
+    }
+</style>
+<form method="post" id="FrmOrderHistoty">
+    <div class="row noprint no-print">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="BuyerID"></label>
+                <select class="form-control form-control-sm select2Filter" asp-for="BuyerID" asp-items="Model.DDLBuyerList"></select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label-ajt-sm required" asp-for="OrderID"></label>
+                <select class="form-control select2Filter" asp-for="OrderID" multiple="multiple" asp-items="Model.DDLOrderList"></select>
+            </div>
+        </div>
+      
+        <div class="col-md-2">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-primary" id="btnPdf">PDF</button>&nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-warning" id="btnExcel">Excel</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+@section scripts{ 
+    <script type="text/javascript">
+
+        function GetAccountOrderFabricCuttingSewingShipmentReport(reportFormat) {
+           
+            var OrderID = $("#OrderID").val();
+            var BuyerID = $("#BuyerID").val();
+
+            window.open("/MaterialsManagement/AccOrderWiseStatus/AccountOrderFabricCuttingSewingShipmentReportPrint?BuyerID=" + BuyerID + "&OrderID="+OrderID+"&ReportFormat=" + reportFormat);
+
+            return false;
+        }
+
+
+    $(function () {
+          $("#BuyerID").change(function () {
+                var buyerID = $("#BuyerID").val();
+                var dropDownOption = GenerateDropDownOptions('CommonDropDown', 'DDLBuyerWiseOrder', { "BuyerID": buyerID, "DateFrom": '@Model.DateFrom', "DateTo": '@Model.DateTo' }, "");
+                $("#OrderID").html(dropDownOption);
+                $('#OrderID').trigger("chosen:updated");
+            });
+
+           $("#btnPdf").click(function () {
+               GetAccountOrderFabricCuttingSewingShipmentReport("@RTEXERP.Common.Constants.ReportExportFormat.PdfFormat.ToString()");
+
+            });
+        $("#btnExcel").click(function () {
+            GetAccountOrderFabricCuttingSewingShipmentReport("@RTEXERP.Common.Constants.ReportExportFormat.ExcelFormat.ToString()");
+        });
+    })
+    </script>
+}

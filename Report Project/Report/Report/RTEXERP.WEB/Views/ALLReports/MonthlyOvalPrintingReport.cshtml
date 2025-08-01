@@ -1,0 +1,62 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.OvalPrintingReportMasterViewModel
+
+@{
+    ViewData["Title"] = "Monthly Oval Printing";
+    ViewData["pageTitle"] = "Monthly Oval Printing";
+    Layout = "~/Views/Shared/_AnonymousReport.cshtml";
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="dd" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="MonthID" class="label-ajt-sm required"></label>
+                <select asp-for="MonthID" asp-items="Model.DDLMonthList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="MonthID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Year" class="label-ajt-sm required"></label>
+                <select asp-for="Year" asp-items="Model.DDLYearList" class="form-control form-control-sm"></select>
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label>&nbsp;</label>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+            </div>
+        </div>
+    </div>   
+</form>
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $("#btnShow").click(function (e) {
+                e.preventDefault();
+
+                var MonthID = $("#MonthID").val();
+                var Year = $("#Year").val();
+
+                var url = `/ALLReports/MonthlyOvalPrintingReportPage?MonthID=${MonthID}&Year=${Year}`;
+                window.open(url);
+
+
+            });
+        });
+
+
+
+
+
+    </script>
+
+}

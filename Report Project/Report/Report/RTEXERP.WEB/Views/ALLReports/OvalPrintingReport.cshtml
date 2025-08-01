@@ -1,0 +1,83 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.OvalPrintingReportMasterViewModel
+
+@{
+    ViewData["Title"] = "Oval Printing";
+    ViewData["pageTitle"] = "Oval Printing";
+    Layout = "~/Views/Shared/_AnonymousReport.cshtml";
+}
+<style type="text/css">
+    .table-fit {
+        width: 1px;
+    }
+</style>
+
+<form id="dd" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="ReportDateMsg" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="ReportDateMsg" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="ReportDateMsg" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="ReportDateToMsg" class="label-ajt-sm required"></label>
+                <input type="text" asp-for="ReportDateToMsg" class="form-control form-control-sm dateField" autocomplete="off" />
+                <span asp-validation-for="ReportDateToMsg" class="text-danger"></span>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer">
+                <button type="button" class="btn btn-sm btn-success" id="btnShow">Show</button>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $("#btnShow").click(function (e) {
+                e.preventDefault();
+
+                var ReportDate = $("#ReportDateMsg").val();
+                var ReportDateToMsg = $("#ReportDateToMsg").val();
+             
+
+            if (!ReportDate) {
+                ReportDate = @DateTime.Now.ToShortDateString();
+                ReportDateToMsg =@DateTime.Now.ToShortDateString();
+            }
+               
+
+                var url = `/ALLReports/OvalPrintingReportPage?ReportDate=${ReportDate}&ReportDateTo=${ReportDateToMsg}`;
+
+                window.open(url);
+
+
+            });
+        })
+
+
+
+
+
+    </script>
+
+}

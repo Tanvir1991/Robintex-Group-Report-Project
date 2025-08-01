@@ -1,0 +1,136 @@
+﻿@model RTEXERP.Contracts.BLModels.FiniteScheduler.LotWiseCuttingStatusViewModel
+@{
+    ViewData["Title"] = "Lot wise Cutting Search";
+    ViewData["pageTitle"] = "Lot wise Cutting Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+@*<style>
+    .txtAlignCenter {
+        text-align: center;
+    }
+</style>*@
+<div class="row d-print-none">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="ReportDateFrom" class="label-ajt-sm"></label>
+            <input asp-for="ReportDateFrom" class="form-control form-control-sm dateField" autocomplete="off" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label asp-for="ReportDateTo" class="label-ajt-sm"></label>
+            <input asp-for="ReportDateTo" class="form-control form-control-sm dateField" autocomplete="off" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="OrderID"></label>
+            <select class="form-control form-control-sm" required asp-for="OrderID" asp-items="Model.OrderList"></select>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="label-ajt-sm required" asp-for="Color"></label>
+            <select class="form-control form-control-sm" required asp-for="Color" asp-items="Model.ColorList"></select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-sm btn-success" id="btnSearch" value="Search" />
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-sm table-striped" id="tblOrderCuttingInfo">
+            <thead>
+                <tr>
+                    <th class="txtAlignCenter">SL.</th>
+                    <th class="txtAlignCenter">Report Entry Date</th>
+                    <th class="txtAlignCenter">Order No</th>
+                    <th class="txtAlignCenter">Pantone No</th>
+                    <th class="txtAlignCenter">Actual Cut Qty</th>
+                    <th class="txtAlignCenter">Cutting Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        $("#OrderID").chosen();
+        $("#OrderID").change(function () {
+            let orderID = $("#OrderID").val();
+            let orderNo = $("#OrderID option:selected").text();
+            $("#tblOrderCuttingInfo tbody").html('');
+            if (orderID != "") {
+                GenerateDropDownCustome("LotWiseCutting", "DDLOrderWiseColorCustome", { orderNo: orderNo }, "Color", "");
+            } else {
+                ClearDropDown("Color", "Please Select");
+            }
+            //clearForm();
+        });
+        $("#Color,#ReportDateFrom,#ReportDateTo").change(function () {
+            $("#tblOrderCuttingInfo tbody").html('');
+        });
+
+        $("#btnSearch").click(function () {
+            debugger;
+            let dateFrom = $("#ReportDateFrom").val();
+            let dateTo = $("#ReportDateTo").val();
+            let orderID = $("#OrderID").val();
+            let orderNo = orderID == "" ? null : $("#OrderID option:selected").text();
+            let color = $("#Color").val();
+            let MarkerCuttingPlanMaster_ExcelID = $("#Color").find(':selected').attr('data-custome1')
+
+            if (dateFrom != "" || dateTo != "" || orderID != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/LotWiseCutting/GetLotWiseCuttingStatusSearchResult',
+                    data: { dateFrom: dateFrom, dateTo: dateTo, orderNo: orderNo, color: color, MarkerCuttingPlanMaster_ExcelID: MarkerCuttingPlanMaster_ExcelID },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data != null) {
+                            debugger;
+                            var a = data;
+                            //tblOrderCuttingInfo
+                            let tr = "";
+                            $.each(data, function (i, v) {
+                                tr = tr + '<tr class="txtAlignCenter">' +
+                                    '<td>' + (i + 1) + '</td>' +
+                                    '<td>' + v.CuttingReportingDateMsg + '</td>' +
+                                    '<td><a target="_blank" href="/LotWiseCutting/LotWiseCuttingStatusReport?orderNo=' + v.OrderNo + '&color=' + v.PantoneNo + '&MarkerCuttingPlanMaster_ExcelID=' + v.CuttingPlanMasterID+'" class="btn btn-link">' + v.OrderNo + '</a></td>' +
+                                    '<td>' + v.PantoneNo + ' <span class="text-danger">(Quantity=' + v.TotalQty+')</span>' + '</td>' +
+                                    '<td>' + v.TotalActualCutQty + ' Pcs </td>' +
+                                    '<td>' + v.UsedFabricPercent + ' % ( ' + v.UsedFabric + ' of ' + v.OrderQtyKG + ' Kg )' +
+                                    '</td>' +
+                                    '</tr>';
+                            });
+                            $("#tblOrderCuttingInfo tbody").html(tr);
+                        } else {
+
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open('warning', 'Please select criteria to search');
+            }
+        });
+    });
+</script>
+
+
